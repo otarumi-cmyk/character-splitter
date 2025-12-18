@@ -407,15 +407,30 @@ async def split_characters(
             response_data["zip_url"] = None
 
         logger.info(f"APIレスポンスを返却: {len(images_payload)} 個の画像")
-        return JSONResponse(response_data)
+        try:
+            return JSONResponse(response_data)
+        except Exception as e:
+            logger.error(f"JSONResponse作成エラー: {e}", exc_info=True)
+            return JSONResponse(
+                status_code=500,
+                content={"detail": "レスポンスの作成に失敗しました"}
+            )
 
     except HTTPException:
         # そのままリレイズ
         raise
     except Exception as exc:  # pragma: no cover - 予期せぬエラー
         logger.error(f"予期せぬエラーが発生: {exc}", exc_info=True)
-        shutil.rmtree(session_dir, ignore_errors=True)
-        raise HTTPException(status_code=500, detail=f"サーバーエラーが発生しました: {str(exc)}") from exc
+        try:
+            shutil.rmtree(session_dir, ignore_errors=True)
+        except:
+            pass
+        # エラーメッセージを安全に返す
+        error_msg = str(exc)[:200]  # 長すぎるエラーメッセージを切り詰め
+        return JSONResponse(
+            status_code=500,
+            content={"detail": f"サーバーエラーが発生しました: {error_msg}"}
+        )
 
 
 @app.get("/health")

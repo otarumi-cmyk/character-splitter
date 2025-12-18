@@ -129,10 +129,26 @@ form.addEventListener("submit", async (e) => {
       body: formData,
     });
 
-    const data = await res.json();
+    // レスポンスが空の場合の処理
+    const contentType = res.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      const text = await res.text();
+      setStatus(`サーバーエラー (${res.status}): ${text || "レスポンスが空です"}`, "error");
+      return;
+    }
+
+    let data;
+    try {
+      data = await res.json();
+    } catch (jsonError) {
+      const text = await res.text();
+      setStatus(`JSON解析エラー: サーバーが不正なレスポンスを返しました。ステータス: ${res.status}`, "error");
+      console.error("JSON parse error:", jsonError, "Response text:", text);
+      return;
+    }
 
     if (!res.ok) {
-      const msg = data.detail || data.message || "処理中にエラーが発生しました。";
+      const msg = data.detail || data.message || `処理中にエラーが発生しました (${res.status})`;
       setStatus(msg, "error");
       return;
     }
