@@ -19,15 +19,28 @@ from scipy import ndimage
 from skimage import measure, morphology
 
 
+# ログ設定（最初に設定）
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# ログ設定（最初に設定）
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 DOWNLOADS_DIR = BASE_DIR / "downloads"
 
+# ディレクトリが存在することを確認
+STATIC_DIR.mkdir(parents=True, exist_ok=True)
 DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
-# ログ設定
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# デバッグ用ログ
+logger.info(f"BASE_DIR: {BASE_DIR}")
+logger.info(f"STATIC_DIR: {STATIC_DIR}, exists: {STATIC_DIR.exists()}")
+logger.info(f"DOWNLOADS_DIR: {DOWNLOADS_DIR}, exists: {DOWNLOADS_DIR.exists()}")
+if STATIC_DIR.exists():
+    logger.info(f"Static files: {list(STATIC_DIR.iterdir())}")
 
 
 
@@ -57,8 +70,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-app.mount("/downloads", StaticFiles(directory=DOWNLOADS_DIR), name="downloads")
+# 静的ファイルのマウント（ディレクトリが存在することを確認）
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+    logger.info(f"Static files mounted at /static from {STATIC_DIR}")
+else:
+    logger.error(f"Static directory not found: {STATIC_DIR}")
+
+if DOWNLOADS_DIR.exists():
+    app.mount("/downloads", StaticFiles(directory=str(DOWNLOADS_DIR)), name="downloads")
+    logger.info(f"Downloads mounted at /downloads from {DOWNLOADS_DIR}")
+else:
+    logger.error(f"Downloads directory not found: {DOWNLOADS_DIR}")
 
 
 @app.get("/")
