@@ -5,10 +5,35 @@
 
 ## インストール方法
 
-**簡単インストール**: `INSTALL.md` を参照してください。
+### 方法1: GitHubからクローン（開発者向け）
 
-- **macOS/Linux**: `./install.sh` を実行
-- **Windows**: `install.bat` をダブルクリック
+```bash
+git clone https://github.com/otarumi-cmyk/character-splitter.git
+cd character-splitter
+./install.sh  # macOS/Linux
+# または install.bat をダブルクリック（Windows）
+```
+
+### 方法2: 配布パッケージを使う（一般ユーザー向け）
+
+1. **パッケージをダウンロード**
+   - GitHubの Releases から最新のZIPファイルをダウンロード
+   - または、`./create-package.sh` を実行してパッケージを作成
+
+2. **ZIPファイルを解凍**
+
+3. **インストール**
+   - **macOS/Linux**: `./install.sh` を実行
+   - **Windows**: `install.bat` をダブルクリック
+
+4. **起動**
+   - **macOS/Linux**: `./start.sh` を実行
+   - **Windows**: `start.bat` をダブルクリック
+
+5. **ブラウザで開く**
+   - `http://localhost:8000` を開く
+
+詳細は `INSTALL.md` を参照してください。
 
 ## 構成
 
