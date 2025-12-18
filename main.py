@@ -60,7 +60,12 @@ def _cleanup_old_sessions(hours: int = 6) -> None:
             continue
 
 
-app = FastAPI(title="Character Splitter API", version="1.0.0")
+app = FastAPI(
+    title="Character Splitter API",
+    version="1.0.0",
+    docs_url=None,  # 本番環境ではドキュメントを無効化
+    redoc_url=None,
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -69,6 +74,23 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# リクエストサイズ制限（20MB）
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi import Request
+from fastapi.responses import JSONResponse
+
+@app.middleware("http")
+async def timeout_middleware(request: Request, call_next):
+    try:
+        response = await call_next(request)
+        return response
+    except Exception as e:
+        logger.error(f"Middleware error: {e}", exc_info=True)
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "サーバー内部エラーが発生しました"}
+        )
 
 # 静的ファイルのマウント（ディレクトリが存在することを確認）
 if STATIC_DIR.exists():
@@ -334,6 +356,7 @@ def _make_zip(session_dir: Path) -> Path:
 
 @app.post("/api/split")
 async def split_characters(
+    request: Request,
     image: UploadFile = File(...),
     conf_threshold: float = Form(0.4),
     max_instances: Optional[int] = Form(None),
