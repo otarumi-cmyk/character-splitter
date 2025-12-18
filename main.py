@@ -367,6 +367,16 @@ async def split_characters(
     画像からキャラクターインスタンスを検出し、1体ずつ透過PNGとして保存。
     成功時: 検出数・各PNGのURL・ZIPのURLを返す。
     """
+    logger.info("API /api/split が呼び出されました")
+    
+    # ファイルサイズチェック（20MB制限）
+    try:
+        content_length = request.headers.get("content-length")
+        if content_length and int(content_length) > 20 * 1024 * 1024:
+            raise HTTPException(status_code=413, detail="画像サイズが大きすぎます（最大20MB）")
+    except:
+        pass
+    
     if conf_threshold < 0.05 or conf_threshold > 0.95:
         conf_threshold = max(0.05, min(conf_threshold, 0.95))
 
