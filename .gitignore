@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+downloads/
+*.zip
+.DS_Store
+*.log
+*.pt
+*.onnx

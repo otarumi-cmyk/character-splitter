@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>キャラクター自動分割ツール</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <div class="logo">キャラクター自動分割ツール</div>
+        <nav class="nav-links">
+          <a href="#howto">使い方</a>
+          <a href="https://example.com" target="_blank" rel="noopener noreferrer">お問い合わせ</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="site-main">
+      <section class="hero">
+        <div class="container">
+          <div class="card">
+            <h1>画像からキャラクターを一体ずつ自動で切り出し</h1>
+            <p class="lead">
+              1枚の画像から、AI がキャラクターを検出して<br />
+              それぞれ透過 PNG に分割します。診断・ゲーム・LP 用素材づくりに。
+            </p>
+
+            <form id="upload-form" class="upload-form">
+              <div
+                id="drop-area"
+                class="drop-area"
+              >
+                <input
+                  id="file-input"
+                  class="file-input"
+                  type="file"
+                  accept="image/png, image/jpeg"
+                />
+                <div class="drop-area-content">
+                  <div class="drop-icon">📁</div>
+                  <p class="drop-title">ここに画像をドラッグ＆ドロップ</p>
+                  <p class="drop-sub">
+                    または <span class="link-like">クリックしてファイルを選択</span><br />
+                    対応形式: PNG / JPEG
+                  </p>
+                </div>
+              </div>
+
+              <div id="preview-wrapper" class="preview-wrapper hidden">
+                <p class="preview-label">選択中の画像</p>
+                <div class="preview-frame">
+                  <img id="preview-image" alt="preview" />
+                </div>
+              </div>
+
+              <div class="options">
+                <div class="option-group">
+                  <label for="conf-threshold">
+                    検出の厳しさ
+                    <span class="option-value" id="conf-value">0.4</span>
+                  </label>
+                  <input
+                    id="conf-threshold"
+                    type="range"
+                    min="0.2"
+                    max="0.8"
+                    step="0.05"
+                    value="0.4"
+                  />
+                  <p class="option-help">
+                    値を高くすると、より確信度の高いキャラクターだけを検出します。
+                  </p>
+                </div>
+
+                <div class="option-group">
+                  <label for="max-instances">
+                    最大キャラクター数（任意）
+                  </label>
+                  <input
+                    id="max-instances"
+                    type="number"
+                    min="1"
+                    placeholder="空欄なら自動"
+                  />
+                  <p class="option-help">
+                    たくさん検出されすぎる場合に上限をかけることができます。
+                  </p>
+                </div>
+
+                <div class="option-group">
+                  <label for="normalize-size-check">
+                    画像サイズを統一する
+                  </label>
+                  <input
+                    id="normalize-size-check"
+                    type="checkbox"
+                    style="margin-left: 8px;"
+                  />
+                  <div id="normalize-size-inputs" class="normalize-inputs" style="display: none; margin-top: 8px;">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                      <input
+                        id="normalize-width"
+                        type="number"
+                        min="64"
+                        max="2048"
+                        value="512"
+                        placeholder="幅"
+                        style="width: 80px; padding: 4px 8px;"
+                      />
+                      <span>×</span>
+                      <input
+                        id="normalize-height"
+                        type="number"
+                        min="64"
+                        max="2048"
+                        value="512"
+                        placeholder="高さ"
+                        style="width: 80px; padding: 4px 8px;"
+                      />
+                      <span>px</span>
+                    </div>
+                  </div>
+                  <p class="option-help">
+                    チェックすると、すべてのキャラクターを指定サイズに統一し、中央に配置します。
+                  </p>
+                </div>
+              </div>
+
+              <button id="submit-btn" type="submit" class="primary-button">
+                キャラクターを自動分割
+              </button>
+
+              <p class="note">
+                ※ 処理には数秒〜数十秒かかる場合があります。ブラウザはこのまま開いたままお待ちください。
+              </p>
+            </form>
+
+            <div id="status" class="status" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="results-section" class="results-section hidden">
+        <div class="container">
+          <div class="results-header">
+            <h2>分割結果</h2>
+            <div class="results-actions">
+              <button id="download-zip" class="secondary-button">
+                すべて PNG で一括ダウンロード（zip）
+              </button>
+              <button id="retry-btn" class="ghost-button">
+                しきい値を変えて再度処理
+              </button>
+            </div>
+          </div>
+
+          <p id="results-summary" class="results-summary"></p>
+
+          <div id="results-grid" class="results-grid"></div>
+        </div>
+      </section>
+
+      <section id="howto" class="howto-section">
+        <div class="container">
+          <h2>使い方</h2>
+          <ol class="howto-steps">
+            <li>キャラクターが複数描かれた画像をアップロードします。</li>
+            <li>必要に応じて「検出の厳しさ」や「最大キャラクター数」を調整します。</li>
+            <li>「キャラクターを自動分割」をクリックして AI の処理を待ちます。</li>
+            <li>完了後、一覧から個別 PNG をダウンロードするか、zip で一括ダウンロードします。</li>
+          </ol>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <small>© キャラクター自動分割ツール</small>
+      </div>
+    </footer>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
+
+
