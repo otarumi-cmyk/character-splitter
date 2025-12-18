@@ -1,10 +1,11 @@
-fastapi==0.115.5
-uvicorn[standard]==0.32.1
-pillow==11.0.0
-numpy
-python-multipart==0.0.17
-opencv-python
-scikit-image
-scipy
-rembg==2.0.69
+fastapi>=0.100.0
+uvicorn[standard]>=0.20.0
+pillow>=10.0.0
+numpy>=1.24.0
+python-multipart>=0.0.5
+opencv-python-headless>=4.8.0
+scikit-image>=0.21.0
+scipy>=1.10.0
+onnxruntime>=1.15.0
+rembg>=2.0.60
 
