@@ -81,6 +81,29 @@ uvicorn main:app --reload --port 8000
 
 ## インターネット上で公開する（デプロイ）
 
+### Replit を使う場合（おすすめ・無料プランあり）
+
+1. **Replit にアカウント作成**
+   - https://replit.com にアクセス
+   - GitHubでログイン可能
+
+2. **GitHubリポジトリをインポート**
+   - 「Create Repl」→「Import from GitHub」
+   - リポジトリURL: `https://github.com/otarumi-cmyk/character-splitter`
+   - 「Import」をクリック
+
+3. **自動インストール**
+   - Replitが自動で `requirements.txt` を検出してインストール開始
+   - 数分待つ
+
+4. **起動**
+   - 「Run」ボタンをクリック
+   - Webview が表示されるか、生成されたURLにアクセス
+
+詳細は `REPLIT.md` を参照してください。
+
+---
+
 ### Render を使う場合（おすすめ・無料プランあり）
 
 1. **GitHub にリポジトリを作成**
@@ -142,3 +165,8 @@ uvicorn main:app --reload --port 8000
   - 永続化が必要な場合は、S3 などの外部ストレージを使用してください
 - **メモリ使用量**:
   - rembg や画像処理はメモリを多く使用するため、無料プランでは制限に引っかかる可能性があります
+
+
+
+
+

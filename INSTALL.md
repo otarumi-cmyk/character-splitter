@@ -88,3 +88,8 @@ rm -rf ~/character-splitter  # macOS/Linux
 ```
 
 Windows の場合は、フォルダを削除してください。
+
+
+
+
+

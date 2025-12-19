@@ -55,3 +55,8 @@ git remote set-url origin https://YOUR_TOKEN@github.com/YOUR_USERNAME/character-
 - `requirements.txt` の依存関係を確認
 - ログを確認してエラー内容を確認
 - Python バージョンを `runtime.txt` で指定（既に設定済み）
+
+
+
+
+

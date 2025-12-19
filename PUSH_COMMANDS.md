@@ -48,3 +48,8 @@ GitHub は Personal Access Token が必要です:
 git remote set-url origin git@github.com:YOUR_USERNAME/character-splitter.git
 git push -u origin main
 ```
+
+
+
+
+

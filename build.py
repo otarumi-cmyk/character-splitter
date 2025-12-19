@@ -29,3 +29,8 @@ elif sys.platform == 'win32':  # Windows
     args.append('--icon=NONE')  # アイコンファイルがあれば指定
 
 PyInstaller.__main__.run(args)
+
+
+
+
+

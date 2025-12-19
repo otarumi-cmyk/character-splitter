@@ -93,3 +93,8 @@ echo "作成されたファイル: ${PACKAGE_NAME}-${VERSION}.zip"
 echo ""
 echo "このZIPファイルを配布してください。"
 echo ""
+
+
+
+
+
