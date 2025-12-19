@@ -29,15 +29,13 @@
 ### 3. GitHub Pagesを有効化
 
 1. GitHubリポジトリの「Settings」→「Pages」を開く
-2. **Source**: 「GitHub Actions」を選択
-3. 保存
+2. **Source**: 「Deploy from a branch」を選択
+3. **Branch**: `main` / `gh-pages` フォルダを選択
+4. 保存
 
 ### 4. デプロイ
 
-以下のいずれかでデプロイが開始されます：
-
-- `main` ブランチにプッシュしたとき（自動）
-- 「Actions」タブから手動で「Deploy to GitHub Pages」を実行
+`gh-pages` フォルダの内容が自動でデプロイされます。
 
 ### 5. アクセス
 
