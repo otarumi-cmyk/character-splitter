@@ -18,9 +18,15 @@
 
 ### 2. ReplitでバックエンドAPIをデプロイ
 
-1. https://replit.com でリポジトリをインポート
-2. 「Run」ボタンで起動
-3. 生成されたURL（例: `https://character-splitter.ユーザー名.repl.co`）をコピー
+**詳細な手順は `REPLIT_DETAILED.md` を参照してください。**
+
+簡単な手順：
+1. https://replit.com にアクセスしてログイン
+2. 「+ Create Repl」→「Import from GitHub」を選択
+3. `https://github.com/otarumi-cmyk/character-splitter` を入力してインポート
+4. Shellで `pip install -r requirements.txt` を実行
+5. 「Run」ボタンをクリック
+6. 画面右上の「Share」からURLをコピー（例: `https://character-splitter.ユーザー名.repl.co`）
 
 ### 3. GitHub PagesのHTMLを更新
 
