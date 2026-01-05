@@ -1,0 +1,1860 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>想定年収診断</title>
+  <style>
+    :root {
+      --bg: #f8f7f4;
+      --panel: #ffffff;
+      --border: #e9e5dd;
+      --primary: #ff6b03;
+      --primary-2: #ffa347;
+      --text: #1f2933;
+      --muted: #6b7280;
+      --radius: 16px;
+      --font: 'Inter', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
+      --shadow: 0 16px 40px rgba(0,0,0,0.10);
+      --shadow-soft: 0 8px 20px rgba(0,0,0,0.06);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font);
+      background: radial-gradient(circle at 20% 20%, rgba(255,107,3,0.07), transparent 26%),
+                  radial-gradient(circle at 80% 0%, rgba(255,163,71,0.08), transparent 22%),
+                  var(--bg);
+      color: var(--text);
+      padding: 24px;
+    }
+    .shell {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
+    }
+    .hero {
+      padding: 24px 28px;
+      background: linear-gradient(135deg, rgba(255,107,3,0.10), rgba(255,163,71,0.10));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+    }
+    .hero h1 { margin: 0 0 8px; font-size: 24px; letter-spacing: 0.01em; }
+    .hero p { margin: 4px 0; color: var(--muted); font-size: 14px; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+      padding: 20px;
+    }
+    .progress-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .progress { flex: 1; height: 10px; background: #f4ede5; border-radius: 999px; overflow: hidden; }
+    .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--primary-2)); transition: width 0.2s ease; }
+    .progress-text { font-size: 13px; color: var(--muted); min-width: 110px; text-align: right; }
+    .question-card {
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #fffaf5;
+    }
+    .question-title { margin: 0 0 8px; font-weight: 700; font-size: 17px; }
+    .question-desc { margin: 0 0 16px; font-size: 13px; color: var(--muted); }
+    .options { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-bottom: 16px; }
+    .opt {
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #ffffff;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      color: var(--text);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+      text-align: left;
+      font-size: 14px;
+    }
+    .opt:hover { border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 6px 14px rgba(255,107,3,0.12); }
+    .opt.active { border-color: var(--primary); background: #fff2e7; box-shadow: 0 6px 14px rgba(255,107,3,0.18); color: #7a2f00; font-weight: 600; }
+    .nav { display: flex; justify-content: space-between; gap: 10px; margin-top: 12px; }
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(255,107,3,0.26);
+    }
+    .btn-primary:hover { filter: brightness(1.05); transform: translateY(-1px); }
+    .btn-secondary {
+      background: #fff;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+    .btn-secondary[disabled] { opacity: 0.4; cursor: default; }
+    .error { color: #ef4444; font-size: 13px; margin-top: 6px; }
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .input-row input[type="number"] {
+      flex: 0 0 140px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .input-row span { font-size: 14px; color: var(--muted); }
+    .helper-text { font-size: 12px; color: var(--muted); }
+
+    /* 画面切り替え */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* LINE登録画面 */
+    #line-registration-screen {
+      align-items: center;
+      justify-content: center;
+    }
+    #line-registration-screen.active {
+      display: flex;
+    }
+    .line-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 40px 30px;
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+    }
+    .line-card h1 {
+      font-size: 24px;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+    .line-card p {
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+    .btn-line {
+      background: #06C755;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 16px 32px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 10px 24px rgba(6,199,85,0.26);
+    }
+    .btn-line:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+
+    /* 結果画面 */
+    .speech-bubble-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      opacity: 0;
+      animation: fadeIn 0.6s ease-out 0.2s forwards;
+    }
+    .character-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 12px;
+      object-fit: contain;
+      background: transparent;
+      flex-shrink: 0;
+    }
+    .speech-bubble {
+      position: relative;
+      background: #fffaf5;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-size: clamp(16px, 1.8vw, 20px);
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      flex: 1;
+      line-height: 1.5;
+      opacity: 0;
+      transform: translateY(-10px);
+      animation: bubbleFadeIn 0.6s ease-out 0.3s forwards;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-right: 8px solid var(--border);
+    }
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      left: -7px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-right: 8px solid #fffaf5;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes bubbleFadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .result-hero { text-align: center; padding: 16px 8px 8px; }
+    .salary-display {
+      background: linear-gradient(135deg, rgba(255,107,3,0.10), rgba(255,163,71,0.10));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px 20px;
+      margin: 24px 0 16px;
+      box-shadow: var(--shadow-soft);
+    }
+    .salary-amount {
+      font-size: 56px;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 8px 0 4px;
+      line-height: 1;
+    }
+    .salary-label { font-size: 16px; color: var(--muted); }
+
+    .comparison {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background: #fffaf5;
+      border-radius: 12px;
+      margin: 12px 0 8px;
+    }
+    .comparison-item { text-align: center; flex: 1; }
+    .comparison-label { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+    .comparison-value { font-size: 22px; font-weight: 700; }
+    .comparison-value.current { color: var(--text); }
+    .comparison-value.increase { color: #22c55e; }
+    .divider { width: 1px; height: 40px; background: var(--border); }
+
+    .summary-text { margin-top: 16px; font-size: 14px; color: var(--text); line-height: 1.8; }
+    .summary-text strong { font-weight: 700; }
+
+    .hint-box {
+      margin-top: 20px;
+      padding: 16px;
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .hint-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--primary); }
+    .hint-list { margin: 0; padding-left: 18px; font-size: 13px; color: var(--muted); }
+
+    .sim-block {
+      margin-top: 24px;
+      padding: 16px;
+      background: #fffaf5;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .sim-title {
+      margin: 0 0 6px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .sim-caption {
+      margin: 0 0 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .sim-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .sim-card {
+      flex: 1 1 140px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .sim-card.highlight {
+      background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(248,113,113,0.15));
+      border: 2px solid #ef4444;
+      box-shadow: 0 8px 24px rgba(239,68,68,0.25);
+      padding: 16px 14px;
+    }
+    .sim-card-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .sim-card.highlight .sim-card-label {
+      color: #dc2626;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .sim-card-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .sim-card.highlight .sim-card-value {
+      color: #dc2626;
+      font-size: 28px;
+      font-weight: 800;
+    }
+    .sim-card-sub {
+      margin-top: 2px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .sim-card.highlight .sim-card-sub {
+      color: #dc2626;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .sim-chart {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .sim-legend {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .sim-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sim-legend-color {
+      width: 14px;
+      height: 3px;
+      border-radius: 999px;
+    }
+    .sim-summary {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .sim-tooltip {
+      position: absolute;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: #111827;
+      color: #f9fafb;
+      font-size: 13px;
+      line-height: 1.6;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 5;
+      left: 50%;
+      top: 0;
+      transform: translate(-50%, -115%);
+      display: none;
+    }
+    .sim-tooltip-main {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .sim-tooltip-sub {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 16px; }
+      .hero { padding: 18px; }
+      .options { grid-template-columns: 1fr; }
+      .btn { width: 100%; text-align: center; }
+      .nav { flex-direction: column; }
+      .progress-text { min-width: 72px; font-size: 12px; }
+      .speech-bubble-container { flex-direction: column; align-items: center; }
+      .character-img {
+        width: 100px;
+        height: 100px;
+      }
+      .speech-bubble {
+        width: 100%;
+        font-size: clamp(15px, 4vw, 18px);
+        min-height: 80px;
+        padding: 6px 10px;
+      }
+      .speech-bubble::before {
+        left: 50%;
+        top: -8px;
+        transform: translateX(-50%);
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 8px solid var(--border);
+        border-top: none;
+        border-right: none;
+      }
+      .speech-bubble::after {
+        left: 50%;
+        top: -7px;
+        transform: translateX(-50%);
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 8px solid #fffaf5;
+        border-top: none;
+        border-right: none;
+      }
+      .salary-amount { font-size: 42px; }
+      .comparison { flex-direction: column; gap: 12px; }
+      .divider { width: 100%; height: 1px; }
+      .sim-chart {
+        max-width: 100%;
+      }
+      .line-card {
+        padding: 30px 20px;
+      }
+    }
+  </style>
+  <!-- LIFF SDK -->
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
+  <!-- QRCode Library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <!-- QUESTION SCREEN -->
+    <div id="question-screen" class="screen active">
+      <div class="hero">
+        <h1>想定年収診断</h1>
+        <p>現在の年収とスキルから、転職時の想定年収をかんたん診断します（目安値）。</p>
+      </div>
+
+      <div class="panel">
+        <div class="progress-wrap">
+          <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+          <div class="progress-text" id="progress-text">0/14 (0%)</div>
+        </div>
+        <div id="error-message" class="error" style="display:none;"></div>
+        <div id="form-area"></div>
+      </div>
+    </div>
+
+    <!-- LINE REGISTRATION SCREEN -->
+    <div id="line-registration-screen" class="screen">
+      <div class="line-card">
+        <h1>診断結果を見る</h1>
+        <p>
+          診断結果を見るには、<br>
+          LINE公式アカウントに<br>
+          友だち追加が必要です。
+        </p>
+        
+        <div id="qr-code-container" style="margin: 20px 0;">
+          <img id="qr-code-image" src="" alt="LINE登録QRコード" style="display: none; max-width: 200px; margin: 0 auto; border: 4px solid #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        </div>
+        <p style="font-size: 0.9rem; color: var(--muted); margin: 10px 0;">
+          スマホの方はQRコードを読み取るか、<br>
+          下のボタンからLINE登録してください
+        </p>
+        <button id="line-register-btn" class="btn-line" onclick="openLineRegistration()">
+          LINE登録して結果を見る
+        </button>
+      </div>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div id="result-screen" class="screen">
+      <div class="hero">
+        <h1>想定年収診断の結果</h1>
+      </div>
+
+      <div class="hero">
+        <div class="speech-bubble-container">
+          <img src="http://migi-nanameue.co.jp/column/wp-content/uploads/2026/01/名称未設定のデザイン-10.png" alt="キャラクター" class="character-img">
+          <div class="speech-bubble" id="speech-text">
+            あなたの想定年収を計算しました。
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="result-root">
+        <div class="result-hero">
+          <div class="salary-display">
+            <div style="font-size:14px; color:var(--muted);">現年収をもとにした目安値</div>
+            <div class="salary-amount" id="estimated-salary">-</div>
+            <div class="salary-label">想定年収（額面・税込／万円）</div>
+          </div>
+
+          <div class="comparison">
+            <div class="comparison-item">
+              <div class="comparison-label">現在の年収（自己申告）</div>
+              <div class="comparison-value current" id="base-income">-</div>
+            </div>
+            <div class="divider"></div>
+            <div class="comparison-item">
+              <div class="comparison-label">今回の診断による上乗せ分</div>
+              <div class="comparison-value increase" id="add-amount">-</div>
+            </div>
+          </div>
+
+          <div class="summary-text" id="summary-text"></div>
+
+          <div class="hint-box" id="hint-box">
+            <div class="hint-title">さらに年収アップを狙うためのヒント</div>
+            <ul class="hint-list" id="hint-list"></ul>
+          </div>
+
+          <div class="sim-block">
+            <p class="sim-title">転職した場合／しなかった場合の「30年分の年収推移」比較</p>
+            <p class="sim-caption">※ 今の年収と今回の想定年収をもとに、30年間の「各年の年収」を転職あり・なしで並べて比較しています。</p>
+
+            <div class="sim-cards">
+              <div class="sim-card">
+                <div class="sim-card-label">転職しない場合の30年間の合計年収（概算）</div>
+                <div class="sim-card-value" id="lifetime-no">-</div>
+                <div class="sim-card-sub">今の会社で昇給し続けた場合</div>
+              </div>
+              <div class="sim-card">
+                <div class="sim-card-label">転職した場合の30年間の合計年収（概算）</div>
+                <div class="sim-card-value" id="lifetime-with">-</div>
+                <div class="sim-card-sub">今回の想定年収レベルのポジションに移った場合</div>
+              </div>
+              <div class="sim-card highlight">
+                <div class="sim-card-label">転職しない場合に損する金額</div>
+                <div class="sim-card-value" id="lifetime-diff">-</div>
+              </div>
+            </div>
+
+            <div id="sim-chart" class="sim-chart"></div>
+            <div id="sim-tooltip" class="sim-tooltip"></div>
+            <div class="sim-legend">
+              <div class="sim-legend-item">
+                <span class="sim-legend-color" style="background:#cbd5f5;"></span>
+                <span>転職しない場合の年収</span>
+              </div>
+              <div class="sim-legend-item">
+                <span class="sim-legend-color" style="background:#f97316;"></span>
+                <span>転職した場合の年収</span>
+              </div>
+            </div>
+            <p id="sim-summary" class="sim-summary"></p>
+          </div>
+
+          <div style="margin-top: 28px; text-align: center;">
+            <button onclick="restartDiagnosis()" class="btn btn-primary">もう一度診断する</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========================================
+    // 設定値（★要変更★）
+    // ========================================
+    const DIAGNOSIS_TYPE = 'salary_estimation';
+    const CACHE_KEY = 'diagnosis_result_salary';
+    
+    // WordPress API URL（年収診断用）
+    const WP_API_BASE = window.location.origin + '/column/wp-json/salary-estimation/v1';
+    
+    // LIFF設定
+    const LIFF_ID = '2008810576-LCmxRyHY';
+    
+    // LINE登録URL
+    const LINE_REGISTRATION_BASE_URL = 'https://liff.line.me/1657698499-9xjEMXXe/landing?follow=%40507jyozr&lp=NTi57d&liff_id=1657698499-9xjEMXXe';
+
+    // ========================================
+    // 追加質問の定義（配布タグ判定用）
+    // ========================================
+    const additionalQuestions = {
+      age: {
+        questionType: "age",
+        text: "あなたの年齢を教えてください",
+        options: [
+          { value: 19, label: "18-19歳", minAge: 18, maxAge: 19 },
+          { value: 22, label: "20-24歳", minAge: 20, maxAge: 24 },
+          { value: 27, label: "25-29歳", minAge: 25, maxAge: 29 },
+          { value: 32, label: "30-34歳", minAge: 30, maxAge: 34 },
+          { value: 37, label: "35-39歳", minAge: 35, maxAge: 39 },
+          { value: 40, label: "40歳以上", minAge: 40, maxAge: 100 }
+        ]
+      },
+      location: {
+        questionType: "location",
+        text: "現在お住まいの都道府県を教えてください",
+        options: [
+          { value: "東京都", label: "東京都" },
+          { value: "神奈川県", label: "神奈川県" },
+          { value: "埼玉県", label: "埼玉県" },
+          { value: "千葉県", label: "千葉県" },
+          { value: "大阪府", label: "大阪府" },
+          { value: "福岡県", label: "福岡県" },
+          { value: "愛知県", label: "愛知県" },
+          { value: "その他", label: "その他" }
+        ]
+      },
+      jobChangeCount: {
+        questionType: "jobChangeCount",
+        text: "転職回数は何回ですか？（現在の会社を含めて何社目か）",
+        options: [
+          { value: 0, label: "転職経験なし（1社目）" },
+          { value: 1, label: "1回（2社目）" },
+          { value: 2, label: "2回（3社目）" },
+          { value: 3, label: "3回以上（4社目以上）" }
+        ]
+      },
+      jobChangeTiming: {
+        questionType: "jobChangeTiming",
+        text: "転職を検討している場合、どのタイミングを考えていますか？",
+        options: [
+          { value: "1month", label: "すぐに（1ヶ月以内）" },
+          { value: "3months", label: "3ヶ月以内" },
+          { value: "6months", label: "6ヶ月以内" },
+          { value: "1year", label: "1年以内" },
+          { value: "1yearplus", label: "1年以上先" },
+          { value: "not_considered", label: "転職は考えていない" }
+        ]
+      }
+    };
+
+    // ========================================
+    // 年収診断の質問
+    // ========================================
+    const salaryQuestions = [
+      {
+        id: 'Q1',
+        type: 'input',
+        title: '現在の年収（額面）を教えてください',
+        desc: '税込の年収を「万円」単位で入力してください（例：450 → 450万円）。',
+      },
+      {
+        id: 'Q2',
+        title: '現在の職種はどれに該当しますか',
+        options: ['一般事務・アシスタント', '営業・セールス', 'マーケティング・企画・PdM', 'IT・エンジニア', 'AI・データ・高度専門職', 'その他専門職']
+      },
+      {
+        id: 'Q3',
+        title: '現在の役職・職位はどれに該当しますか',
+        options: ['一般職', 'リーダー・主任', 'マネージャー', '部長・ディレクター', '事業責任者・役員']
+      },
+      {
+        id: 'Q4',
+        title: 'プログラミング・デジタルツールの活用経験は',
+        options: ['ほぼ使えない', 'Excel・Wordなど一般ツール', '業務改善でツールを活用', 'プログラミング・AI活用で成果を出している']
+      },
+      {
+        id: 'Q5',
+        title: 'プロジェクト管理・推進経験は？',
+        options: ['経験なし', '小規模プロジェクト（3名以下）', '中規模プロジェクト（5〜10名）', '大規模プロジェクト（10名以上）', '複数プロジェクトを同時管理', '事業レベルのプロジェクトを主導']
+      },
+      {
+        id: 'Q6',
+        title: '過去1年間で達成した具体的な成果はありますか',
+        options: ['成果なし', '定性的な成果のみ', '一部で数値目標を達成', '主要な数値目標を達成', '数値目標を大幅に達成']
+      },
+      {
+        id: 'Q7',
+        title: '月間の売り上げは？（売上に関与していない場合は「なし」を選択）',
+        options: ['なし（売上に関与していない）', '30万円未満', '30万円〜50万円', '50万円〜100万円', '100万円〜200万円', '200万円〜500万円', '500万円〜1000万円', '1000万円以上']
+      },
+      {
+        id: 'Q8',
+        title: '担当している業務の範囲は',
+        options: ['単一業務のみ', '複数業務を担当', '部門横断プロジェクトに参加', '事業全体に関わる業務']
+      },
+      {
+        id: 'Q9',
+        title: '業務上の意思決定権限はどの程度ありますか',
+        options: ['指示された業務を実行', '一部の業務で自律判断', '担当領域で意思決定', '戦略レベルの意思決定']
+      },
+      {
+        id: 'Q10',
+        title: '保有している資格は（最も当てはまるもの）',
+        options: ['資格なし', 'TOEIC（700点以上）・簿記2級・基本情報技術者など', '税理士・公認会計士・弁護士・医師・薬剤師・中小企業診断士・社会保険労務士・行政書士・宅建士など']
+      }
+    ];
+
+    // 質問配列を構築（最初の4問を追加質問にする）
+    const questions = [
+      { id: "age", questionType: "age", isAdditional: true },
+      { id: "location", questionType: "location", isAdditional: true },
+      { id: "jobChangeTiming", questionType: "jobChangeTiming", isAdditional: true },
+      { id: "jobChangeCount", questionType: "jobChangeCount", isAdditional: true },
+      ...salaryQuestions
+    ];
+
+    const scoreMap = {
+      Q2: [0, 4, 6, 8, 10, 6],
+      Q3: [0, 3, 6, 8, 10],
+      Q4: [0, 2, 4, 5],
+      Q5: [0, 2, 4, 6, 8, 10],
+      Q6: [0, 2, 4, 6, 8],
+      Q7: [0, 1, 2, 3, 4, 5, 6, 7],
+      Q8: [0, 4, 7, 10],
+      Q9: [0, 2, 4, 5],
+      Q10: [0, 1, 2]
+    };
+
+    const MAX_SCORE = 60;
+
+    // ========================================
+    // LIFF関連
+    // ========================================
+    let liffInitialized = false;
+    let liffLoggedIn = false;
+    let liffInitPromise = null;
+    let cachedLineProfile = null;
+
+    async function initLIFF() {
+      if (liffInitPromise) return liffInitPromise;
+      
+      liffInitPromise = (async () => {
+        if (typeof liff === 'undefined') {
+          return false;
+        }
+
+        try {
+          await liff.init({ liffId: LIFF_ID });
+          liffInitialized = true;
+          liffLoggedIn = liff.isLoggedIn();
+          return true;
+        } catch (error) {
+          liffInitPromise = null;
+          return false;
+        }
+      })();
+      
+      return liffInitPromise;
+    }
+
+    async function getLineUserId() {
+      if (!liffInitialized) {
+        const success = await initLIFF();
+        if (!success) return null;
+      }
+
+      if (!liff.isLoggedIn()) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasSessionParam = urlParams.has('session_id') || urlParams.has('data');
+        if (!hasSessionParam) {
+          return null;
+        }
+        try {
+          liff.login({ redirectUri: window.location.href });
+        } catch (e) {
+          // login failed
+        }
+        return null;
+      }
+
+      try {
+        if (cachedLineProfile) {
+          return cachedLineProfile.userId;
+        }
+        const profile = await liff.getProfile();
+        cachedLineProfile = profile;
+        return profile.userId;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function getLineDisplayName() {
+      return cachedLineProfile ? cachedLineProfile.displayName : null;
+    }
+
+    // LIFF初期化
+    if (typeof liff !== 'undefined') {
+      initLIFF().catch(() => {});
+    }
+
+    // ========================================
+    // セッション管理
+    // ========================================
+    function getSessionId() {
+      let sessionId = sessionStorage.getItem('salary_session_id');
+      if (sessionId) return sessionId;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      sessionId = urlParams.get('session_id');
+      if (sessionId) {
+        sessionStorage.setItem('salary_session_id', sessionId);
+        return sessionId;
+      }
+
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      sessionId = '';
+      for (let i = 0; i < 8; i++) {
+        sessionId += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      sessionStorage.setItem('salary_session_id', sessionId);
+      return sessionId;
+    }
+
+    function clearDiagnosisCache() {
+      try {
+        localStorage.removeItem(CACHE_KEY);
+        sessionStorage.removeItem('salary_session_id');
+        localStorage.removeItem('salaryEstimationResult');
+      } catch (e) {
+        // clear failed
+      }
+    }
+
+    // ========================================
+    // 結果保存・取得
+    // ========================================
+    async function saveResultToCache(result, additionalAnswersData, distributionTag, distributionTagDetails) {
+      const sessionId = getSessionId();
+      const cacheData = {
+        diagnosisType: DIAGNOSIS_TYPE,
+        sessionId: sessionId,
+        result: result,
+        additionalAnswers: additionalAnswersData,
+        distributionTag: distributionTag,
+        distributionTagDetails: distributionTagDetails,
+        timestamp: Date.now()
+      };
+
+      localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        try {
+          await fetch(`${WP_API_BASE}/save-result`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Session-ID': sessionId
+            },
+            body: JSON.stringify({
+              result: result,
+              additionalAnswers: additionalAnswersData,
+              distributionTag: distributionTag,
+              distributionTagDetails: distributionTagDetails
+            })
+          });
+        } catch (error) {
+          // server save failed
+        }
+      }
+    }
+
+    async function saveResultByLineUser(lineUserId, result, additionalAnswersData, distributionTag, distributionTagDetails) {
+      const sessionId = getSessionId();
+      const lineDisplayName = getLineDisplayName();
+      const cacheData = {
+        diagnosisType: DIAGNOSIS_TYPE,
+        lineUserId: lineUserId,
+        lineDisplayName: lineDisplayName,
+        sessionId: sessionId,
+        result: result,
+        additionalAnswers: additionalAnswersData,
+        distributionTag: distributionTag,
+        distributionTagDetails: distributionTagDetails,
+        timestamp: Date.now()
+      };
+
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        try {
+          await fetch(`${WP_API_BASE}/save-result-by-lineuser`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              lineUserId: lineUserId,
+              lineDisplayName: lineDisplayName,
+              result: result,
+              additionalAnswers: additionalAnswersData,
+              distributionTag: distributionTag,
+              distributionTagDetails: distributionTagDetails,
+              sessionId: sessionId
+            })
+          });
+        } catch (error) {
+          // server save failed
+        }
+      }
+
+      const localCacheKey = `salary_result_lineuser_${lineUserId}`;
+      localStorage.setItem(localCacheKey, JSON.stringify(cacheData));
+    }
+
+    async function getResultByLineUser(lineUserId) {
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        try {
+          const response = await fetch(`${WP_API_BASE}/get-result-by-lineuser?lineUserId=${encodeURIComponent(lineUserId)}`, {
+            method: 'GET'
+          });
+
+          if (response.ok) {
+            const responseData = await response.json();
+            if (responseData.success && responseData.result) {
+              return responseData.result;
+            }
+          }
+        } catch (error) {
+          // server fetch failed
+        }
+      }
+
+      const localCacheKey = `salary_result_lineuser_${lineUserId}`;
+      const cacheData = localStorage.getItem(localCacheKey);
+      
+      if (!cacheData) return null;
+      
+      try {
+        return JSON.parse(cacheData);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    async function getLatestResultFromCache() {
+      const sessionId = getSessionId();
+
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        try {
+          const response = await fetch(`${WP_API_BASE}/get-result`, {
+            method: 'GET',
+            headers: {
+              'X-Session-ID': sessionId
+            }
+          });
+
+          if (response.ok) {
+            const responseData = await response.json();
+            if (responseData.success && responseData.result) {
+              return responseData.result;
+            }
+          }
+        } catch (error) {
+          // server fetch failed
+        }
+      }
+
+      const cacheData = localStorage.getItem(CACHE_KEY);
+      
+      if (!cacheData) return null;
+      
+      try {
+        const data = JSON.parse(cacheData);
+        const now = Date.now();
+        const expiration = 24 * 60 * 60 * 1000;
+        
+        if (now - data.timestamp > expiration) {
+          localStorage.removeItem(CACHE_KEY);
+          return null;
+        }
+        
+        return data;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    async function transferSessionResultToLineUser(sessionId, lineUserId) {
+      try {
+        const resp = await fetch(`${WP_API_BASE}/get-result`, {
+          headers: { 'X-Session-ID': sessionId }
+        });
+        if (!resp.ok) return null;
+        
+        const data = await resp.json();
+        if (!data || data.success !== true || !data.result) return null;
+
+        await saveResultByLineUser(
+          lineUserId, 
+          data.result, 
+          data.result.additionalAnswers || {},
+          data.result.distributionTag || false,
+          data.result.distributionTagDetails || {}
+        );
+        return data.result;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // ========================================
+    // 画面切り替え
+    // ========================================
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+      
+      if (screenId === 'line-registration-screen') {
+        setTimeout(() => {
+          generateQRCode();
+        }, 200);
+      }
+    }
+
+    // ========================================
+    // LINE登録関連
+    // ========================================
+    function buildLineRegistrationUrl(sessionId) {
+      return LINE_REGISTRATION_BASE_URL;
+    }
+
+    function openLineRegistration() {
+      const sessionId = getSessionId();
+      const lineUrl = buildLineRegistrationUrl(sessionId);
+      window.open(lineUrl, '_blank');
+    }
+
+    async function generateQRCode() {
+      const qrCodeImage = document.getElementById('qr-code-image');
+      
+      if (qrCodeImage && LINE_REGISTRATION_BASE_URL) {
+        const sessionId = getSessionId();
+        const qrCodeDataUrl = buildLineRegistrationUrl(sessionId);
+        
+        const QRCodeLib = typeof QRCode !== 'undefined' ? QRCode : (typeof window.QRCode !== 'undefined' ? window.QRCode : null);
+        
+        if (QRCodeLib && typeof QRCodeLib.toDataURL === 'function') {
+          try {
+            const qrOptions = {
+              errorCorrectionLevel: 'M',
+              margin: 2,
+              width: 200,
+              color: {
+                dark: '#000000',
+                light: '#ffffff'
+              }
+            };
+            QRCodeLib.toDataURL(qrCodeDataUrl, qrOptions, function (err, url) {
+              if (err) {
+                const fallbackUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCodeDataUrl)}`;
+                qrCodeImage.src = fallbackUrl;
+                qrCodeImage.style.display = 'block';
+              } else {
+                qrCodeImage.src = url;
+                qrCodeImage.style.display = 'block';
+              }
+            });
+          } catch (e) {
+            const fallbackUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCodeDataUrl)}`;
+            qrCodeImage.src = fallbackUrl;
+            qrCodeImage.style.display = 'block';
+          }
+        } else {
+          const encodedUrl = encodeURIComponent(qrCodeDataUrl);
+          const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodedUrl}`;
+          qrCodeImage.onload = function() {
+            qrCodeImage.style.display = 'block';
+          };
+          qrCodeImage.src = qrCodeUrl;
+        }
+      }
+    }
+
+    // ========================================
+    // 診断ロジック
+    // ========================================
+    function calcScore(ans) {
+      let total = 0;
+      for (const [qid, arr] of Object.entries(scoreMap)) {
+        const q = salaryQuestions.find(q => q.id === qid);
+        if (!q) continue;
+        const val = ans[qid];
+        if (!val) continue;
+        const idx = q.options.indexOf(val);
+        if (idx >= 0 && arr[idx] != null) total += arr[idx];
+      }
+      return total;
+    }
+
+    function buildResultPayload(ans) {
+      const rawIncome = Number(ans.Q1);
+      const baseIncome = isFinite(rawIncome) && rawIncome > 0 ? rawIncome : 0;
+      const score = calcScore(ans);
+      const rate = Math.max(0, Math.min(1, score / MAX_SCORE));
+      const addAmount = 50 + rate * 150;
+      const estimated = baseIncome + addAmount;
+
+      return {
+        answers: ans,
+        baseIncome,
+        score,
+        addAmount,
+        estimated,
+      };
+    }
+
+    let step = 0;
+    const answers = {};
+    const errors = {};
+    let additionalAnswers = {};
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const formArea = document.getElementById('form-area');
+    const globalError = document.getElementById('error-message');
+
+    function setProgress() {
+      const answered = Math.min(step + 1, questions.length);
+      const pct = Math.round((answered / questions.length) * 100);
+      progressBar.style.width = `${pct}%`;
+      progressText.textContent = `${answered}/${questions.length} (${pct}%)`;
+    }
+
+    async function goResult() {
+      // 年収診断の結果を計算
+      const payload = buildResultPayload(answers);
+      
+      // 配布タグの判定
+      const shouldAddDistributionTag = 
+        additionalAnswers.age && additionalAnswers.age.isTargetAge === true &&
+        additionalAnswers.location && additionalAnswers.location.isTargetRegion === true &&
+        additionalAnswers.jobChangeTiming && additionalAnswers.jobChangeTiming.isTargetTiming === true &&
+        additionalAnswers.jobChangeCount && additionalAnswers.jobChangeCount.isTargetJobChangeCount === true;
+
+      // 配布タグの詳細情報を記録
+      const distributionTagDetails = {
+        age: additionalAnswers.age ? additionalAnswers.age.isTargetAge : false,
+        location: additionalAnswers.location ? additionalAnswers.location.isTargetRegion : false,
+        timing: additionalAnswers.jobChangeTiming ? additionalAnswers.jobChangeTiming.isTargetTiming : false,
+        jobChangeCount: additionalAnswers.jobChangeCount ? additionalAnswers.jobChangeCount.isTargetJobChangeCount : false,
+        checkedAt: new Date().toISOString()
+      };
+      
+      // 結果を保存
+      const lineUserId = await getLineUserId();
+      if (lineUserId) {
+        await saveResultByLineUser(lineUserId, payload, additionalAnswers, shouldAddDistributionTag, distributionTagDetails);
+      } else {
+        await saveResultToCache(payload, additionalAnswers, shouldAddDistributionTag, distributionTagDetails);
+      }
+      
+      // LINE登録画面を表示
+      showScreen('line-registration-screen');
+    }
+
+    function handleAdditionalAnswer(questionType, value, answerData) {
+      additionalAnswers[questionType] = answerData;
+      
+      // 次の質問へ
+      if (step < questions.length - 1) {
+        step += 1;
+        renderQuestion();
+      } else {
+        goResult();
+      }
+    }
+
+    function renderQuestion() {
+      globalError.style.display = 'none';
+      if (step < 0) step = 0;
+      if (step >= questions.length) step = questions.length - 1;
+      setProgress();
+
+      const q = questions[step];
+
+      // 追加質問の場合
+      if (q.isAdditional) {
+        const addQ = additionalQuestions[q.questionType];
+        const existingAnswer = additionalAnswers[q.questionType];
+        
+        let bodyHtml = `
+          <div class="question-title">${addQ.text}</div>
+          <div class="options">
+            ${addQ.options.map(opt => {
+              const isSelected = existingAnswer && existingAnswer.value === opt.value;
+              return `<div class="opt ${isSelected ? 'active' : ''}" data-val="${opt.value}" data-label="${opt.label}">${opt.label}</div>`;
+            }).join('')}
+          </div>
+        `;
+
+        formArea.innerHTML = `
+          <div class="question-card">
+            ${bodyHtml}
+            <div class="nav">
+              <button class="btn btn-secondary" id="prev" ${step === 0 ? 'disabled' : ''}>戻る</button>
+              <button class="btn btn-primary" id="next">次へ</button>
+            </div>
+          </div>
+        `;
+
+        formArea.querySelectorAll('.opt').forEach(el => {
+          el.addEventListener('click', () => {
+            const val = el.dataset.val;
+            const label = el.dataset.label;
+            const opt = addQ.options.find(o => String(o.value) === val);
+            
+            let answerData = { value: label };
+            
+            // 配布タグ判定用のデータを追加
+            if (q.questionType === 'age') {
+              answerData.minAge = opt.minAge;
+              answerData.maxAge = opt.maxAge;
+              // 20-34歳が対象
+              answerData.isTargetAge = opt.minAge >= 20 && opt.maxAge <= 34;
+            } else if (q.questionType === 'location') {
+              answerData.prefecture = opt.value;
+              // 対象エリア
+              const targetRegions = ['東京都', '神奈川県', '埼玉県', '千葉県', '大阪府', '福岡県', '愛知県'];
+              answerData.isTargetRegion = targetRegions.includes(opt.value);
+            } else if (q.questionType === 'jobChangeTiming') {
+              answerData.jobChangeTiming = opt.value;
+              // 1年以内が対象
+              const targetTimings = ['1month', '3months', '6months', '1year'];
+              answerData.isTargetTiming = targetTimings.includes(opt.value);
+            } else if (q.questionType === 'jobChangeCount') {
+              answerData.jobChangeCount = opt.value;
+              // 2回以下が対象
+              answerData.isTargetJobChangeCount = opt.value <= 2;
+            }
+            
+            handleAdditionalAnswer(q.questionType, val, answerData);
+          });
+        });
+
+        formArea.querySelector('#prev').addEventListener('click', () => {
+          if (step > 0) {
+            step -= 1;
+            renderQuestion();
+          }
+        });
+
+        formArea.querySelector('#next').addEventListener('click', () => {
+          if (!additionalAnswers[q.questionType]) {
+            globalError.textContent = '選択してください。';
+            globalError.style.display = 'block';
+            return;
+          }
+          if (step < questions.length - 1) {
+            step += 1;
+            renderQuestion();
+          } else {
+            goResult();
+          }
+        });
+
+        return;
+      }
+
+      // 通常の年収診断質問
+      const selected = answers[q.id];
+      const err = errors[q.id] || '';
+
+      let bodyHtml = '';
+      if (q.type === 'input') {
+        const val = selected ?? '';
+        bodyHtml = `
+          <div class="question-title">${q.title}</div>
+          <p class="question-desc">${q.desc}</p>
+          <div class="input-row">
+            <input type="number" id="income-input" min="50" max="10000" step="10" value="${val !== undefined ? val : ''}" placeholder="例）450" />
+            <span>万円</span>
+          </div>
+          <div class="helper-text">※ おおよその金額で構いません。50〜10,000万円の範囲で入力してください。</div>
+        `;
+      } else {
+        bodyHtml = `
+          <div class="question-title">${q.title}</div>
+          <div class="options">
+            ${q.options.map(opt => {
+              const active = selected === opt ? 'active' : '';
+              return `<div class="opt ${active}" data-val="${opt}">${opt}</div>`;
+            }).join('')}
+          </div>
+        `;
+      }
+
+      formArea.innerHTML = `
+        <div class="question-card">
+          ${bodyHtml}
+          ${err ? `<div class="error">${err}</div>` : ''}
+          <div class="nav">
+            <button class="btn btn-secondary" id="prev" ${step === 0 ? 'disabled' : ''}>戻る</button>
+            <button class="btn btn-primary" id="next">${step === questions.length - 1 ? '結果を見る' : '次へ'}</button>
+          </div>
+        </div>
+      `;
+
+      if (q.type === 'input') {
+        const input = document.getElementById('income-input');
+        input.addEventListener('input', () => {
+          errors[q.id] = '';
+        });
+      } else {
+        formArea.querySelectorAll('.opt').forEach(el => {
+          el.addEventListener('click', () => {
+            answers[q.id] = el.dataset.val;
+            errors[q.id] = '';
+            if (step < questions.length - 1) {
+              step += 1;
+              renderQuestion();
+            } else {
+              goResult();
+            }
+          });
+        });
+      }
+
+      formArea.querySelector('#prev').addEventListener('click', () => {
+        if (step > 0) {
+          step -= 1;
+          renderQuestion();
+        }
+      });
+
+      formArea.querySelector('#next').addEventListener('click', () => {
+        if (q.type === 'input') {
+          const input = document.getElementById('income-input');
+          const val = Number(input.value);
+          if (!input.value || !isFinite(val) || val < 50 || val > 10000) {
+            errors[q.id] = '50〜10,000の範囲で年収（万円）を入力してください。';
+            renderQuestion();
+            return;
+          }
+          answers[q.id] = val;
+        } else if (!answers[q.id]) {
+          errors[q.id] = '選択してください。';
+          renderQuestion();
+          return;
+        }
+
+        errors[q.id] = '';
+
+        if (step < questions.length - 1) {
+          step += 1;
+          renderQuestion();
+        } else {
+          goResult();
+        }
+      });
+    }
+
+    // ========================================
+    // 結果表示ロジック
+    // ========================================
+    function formatMan(value) {
+      if (!isFinite(value)) return '-';
+      const v = Math.round(value);
+      if (v >= 10000) {
+        const oku = Math.floor(v / 10000);
+        const man = v % 10000;
+        if (man === 0) {
+          return `${oku}億円`;
+        } else {
+          return `${oku}億${man.toLocaleString('ja-JP')}万円`;
+        }
+      }
+      return v.toLocaleString('ja-JP') + '万円';
+    }
+
+    function buildComment(score, baseIncome, addAmount) {
+      const rateUp = baseIncome > 0 ? Math.round((addAmount / baseIncome) * 100) : null;
+      let level;
+      if (score >= 45) level = 'high';
+      else if (score >= 30) level = 'mid';
+      else level = 'low';
+
+      let main = '';
+      if (level === 'high') {
+        main = '現在のスキル・役職・実績から見ると、比較的高めの年収レンジを狙えるポジションです。';
+      } else if (level === 'mid') {
+        main = '現状のスキルと実績に見合った、堅実な年収アップが期待できる水準です。';
+      } else {
+        main = 'いまの条件でも年収アップの余地はありますが、あと一歩スキルや役割を伸ばせると、さらに上のレンジを狙えそうです。';
+      }
+
+      let up = '';
+      if (rateUp != null) {
+        up = `今回の診断では、<strong>現年収に対して約${rateUp}%の上振れ</strong>を見込める想定になりました。`;
+      } else {
+        up = '今回の診断では、現年収に対して一定の上振れが見込める想定になりました。';
+      }
+
+      return `${main}<br>${up}`;
+    }
+
+    function buildHints(score) {
+      const hints = [];
+      if (score < 30) {
+        hints.push('担当領域を広げる（プロジェクト参画や新しい業務を任せてもらう）ことで評価軸を増やす。');
+        hints.push('数値で語れる実績（売上・利益・コスト削減など）を1つでも作り、説明できるようにしておく。');
+        hints.push('デジタルスキルや資格取得など、客観的に示しやすい強みを1つ追加する。');
+      } else if (score < 45) {
+        hints.push('今の強みを活かせる業界・職種に寄せていくと、同じスキルでも年収レンジが上がりやすくなります。');
+        hints.push('マネジメントやプロジェクトリードの経験を明確にしておくと、年収テーブルの一段上が見えやすくなります。');
+        hints.push('直近1〜2年で「もう1つ数字で語れる成果」を作れると、交渉余地が広がります。');
+      }
+      return hints;
+    }
+
+    function buildSimulation(baseIncome, estimated) {
+      const years = 30;
+      const growthCurrent = 0.02;
+      const growthSwitch = 0.036;
+
+      const noChange = [];
+      const withChange = [];
+
+      for (let i = 0; i < years; i++) {
+        if (i === 0) {
+          noChange[i] = baseIncome;
+          withChange[i] = estimated;
+        } else {
+          noChange[i] = noChange[i - 1] * (1 + growthCurrent);
+          withChange[i] = withChange[i - 1] * (1 + growthSwitch);
+        }
+      }
+
+      const sumNo = noChange.reduce((a, b) => a + b, 0);
+      const sumWith = withChange.reduce((a, b) => a + b, 0);
+      return { years, noChange, withChange, sumNo, sumWith };
+    }
+
+    function renderSimulation(sim) {
+      const chartEl = document.getElementById('sim-chart');
+      const summaryEl = document.getElementById('sim-summary');
+      if (!chartEl || !summaryEl) return;
+
+      const { years, noChange, withChange, sumNo, sumWith } = sim;
+      const maxIncome = Math.max(...noChange, ...withChange);
+      if (maxIncome <= 0) {
+        chartEl.innerHTML = '<p style="font-size:12px; color:var(--muted); text-align:center;">年収が未入力のため、シミュレーションは表示していません。</p>';
+        summaryEl.textContent = '';
+        return;
+      }
+
+      const lifeNoEl = document.getElementById('lifetime-no');
+      const lifeWithEl = document.getElementById('lifetime-with');
+      const lifeDiffEl = document.getElementById('lifetime-diff');
+      if (lifeNoEl) lifeNoEl.textContent = formatMan(sumNo);
+      if (lifeWithEl) lifeWithEl.textContent = formatMan(sumWith);
+
+      const diff = sumWith - sumNo;
+      if (lifeDiffEl) {
+        const diffAbs = Math.abs(Math.round(diff));
+        const diffFormatted = formatMan(diffAbs);
+        lifeDiffEl.textContent = '-' + diffFormatted;
+      }
+
+      const width = 380;
+      const height = 230;
+      const marginLeft = 50;
+      const marginRight = 16;
+      const marginTop = 18;
+      const marginBottom = 48;
+
+      const plotHeight = height - marginTop - marginBottom;
+      const axisY = marginTop + plotHeight;
+      const barMaxHeight = plotHeight * 0.9;
+      const scale = barMaxHeight / maxIncome;
+
+      const barAreaWidth = width - marginLeft - marginRight;
+      const groupWidth = barAreaWidth / years;
+      const singleBarWidth = Math.max(3, Math.min(8, groupWidth * 0.4));
+      const innerGap = Math.max(2, groupWidth * 0.1);
+
+      const xForA = (i) => marginLeft + i * groupWidth + (groupWidth - (2 * singleBarWidth + innerGap)) / 2;
+      const xForB = (i) => xForA(i) + singleBarWidth + innerGap;
+
+      const yMax = maxIncome;
+      const yMid = maxIncome * 0.5;
+      const yMin = 0;
+
+      const svg = `
+        <svg viewBox="0 0 ${width} ${height}" width="100%" height="${height}" role="img" aria-label="年収シミュレーション">
+          <line x1="${marginLeft}" y1="${marginTop}" x2="${marginLeft}" y2="${axisY}" stroke="#e5e7eb" stroke-width="1" />
+          <line x1="${marginLeft}" y1="${axisY}" x2="${width - marginRight}" y2="${axisY}" stroke="#e5e7eb" stroke-width="1" />
+
+          <text x="${marginLeft - 2}" y="${axisY + 4}" text-anchor="end" font-size="10" fill="#6b7280">
+            ${Math.round(yMin).toLocaleString('ja-JP')}
+          </text>
+          <text x="${marginLeft - 2}" y="${axisY - (yMid * scale) + 4}" text-anchor="end" font-size="10" fill="#6b7280">
+            ${Math.round(yMid).toLocaleString('ja-JP')}
+          </text>
+          <text x="${marginLeft - 2}" y="${axisY - (yMax * scale) + 4}" text-anchor="end" font-size="10" fill="#6b7280">
+            ${Math.round(yMax).toLocaleString('ja-JP')}
+          </text>
+          <text x="${marginLeft + 18}" y="${marginTop - 2}" text-anchor="end" font-size="10" fill="#9ca3af">年収（万円）</text>
+
+          ${noChange.map((aVal, i) => {
+            const bVal = withChange[i];
+            const xA = xForA(i);
+            const xB = xForB(i);
+            const hA = aVal * scale;
+            const hB = bVal * scale;
+            const yA = axisY - hA;
+            const yB = axisY - hB;
+            const diffYear = bVal - aVal;
+            return `
+              <g>
+                <rect x="${xA}" y="${yA}" width="${singleBarWidth}" height="${hA}" fill="#9ca3af"
+                  data-year="${i}"
+                  data-type="no"
+                  data-a="${aVal}"
+                  data-b="${bVal}"
+                  data-diff="${diffYear}"
+                />
+                <rect x="${xB}" y="${yB}" width="${singleBarWidth}" height="${hB}" fill="#f97316"
+                  data-year="${i}"
+                  data-type="with"
+                  data-a="${aVal}"
+                  data-b="${bVal}"
+                  data-diff="${diffYear}"
+                />
+              </g>
+            `;
+          }).join('')}
+
+          ${[0, 9, 19, years - 1].map(i => `
+            <text x="${xForB(i) + singleBarWidth / 2}" y="${height - marginBottom + 12}" text-anchor="middle" font-size="10" fill="#6b7280">
+              ${i === 0 ? '今' : '+' + i + '年'}
+            </text>
+          `).join('')}
+        </svg>
+      `;
+
+      chartEl.innerHTML = svg;
+
+      if (diff > 0) {
+        const diffRounded = Math.round(diff);
+        const diffFormatted = formatMan(diffRounded);
+        summaryEl.innerHTML = `今後30年間の合計年収で見ると、<strong>転職しないと約${diffFormatted}分の損</strong>が出る試算です。<br>つまり、いまのまま動かない場合は、この金額分を失ってしまう可能性があります。`;
+      } else {
+        summaryEl.textContent = '今回の入力条件では、転職の有無による長期的な年収差はほとんどありません。条件やタイミングを変えて再診断してみるのもおすすめです。';
+      }
+
+      const svgEl = chartEl.querySelector('svg');
+      const tooltipEl = document.getElementById('sim-tooltip');
+      if (!svgEl || !tooltipEl) return;
+
+      function formatYearLabel(i) {
+        if (i === 0) return '今（1年目）';
+        return `${i}年目（いまから${i}年後）`;
+      }
+
+      function formatYen(v) {
+        const rounded = Math.round(v);
+        if (rounded >= 10000) {
+          const oku = Math.floor(rounded / 10000);
+          const man = rounded % 10000;
+          if (man === 0) {
+            return `${oku}億円`;
+          } else {
+            return `${oku}億${man.toLocaleString('ja-JP')}万円`;
+          }
+        }
+        return `${rounded.toLocaleString('ja-JP')}万円`;
+      }
+
+      function showTooltip(evt, rect) {
+        const yearIndex = Number(rect.getAttribute('data-year')) || 0;
+        const aVal = Number(rect.getAttribute('data-a')) || 0;
+        const bVal = Number(rect.getAttribute('data-b')) || 0;
+        const diffVal = Number(rect.getAttribute('data-diff')) || 0;
+
+        const yearText = formatYearLabel(yearIndex);
+        const diffSign = diffVal >= 0 ? '+' : '';
+
+        tooltipEl.innerHTML = `
+          <span class="sim-tooltip-main">差額：${diffSign}${formatYen(diffVal)}</span>
+          <div class="sim-tooltip-sub">
+            <div>${yearText}</div>
+            <div>転職しない場合：${formatYen(aVal)}</div>
+            <div>転職した場合：${formatYen(bVal)}</div>
+          </div>
+        `;
+
+        tooltipEl.style.display = 'block';
+      }
+
+      function hideTooltip() {
+        tooltipEl.style.display = 'none';
+      }
+
+      svgEl.querySelectorAll('rect[data-year]').forEach(rect => {
+        rect.addEventListener('mouseenter', (e) => showTooltip(e, rect));
+        rect.addEventListener('mousemove', (e) => showTooltip(e, rect));
+        rect.addEventListener('mouseleave', hideTooltip);
+        rect.addEventListener('click', (e) => showTooltip(e, rect));
+      });
+    }
+
+    async function displayResult(resultData) {
+      const payload = resultData.result ? resultData : { result: resultData };
+      const { baseIncome, addAmount, estimated, score } = payload.result || payload;
+      
+      // 【重要】lineUserIdがあれば、必ずサーバーに保存（ダッシュボード表示用）
+      const lineUserId = await getLineUserId();
+      if (lineUserId && estimated) {
+        const additionalAnswersData = payload.additionalAnswers || resultData.additionalAnswers || {};
+        const distributionTag = payload.distributionTag || resultData.distributionTag || false;
+        const distributionTagDetails = payload.distributionTagDetails || resultData.distributionTagDetails || {};
+        await saveResultByLineUser(lineUserId, payload.result || payload, additionalAnswersData, distributionTag, distributionTagDetails);
+      }
+      
+      const estimatedEl = document.getElementById('estimated-salary');
+      const baseEl = document.getElementById('base-income');
+      const addEl = document.getElementById('add-amount');
+      const summaryEl = document.getElementById('summary-text');
+      const hintListEl = document.getElementById('hint-list');
+      const hintBoxEl = document.getElementById('hint-box');
+      const speechEl = document.getElementById('speech-text');
+
+      estimatedEl.textContent = formatMan(estimated);
+      baseEl.textContent = formatMan(baseIncome);
+      addEl.textContent = `+${formatMan(addAmount).replace('万円', '')}万円`;
+
+      summaryEl.innerHTML = buildComment(score, baseIncome, addAmount);
+
+      const hints = buildHints(score);
+      if (hints.length === 0) {
+        if (hintBoxEl) hintBoxEl.style.display = 'none';
+      } else {
+        hintListEl.innerHTML = hints.map(h => `<li>${h}</li>`).join('');
+      }
+
+      if (score >= 45) {
+        speechEl.textContent = 'かなりいいポジションにいます。このまま強みを活かして、想定年収の中身をチェックしてみましょう。';
+      } else if (score >= 30) {
+        speechEl.textContent = '着実に年収アップを狙える状態です。今回の結果で「どこを伸ばすと効きやすいか」を一緒に見ていきましょう。';
+      } else {
+        speechEl.textContent = 'ここから年収を伸ばしていく余地がたくさんあります。伸びしろのポイントを一緒に整理していきましょう。';
+      }
+
+      const sim = buildSimulation(baseIncome, estimated);
+      renderSimulation(sim);
+      
+      showScreen('result-screen');
+    }
+
+    function restartDiagnosis() {
+      clearDiagnosisCache();
+      step = 0;
+      for (const key in answers) delete answers[key];
+      for (const key in errors) delete errors[key];
+      additionalAnswers = {};
+      showScreen('question-screen');
+      renderQuestion();
+    }
+
+    // ========================================
+    // PENDING結果をlineUserIdにリンク
+    // ========================================
+    async function claimPendingResult(lineUserId) {
+      const lineDisplayName = getLineDisplayName();
+      try {
+        const response = await fetch(`${WP_API_BASE}/claim-pending-result`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            lineUserId: lineUserId,
+            lineDisplayName: lineDisplayName || ''
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.result) {
+            return data.result;
+          }
+        }
+      } catch (error) {
+        // claim failed
+      }
+      return null;
+    }
+
+    // ========================================
+    // 初期化
+    // ========================================
+    async function checkURLForResult() {
+      const urlParams = new URLSearchParams(window.location.search);
+
+      if (urlParams.has('reset') || urlParams.has('clear') || urlParams.has('start')) {
+        clearDiagnosisCache();
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return false;
+      }
+
+      // 【重要】LIFF初期化を明示的に待つ
+      if (typeof liff !== 'undefined' && !liffInitialized) {
+        await initLIFF();
+      }
+
+      const lineUserId = await getLineUserId();
+      
+      // session_idをクエリパラメータとハッシュフラグメントの両方から取得
+      let sessionIdFromQuery = urlParams.get('session_id');
+      if (!sessionIdFromQuery && window.location.hash) {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        sessionIdFromQuery = hashParams.get('session_id');
+      }
+
+      if (lineUserId) {
+        if (sessionIdFromQuery) {
+          // session_idがある場合は移行
+          await transferSessionResultToLineUser(sessionIdFromQuery, lineUserId);
+        } else {
+          // 【修正】session_idがない場合、先にPENDING結果をclaimする（適職診断と同じ）
+          const claimedResult = await claimPendingResult(lineUserId);
+          if (claimedResult && (claimedResult.estimated || (claimedResult.result && claimedResult.result.estimated))) {
+            await displayResult(claimedResult);
+            return true;
+          }
+        }
+
+        // claimで見つからなかった場合、lineUserIdで結果を検索
+        const cachedData = await getResultByLineUser(lineUserId);
+        if (cachedData && (cachedData.estimated || (cachedData.result && cachedData.result.estimated))) {
+          await displayResult(cachedData);
+          return true;
+        }
+      }
+
+      if (sessionIdFromQuery) {
+        const cachedResult = await getLatestResultFromCache();
+        if (cachedResult && (cachedResult.estimated || (cachedResult.result && cachedResult.result.estimated))) {
+          await displayResult(cachedResult);
+          return true;
+        }
+      }
+
+      const encodedData = urlParams.get('data');
+      if (encodedData) {
+        try {
+          const json = decodeURIComponent(atob(encodedData));
+          const payload = JSON.parse(json);
+          if (payload && payload.estimated) {
+            await displayResult(payload);
+            return true;
+          }
+        } catch (e) {
+          // parse failed
+        }
+      }
+
+      return false;
+    }
+
+    // ========================================
+    // 自動デバッグ機能
+    // ========================================
+    async function runAutoDebug() {
+      const debugResults = {
+        timestamp: new Date().toISOString(),
+        apiBase: WP_API_BASE,
+        liffId: LIFF_ID,
+        checks: {}
+      };
+
+      // 1. API疎通確認
+      try {
+        const response = await fetch(`${WP_API_BASE}/debug`, { method: 'GET' });
+        if (response.ok) {
+          const data = await response.json();
+          debugResults.checks.apiConnection = '✅ OK';
+          debugResults.checks.pendingExists = data.pending_exists ? '✅ あり' : '❌ なし';
+          debugResults.checks.lineuserCount = data.lineuser_transients ? data.lineuser_transients.length : 0;
+          debugResults.debugData = data;
+        } else {
+          debugResults.checks.apiConnection = `❌ エラー (${response.status})`;
+        }
+      } catch (e) {
+        debugResults.checks.apiConnection = `❌ 接続失敗: ${e.message}`;
+      }
+
+      // 2. LIFF状態確認
+      debugResults.checks.liffInitialized = liffInitialized ? '✅ 初期化済み' : '❌ 未初期化';
+      debugResults.checks.liffLoggedIn = liffLoggedIn ? '✅ ログイン中' : '❌ 未ログイン';
+
+      // 3. lineUserId確認
+      const lineUserId = await getLineUserId();
+      debugResults.checks.lineUserId = lineUserId ? `✅ ${lineUserId.substring(0, 10)}...` : '❌ 取得できず';
+
+      // 4. セッションID確認
+      const sessionId = getSessionId();
+      debugResults.checks.sessionId = sessionId ? `✅ ${sessionId}` : '❌ なし';
+
+      // 5. ローカルキャッシュ確認
+      const localCache = localStorage.getItem(CACHE_KEY);
+      debugResults.checks.localCache = localCache ? '✅ あり' : '❌ なし';
+
+      // コンソールに出力
+      console.log('========== 年収診断デバッグ結果 ==========');
+      console.log(JSON.stringify(debugResults, null, 2));
+      console.log('==========================================');
+
+      // URLに?debugがある場合は画面にも表示
+      if (window.location.search.includes('debug')) {
+        const debugDiv = document.createElement('div');
+        debugDiv.style.cssText = 'position:fixed;top:10px;right:10px;background:#111;color:#0f0;padding:15px;border-radius:8px;font-family:monospace;font-size:12px;max-width:400px;z-index:9999;max-height:80vh;overflow:auto;';
+        debugDiv.innerHTML = `
+          <div style="font-weight:bold;margin-bottom:10px;">🔧 デバッグ情報</div>
+          <div>API: ${debugResults.checks.apiConnection}</div>
+          <div>PENDING: ${debugResults.checks.pendingExists || 'N/A'}</div>
+          <div>LINE Users: ${debugResults.checks.lineuserCount || 0}件</div>
+          <div>LIFF: ${debugResults.checks.liffInitialized}</div>
+          <div>LIFFログイン: ${debugResults.checks.liffLoggedIn}</div>
+          <div>LINE User ID: ${debugResults.checks.lineUserId}</div>
+          <div>Session ID: ${debugResults.checks.sessionId}</div>
+          <div>ローカルキャッシュ: ${debugResults.checks.localCache}</div>
+          <button onclick="this.parentElement.remove()" style="margin-top:10px;padding:5px 10px;cursor:pointer;">閉じる</button>
+        `;
+        document.body.appendChild(debugDiv);
+      }
+
+      return debugResults;
+    }
+
+    async function init() {
+      // デバッグ実行（コンソールに出力）
+      runAutoDebug().catch(e => console.error('Debug failed:', e));
+
+      const hasResult = await checkURLForResult();
+      if (!hasResult) {
+        renderQuestion();
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

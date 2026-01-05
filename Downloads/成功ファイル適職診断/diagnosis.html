@@ -1,0 +1,2973 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>16タイプ仕事診断</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-primary: #ff9800;
+            --color-primary-dark: #ef6c00;
+            --color-primary-light: #ffe0b2;
+            --color-background: #fffaf5;
+            --color-text: #1e293b;
+            --color-text-light: #64748b;
+            --color-white: #ffffff;
+            --color-border: #f0d7b2;
+        }
+
+        html, body {
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.5;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Screen Layout */
+        .screen {
+            display: none;
+            /* Hidden by default */
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Start Screen Styling */
+        #start-screen,
+        #line-registration-screen {
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .start-card {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(to right, #ff9800, #ef6c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #ff9800, #ef6c00);
+            color: white;
+            border: none;
+            padding: 16px 48px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-line {
+            background: linear-gradient(to right, #06C755, #00B900);
+            color: white;
+            border: none;
+            padding: 16px 48px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(6, 199, 85, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .btn-line:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(6, 199, 85, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+            #start-screen,
+            #question-screen,
+            #result-screen {
+                width: 100%;
+            }
+            .start-card {
+                padding: 24px 16px;
+                border-radius: 18px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            .btn-primary {
+                width: 100%;
+                padding: 14px 24px;
+                font-size: 1rem;
+            }
+            #question-screen {
+                padding: 16px;
+            }
+            .question-text {
+                font-size: 1.1rem;
+                margin-bottom: 24px;
+            }
+            .options-container {
+                gap: 8px;
+            }
+            .option-btn {
+                font-size: 0.95rem;
+                padding: 10px;
+            }
+            .hero-section {
+                padding: 28px 16px 28px 16px;
+                background-color: #ffffff;
+                border: 3px solid transparent;
+                background-image: linear-gradient(#ffffff, #ffffff),
+                                  linear-gradient(135deg, #ff9800, #ffc107, #ff9800);
+                background-origin: border-box;
+                background-clip: padding-box, border-box;
+                border-radius: 20px;
+                margin: 16px;
+                box-shadow: 0 4px 20px rgba(255, 152, 0, 0.15);
+                overflow: visible;
+            }
+            .type-image {
+                width: 60vw;
+                height: 60vw;
+                font-size: 3.5rem;
+                background-color: #ffffff;
+                border-radius: 20px;
+                overflow: visible;
+                margin-bottom: 30px;
+            }
+            .type-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                border-radius: 20px;
+            }
+            .type-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .result-title {
+                font-size: 1.6rem;
+            }
+            .result-content {
+                padding: 16px;
+                max-width: 100%;
+            }
+            .catchcopy {
+                font-size: 1.05rem;
+                margin: 20px 0;
+            }
+            .jobs-header-row {
+                align-items: flex-end;
+            }
+            .job-cards {
+                gap: 10px;
+            }
+            .job-card {
+                min-width: 200px;
+                max-width: 220px;
+            }
+            .job-illustration {
+                height: 90px;
+            }
+            .job-detail-body {
+                position: relative;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .job-detail-body.expanded {
+                -webkit-line-clamp: unset;
+                max-height: none;
+            }
+            .more-toggle {
+                display: inline-block;
+            }
+            .job-detail-body:not(.expanded)::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                height: 2.4em;
+                background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+                pointer-events: none;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .result-content {
+                max-width: 720px;
+            }
+            .swipe-hint {
+                display: none;
+            }
+            .job-cards {
+                scroll-snap-type: none;
+                padding: 6px 0 10px;
+            }
+            .job-card {
+                scroll-snap-align: none;
+            }
+        }
+
+        /* Question Screen Styling */
+        #question-screen {
+            align-items: center;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header-nav {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: var(--color-text-light);
+            font-size: 0.9rem;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background-color: #ffe7c2;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--color-primary);
+            width: 0%;
+            transition: width 0.3s ease-out;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 40px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .options-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #cbd5e1;
+            padding: 12px;
+            border-radius: 12px;
+            color: var(--color-text);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover {
+            border-color: var(--color-primary);
+            background-color: #fff4e3;
+            color: var(--color-primary-dark);
+        }
+
+        /* Result Screen Styling */
+        #result-screen {
+            background: white;
+            padding-bottom: 40px;
+        }
+
+        .hero-section {
+            background-color: #fff3e0;
+            padding: 40px 20px 40px 20px;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: visible;
+        }
+
+        .type-image {
+            width: min(70vw, 280px);
+            height: min(70vw, 280px);
+            background-color: #ffffff;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            font-size: 5rem;
+            overflow: visible;
+        }
+        .type-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 20px;
+        }
+
+        .result-title {
+            font-size: 2rem;
+            font-weight: 900;
+            line-height: 1.3;
+            margin: 0;
+        }
+
+        .result-content {
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .catchcopy {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #334155;
+            margin: 30px 0;
+            white-space: pre-line;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .description-box {
+            background-color: transparent;
+            padding: 0;
+            border-radius: 0;
+            line-height: 1.8;
+            color: #475569;
+            margin-bottom: 30px;
+            white-space: pre-line;
+            border: none;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        h3 {
+            border-bottom: 2px solid #ffe0b2;
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+            color: var(--color-primary-dark);
+            font-size: 1.1rem;
+        }
+
+        .strong-box {
+            border: 1px solid var(--color-border);
+            background: #fff8ef;
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .checklist li {
+            position: relative;
+            padding-left: 32px;
+            margin: 8px 0;
+            color: #1f2937;
+        }
+        .checklist li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 2px;
+            width: 1.4em;   /* 約140%で少し大きめのボックス */
+            height: 1.4em;
+            border: 2px solid var(--color-primary-dark);
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .checklist li::after {
+            content: "✓";
+            position: absolute;
+            left: 3px;
+            top: 1px;
+            font-size: 1.1em; /* チェックマークを約110%に拡大 */
+            color: #22c55e;
+        }
+        .jobs-box {
+            padding: 0;
+            margin-bottom: 32px;
+        }
+        .jobs-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .swipe-hint {
+            font-size: 0.8rem;
+            color: var(--color-text-light);
+            white-space: nowrap;
+        }
+        .job-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+        }
+        @media (max-width: 640px) {
+            .job-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        .job-list-item {
+            padding: 12px 16px;
+            background: #fff;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--color-primary-dark);
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+            cursor: pointer;
+        }
+        .job-list-item:hover {
+            background-color: #f8fafc;
+            border-color: var(--color-primary);
+        }
+        .job-list-item.active {
+            background-color: #fff4e3;
+            border-color: var(--color-primary);
+            font-weight: 600;
+        }
+        .job-cards {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            /* 先頭・末尾カードも中央にスナップしやすくするため左右に余白 */
+            padding: 6px 8% 10px;
+            scroll-snap-type: x mandatory;
+            /* スクロールバー非表示（ブラウザ別対応） */
+            scrollbar-width: none;          /* Firefox */
+            -ms-overflow-style: none;       /* IE/Edge 古い版 */
+        }
+        .job-cards::-webkit-scrollbar {
+            display: none;                  /* Chrome / Safari */
+        }
+        .job-card {
+            flex: 0 0 88%;
+            max-width: 320px;
+            background: #fff;
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            scroll-snap-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+            text-align: center; /* カルーセル内の文字を中央揃え */
+        }
+        .job-card.active {
+            border-color: var(--color-primary);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+            transform: translateY(-2px);
+        }
+        .job-illustration {
+            width: 100%;
+            height: 130px;
+            border-radius: 12px;
+            background: #ffffff;
+            display: flex;
+            overflow: hidden;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: var(--color-primary-dark);
+            border: 1px solid var(--color-border);
+        }
+        .job-title {
+            font-weight: 800;
+            color: var(--color-primary-dark);
+            margin: 4px 0 0;
+            font-size: 1rem;
+        }
+        .job-desc {
+            color: #475569;
+            font-size: 0.95rem;
+            margin: 0;
+            line-height: 1.5;
+        }
+        .job-detail {
+            margin-top: 16px;
+        }
+        .job-detail h4 {
+            margin: 8px 0 4px;
+            font-size: 0.95rem;
+            color: var(--color-primary-dark);
+        }
+        .job-detail-body {
+            margin: 0 0 8px;
+            font-size: 0.95rem;
+            color: #475569;
+            white-space: pre-line;
+            line-height: 1.7;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .more-toggle {
+            display: inline-block;
+            margin: 4px 0 12px;
+            padding: 0;
+            border: none;
+            background: none;
+            color: var(--color-primary-dark);
+            font-size: 0.85rem;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .fade-out {
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .fade-in {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+    <!-- LIFF SDK -->
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
+</head>
+
+<body>
+
+    <!-- START SCREEN -->
+    <div id="start-screen" class="screen active">
+        <div class="start-card">
+            <h1>16タイプ仕事診断</h1>
+            <p>
+                約20問の質問に答えると、<br>
+                あなたの“働き方タイプ”と<br>
+                向いている職種を診断します。
+            </p>
+            <button class="btn-primary" onclick="startQuiz()">診断をはじめる</button>
+        </div>
+    </div>
+
+    <!-- QUESTION SCREEN -->
+    <div id="question-screen" class="screen">
+        <div class="header-nav">
+            <span id="back-btn" style="cursor: pointer;" onclick="goBack()">&lt; 前に戻る</span>
+            <span id="question-counter">Q 1 / 24</span>
+        </div>
+
+        <div class="progress-bar-bg">
+            <div id="progress-bar-fill" class="progress-bar-fill"></div>
+        </div>
+
+        <div id="question-container" class="fade-in">
+            <div id="question-text" class="question-text">質問テキスト</div>
+            <div class="options-container">
+                <button class="option-btn" onclick="handleAnswer(2)">当てはまる</button>
+                <button class="option-btn" onclick="handleAnswer(1)">どちらかといえば当てはまる</button>
+                <button class="option-btn" onclick="handleAnswer(0)">どちらでもない</button>
+                <button class="option-btn" onclick="handleAnswer(-1)">どちらかといえば当てはまらない</button>
+                <button class="option-btn" onclick="handleAnswer(-2)">当てはまらない</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LINE REGISTRATION SCREEN -->
+    <div id="line-registration-screen" class="screen">
+        <div class="start-card" style="max-width: 500px;">
+            <h1>診断結果を見る</h1>
+            <p>
+                診断結果を見るには、<br>
+                LINE公式アカウントに<br>
+                友だち追加が必要です。
+            </p>
+            
+            <div id="qr-code-container" style="margin: 20px 0;">
+                <img id="qr-code-image" src="" alt="LINE登録QRコード" style="display: none; max-width: 200px; margin: 0 auto; border: 4px solid #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
+            <p style="font-size: 0.9rem; color: var(--color-text-light); margin: 10px 0;">
+                スマホの方はQRコードを読み取るか、<br>
+                下のボタンからLINE登録してください
+            </p>
+            <button id="line-register-btn" class="btn-line" onclick="openLineRegistration()">
+                LINE登録して結果を見る
+            </button>
+            <script>
+                // ボタンのクリックイベントを確認
+                document.addEventListener('DOMContentLoaded', function() {
+                    const btn = document.getElementById('line-register-btn');
+                    if (btn) {
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            if (typeof openLineRegistration === 'function') {
+                                openLineRegistration();
+                            } else {
+                            }
+                        });
+                    } else {
+                    }
+                });
+            </script>
+        </div>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div id="result-screen" class="screen">
+        <div class="hero-section">
+            <div style="color: var(--color-primary); font-weight: bold; margin-bottom: 8px; font-size: 1.2rem; margin-top: -20px;">診断結果</div>
+            <div class="type-image" id="result-image">🎨</div>
+            <h1 id="result-name" class="result-title">タイプ名</h1>
+        </div>
+
+        <div class="result-content">
+            <div id="result-catchcopy" class="catchcopy">キャッチコピー</div>
+
+            <div class="strong-box">
+                <h3 style="border:none; padding:0; margin:0 0 8px 0; color: var(--color-primary-dark);">強み</h3>
+                <ul id="result-strengths" class="checklist"></ul>
+            </div>
+
+            <div class="section">
+                <h3>性格の傾向</h3>
+                <div id="result-description" class="description-box">解説文</div>
+            </div>
+
+            <div class="section jobs-box">
+                <div class="jobs-header-row">
+                    <h3 style="margin-top:0; border-bottom:none; padding-bottom:0;">向いている職種</h3>
+                    <span class="swipe-hint">右にスワイプ →</span>
+                </div>
+                <div id="result-jobs" class="job-cards"></div>
+                <div id="job-detail" class="job-detail">
+                    <h4 id="job-detail-h1"></h4>
+                    <p id="job-detail-body1" class="job-detail-body"></p>
+                    <h4 id="job-detail-h2"></h4>
+            </div>
+
+            <!-- 配布タグ情報セクション -->
+            <div class="section" id="distribution-tag-section" style="margin-top: 24px; padding: 16px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #e0e0e0;">
+                <h3 style="margin-top: 0; color: var(--color-primary-dark);">配布タグ情報</h3>
+                <div id="distribution-tag-status" style="margin-bottom: 12px;">
+                    <div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
+                        配布タグ: <span id="distribution-tag-value" style="color: var(--color-primary);">判定中...</span>
+                    </div>
+                    <div id="distribution-tag-details" style="font-size: 0.9rem; color: #666; line-height: 1.6;">
+                        <div>年齢: <span id="tag-age">-</span></div>
+                        <div>地域: <span id="tag-location">-</span></div>
+                        <div>転職タイミング: <span id="tag-timing">-</span></div>
+                        <div>転職回数: <span id="tag-jobChangeCount">-</span></div>
+                    </div>
+                </div>
+                <button id="copy-result-data-btn" style="padding: 8px 16px; background-color: var(--color-primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; margin-top: 8px;">
+                    診断結果データをコピー
+                </button>
+                <div id="copy-feedback" style="margin-top: 8px; font-size: 0.85rem; color: #28a745; display: none;">
+                    ✓ コピーしました
+                </div>
+            </div>
+                    <p id="job-detail-body2" class="job-detail-body"></p>
+                    <h4 id="job-detail-h3"></h4>
+                    <p id="job-detail-body3" class="job-detail-body"></p>
+                </div>
+            </div>
+
+            <button class="btn-primary" style="width:100%; border-radius:12px;" onclick="resetQuiz()">もう一度診断する</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        // 追加質問の定義
+        const additionalQuestions = {
+            age: {
+                questionType: "age",
+                text: "あなたの年齢を教えてください",
+                options: [
+                    { value: 19, label: "18-19歳", minAge: 18, maxAge: 19 },
+                    { value: 22, label: "20-24歳", minAge: 20, maxAge: 24 },
+                    { value: 27, label: "25-29歳", minAge: 25, maxAge: 29 },
+                    { value: 32, label: "30-34歳", minAge: 30, maxAge: 34 },
+                    { value: 37, label: "35-39歳", minAge: 35, maxAge: 39 },
+                    { value: 40, label: "40歳以上", minAge: 40, maxAge: 100 }
+                ]
+            },
+            location: {
+                questionType: "location",
+                text: "現在お住まいの都道府県を教えてください",
+                options: [
+                    { value: "東京都", label: "東京都" },
+                    { value: "神奈川県", label: "神奈川県" },
+                    { value: "埼玉県", label: "埼玉県" },
+                    { value: "千葉県", label: "千葉県" },
+                    { value: "大阪府", label: "大阪府" },
+                    { value: "福岡県", label: "福岡県" },
+                    { value: "愛知県", label: "愛知県" },
+                    { value: "その他", label: "その他" }
+                ]
+            },
+            jobChangeCount: {
+                questionType: "jobChangeCount",
+                text: "転職回数は何回ですか？（現在の会社を含めて何社目か）",
+                options: [
+                    { value: 0, label: "転職経験なし（1社目）" },
+                    { value: 1, label: "1回（2社目）" },
+                    { value: 2, label: "2回（3社目）" },
+                    { value: 3, label: "3回以上（4社目以上）" }
+                ]
+            },
+            jobChangeTiming: {
+                questionType: "jobChangeTiming",
+                text: "転職を検討している場合、どのタイミングを考えていますか？",
+                options: [
+                    { value: "1month", label: "すぐに（1ヶ月以内）" },
+                    { value: "3months", label: "3ヶ月以内" },
+                    { value: "6months", label: "6ヶ月以内" },
+                    { value: "1year", label: "1年以内" },
+                    { value: "1yearplus", label: "1年以上先" },
+                    { value: "not_considered", label: "転職は考えていない" }
+                ]
+            }
+        };
+
+        // 質問は32問から「間引き」で20問に集約（4軸×5問ずつ）
+        const personalityQuestions = [
+            // E/I（外向・内向）
+            { id: 1, text: "大人数でいるとき、エネルギーが湧いてくるほうだ。", axis: "E_I", direction: "pos" },
+            { id: 2, text: "初対面でも、緊張せずすぐに打ち解けられる。", axis: "E_I", direction: "pos" },
+            { id: 3, text: "休日には家より、外に出かけて誰かに会いたい。", axis: "E_I", direction: "pos" },
+            { id: 4, text: "大人数より、少人数で深く話すのが好きだ。", axis: "E_I", direction: "neg" },
+            { id: 5, text: "注目されるより、裏方で支えるほうが落ち着く。", axis: "E_I", direction: "neg" },
+
+            // S/N（現実・直観）
+            { id: 6, text: "抽象論より、具体的な事実やデータを重視する。", axis: "S_N", direction: "pos" },
+            { id: 7, text: "仕事では、過去の事例や実績を参考にしたい。", axis: "S_N", direction: "pos" },
+            { id: 8, text: "手順やマニュアルが決まっているほうが動きやすい。", axis: "S_N", direction: "pos" },
+            { id: 9, text: "物事の「裏にある意味」や「パターン」を読むのが好きだ。", axis: "S_N", direction: "neg" },
+            { id: 10, text: "前例のない新しい案を考えるのが好きだ。", axis: "S_N", direction: "neg" },
+
+            // T/F（思考・感情）
+            { id: 11, text: "感情より、論理的な整合性を優先する。", axis: "T_F", direction: "pos" },
+            { id: 12, text: "トラブル時は、まず原因分析し冷静に対処する。", axis: "T_F", direction: "pos" },
+            { id: 13, text: "「公平さ」とは、誰にでも同じルールを適用することだ。", axis: "T_F", direction: "pos" },
+            { id: 14, text: "迷ったときは、自分の気持ちや相手の感情を大切にする。", axis: "T_F", direction: "neg" },
+            { id: 15, text: "困っている人がいると、理屈抜きで手を差し伸べたくなる。", axis: "T_F", direction: "neg" },
+
+            // J/P（計画・柔軟）
+            { id: 16, text: "旅行や仕事の予定は、事前にきっちり立てたい。", axis: "J_P", direction: "pos" },
+            { id: 17, text: "締め切りギリギリは嫌で、余裕を持って終わらせたい。", axis: "J_P", direction: "pos" },
+            { id: 18, text: "部屋やデスク周りは、整理整頓されていないと落ち着かない。", axis: "J_P", direction: "pos" },
+            { id: 19, text: "予定外の変更にも、その場で柔軟に対応できる。", axis: "J_P", direction: "neg" },
+            { id: 20, text: "締め切り直前のほうが、集中力が高まり良いものができる。", axis: "J_P", direction: "neg" }
+        ];
+
+        // 質問配列を構築（最初の4問を追加質問にする）
+        const questions = [
+            { id: "age", questionType: "age", isAdditional: true },             // 1問目: 年齢
+            { id: "location", questionType: "location", isAdditional: true },   // 2問目: 住まい
+            { id: "jobChangeTiming", questionType: "jobChangeTiming", isAdditional: true }, // 3問目: 転職時期
+            { id: "jobChangeCount", questionType: "jobChangeCount", isAdditional: true }, // 4問目: 転職回数
+            ...personalityQuestions                                           // 5問目以降: 性格診断20問
+        ];
+
+        const typesData = [
+            {
+                id: "ISTJ",
+                name: "ロジカル実務人材",
+                image: "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/ISTJdesu.jpg",
+                catchcopy: "正確さと責任感で流れを整え、\n仕組みを磨き込み、\nチームの土台を安定させる。",
+                strengths: [
+                    "正確さと誠実さで信頼を積む",
+                    "リスクを抑え安定運用できる",
+                    "情報を整理し筋道を立てる",
+                    "手順を磨き込み品質を上げる"
+                ],
+                tendencies:
+                    "■ 計画を形にする実直さ\nリスクを落ち着いて見積もり、手順を整えて一歩ずつ前に進みます。約束を守る姿勢が強く、抜けを減らしながら成果までの筋道を示します。多少時間がかかっても確実に仕上げるため、任せた側が安心できます。積み重ねを重視するため、長期のプロジェクトでも着実に前へ進めます。\n\n" +
+                    "■ 再現性を磨く職人肌\n同じ品質を安定して出すためにプロセスを磨き込むことを惜しみません。チェックリストや基準づくりでバラつきを抑え、誰がやっても再現できる形に整えます。小さな改善を積み上げるため、トラブル時も素早く立て直せます。結果として組織全体のミスと不安を減らします。\n\n" +
+                    "■ 誠実さが生む土台力\n細部まで丁寧に仕上げる誠実さが、長期の安心感を生みます。派手さはなくても静かで確かな貢献が積み上がり、チームの「土台」として欠かせない存在になります。信頼が厚くなるほど、自由度の高い改善や大事な案件を任されるようになります。",
+                jobs: [
+                    { title: "経理事務", reason: "精度と基準遵守が活きる" },
+                    { title: "一般事務", reason: "手順整備と安定運用に強い" },
+                    { title: "施工管理", reason: "秩序維持と改善の両立が得意" }
+                ]
+            },
+            {
+                id: "ISFJ",
+                name: "サポート実務人材",
+                image: "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/ISFJdesu.jpg",
+                catchcopy: "思いやりと安定感で支え、\n細やかな配慮を仕組みに変え、\n安心して働ける場をつくる。",
+                strengths: [
+                    "協調と配慮で関係を整える",
+                    "注意深く小さな変化を拾う",
+                    "安定運用と実務処理に強い",
+                    "安心感を与えるコミュニケーション"
+                ],
+                tendencies:
+                    "■ 相手目線の細やかな配慮\n相手の立場や状況を丁寧にくみ取り、安心して働ける環境づくりを進めます。声に出されない小さな変化にも気づき、先回りで動くため、不安を抱えたままにしません。感情の揺れにも敏感で、自然に気遣いができる頼もしさがあります。\n\n" +
+                    "■ 安定を支える実務力\n秩序と安定を大切にし、日々の運用を静かに底上げします。丁寧で抜けの少ない処理が信頼を集め、積み重ねが全体の品質を高めます。ルーチンを守りつつ改善点を見つけ、堅実に仕組みを整えるため、安心感が長く続きます。\n\n" +
+                    "■ 穏やかなコミュニケーション\n柔らかい言葉と誠実な対応で緊張をほぐし、相談しやすい空気をつくります。心理的安全性が高まることで報連相が増え、小さな課題も早期に解消されます。静かに寄り添う姿勢が、協力しやすい関係を育みます。",
+                jobs: [
+                    { title: "一般事務", reason: "配慮と安定運用が強み" },
+                    { title: "人事・総務事務", reason: "安心感と丁寧さが活きる" },
+                    { title: "営業事務", reason: "関係づくりと実務力を両立" }
+                ]
+            },
+            {
+                id: "ESTJ",
+                name: "実務リーダー人材",
+                image: "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/ESTJdesu.jpg",
+                catchcopy: "現場を仕切り、段取りを描き、\n決めた方針を実行し切って、\nチームを着実に前進させる。",
+                strengths: [
+                    "方針を示し実行し切る力",
+                    "段取りとリスク管理に強い",
+                    "ルール運用と改善を両立",
+                    "チームを束ねる推進力"
+                ],
+                tendencies:
+                    "■ 迷わず決めて前に進める\n何を優先すべきかを素早く判断し、段取りを組んで実行します。決めたことをやり切る姿勢が迷いを減らし、プロジェクトを止めません。周囲を巻き込みながら推進する頼もしさがあります。\n\n" +
+                    "■ 現場と管理の橋渡し\nルール運用と改善のバランスを取り、現場とマネジメントを滑らかにつなぎます。リスクを見ながらもスピードを落とさず、混乱を抑えて成果に導きます。数字と実務の両面を見て手当てできるのが強みです。\n\n" +
+                    "■ 再現性を生む進め方\n手順を整え、同じ品質を安定して出せる仕組みを作ります。属人化を減らし、チーム全体の動きを加速させることで、安心感とスピードを両立させます。改善サイクルを回し続ける持久力も備えています。",
+                jobs: [
+                    { title: "店長（小売・卸売）", reason: "運用と改善のバランスが強み" },
+                    { title: "施工管理", reason: "現場統率と段取り力が活きる" },
+                    { title: "人事・総務事務", reason: "計画遂行と管理に適性" }
+                ]
+            },
+            {
+                id: "ESFJ",
+                name: "コミュニケーション管理人材",
+                image: "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/ESFJdesu.jpg",
+                catchcopy: "つながりを築き、空気を整え、\n必要な情報を届けながら、\nチームを温かくまとめる。",
+                strengths: [
+                    "共感と調整で対立を和らげる",
+                    "支援と発信をバランスよく行う",
+                    "橋渡し役として信頼を築く",
+                    "場の空気を明るく保てる"
+                ],
+                tendencies:
+                    "■ 空気を和らげる調整力\n人の気持ちをくみ取り、場を明るく保ちながら対立をやわらげます。小さな違和感も早めに拾い、衝突を大きくしない工夫ができます。安心して話せる空気をつくることが得意です。\n\n" +
+                    "■ 橋渡し役としての安心感\n必要な情報をわかりやすく伝え、誤解を減らします。相談しやすい窓口として機能し、チームに心理的な安全性を広げます。誰に聞けばいいか迷わせない動きで信頼を高めます。\n\n" +
+                    "■ 支援と発信のバランス\nサポートとコミュニケーションを両立させ、協力関係を育てます。相手の立場を尊重しつつ必要なメッセージを届けるので、周囲が動きやすくなります。細やかな気配りでチームを落ち着かせます。",
+                jobs: [
+                    { title: "人事・総務事務", reason: "関係構築と運用力が活きる" },
+                    { title: "営業事務", reason: "発信と調整の両立に強い" },
+                    { title: "販売職", reason: "支援と空気づくりで効果を高める" }
+                ]
+            },
+            {
+                id: "INTJ",
+                name: "戦略構築人材",
+                image: "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/INTJdesu.jpg",
+                catchcopy: "未来を読み、ルートを描き、\n仕組みで最適化しながら、\n長期成功への道を設計する。",
+                strengths: [
+                    "分析と構造化が得意",
+                    "長期視点で戦略を描く",
+                    "合理的に優先度を決める",
+                    "独自の切り口で最適化する"
+                ],
+                tendencies:
+                    "■ 先を読む設計思考\n複雑な状況を整理し、長期の勝ち筋を描きます。ゴールから逆算して道筋を作るため、迷いが少なく、周囲が進む方向を共有しやすくなります。視界の広さがリスクを抑えます。\n\n" +
+                    "■ 合理的な優先順位づけ\n限られた資源で成果を出すために、何を先にやるかを冷静に決めます。ムダをそぎ落とし、効果の高い手順に集中するので、プロジェクト全体の効率が上がります。\n\n" +
+                    "■ 仕組みで最適化\n独自の視点でプロセスを見直し、再現性のある仕組みに落とし込みます。深く考え抜いた計画がチームに安心感をもたらし、長期的な成功に向けて足場を固めます。",
+                jobs: [
+                    { title: "コンサルタント", reason: "長期設計と優先度設計が強み" },
+                    { title: "マーケティング職", reason: "構造化と最適化に適性" },
+                    { title: "建築・土木技術者", reason: "分析と仮説構築を活かす" }
+                ]
+            },
+            {
+                id: "INFJ",
+                name: "洞察サポート人材",
+                image: "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/INFJdesu.jpg",
+                catchcopy: "静かな洞察で本質を捉え、\n相手に寄り添いながら、\n成長と安心を後押しする。",
+                strengths: [
+                    "洞察力で本質を捉える",
+                    "共感深く寄り添える",
+                    "言葉に深みがある",
+                    "価値観に基づき行動する"
+                ],
+                tendencies:
+                    "■ 本音に耳を傾ける洞察\n人の背景や感情を静かに受け止め、核心をやわらかくとらえます。安心して話せる場を整えるので、相手が肩の力を抜いて本音を語れます。\n\n" +
+                    "■ 寄り添いながら導く\n思いやりのある言葉で不安をほぐし、前向きな一歩を促します。短期で焦らず、長く伴走する姿勢が信頼につながります。\n\n" +
+                    "■ 価値観に忠実な姿勢\n自分の価値観を軸にぶれずに行動し、静かでも確かな影響力を発揮します。落ち着いた一貫性が周囲に安心感をもたらし、長期的な関係を支えます。",
+                jobs: [
+                    { title: "コンサルタント", reason: "洞察と共感が核になる" },
+                    { title: "マーケティング職", reason: "伴走と成長支援に強い" },
+                    { title: "営業職（総合）", reason: "言葉の深みと洞察を活かす" }
+                ]
+            },
+            {
+                id: "ENTJ",
+                name: "エグゼクティブ推進人材",
+                image: "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/ENTJdesu.jpg",
+                catchcopy: "明確なゴールを掲げ、\n優先順位を切り、\n組織を率いて成果を取りに行く。",
+                strengths: [
+                    "決断が速く牽引力がある",
+                    "目標指向で逆算思考が得意",
+                    "戦略と実行を両立できる",
+                    "長期視点でリソース配分する"
+                ],
+                tendencies:
+                    "■ ゴールから逆算する力\n目的を明確に掲げ、そこから必要なステップを組み立てます。迷わず決める姿勢がチームの足並みをそろえ、動きを速めます。\n\n" +
+                    "■ 戦略と実行の両輪\n大きな方針を描きながら、現場の進め方も具体化します。難所でも優先度を示し、ぶれずに推進することで成果まで導きます。\n\n" +
+                    "■ 方向性とスピード\n方向をはっきり示し、スピード感をもって実行します。リソースを先回りで配分し、全体を加速させるリーダーシップが持ち味です。",
+                jobs: [
+                    { title: "法人営業", reason: "ゴール設計と推進に強み" },
+                    { title: "コンサルタント", reason: "優先度判断と牽引力が活きる" },
+                    { title: "店長（小売・卸売）", reason: "戦略と実行の両輪を回せる" }
+                ]
+            },
+            {
+                id: "ENFJ",
+                name: "育成リーダー人材",
+                image: "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/ENFJdesu.jpg",
+                catchcopy: "人の可能性を信じ、\n前向きなエネルギーで導き、\nチームの成長を加速させる。",
+                strengths: [
+                    "共感と鼓舞で人を動かす",
+                    "強みを見つけ育成できる",
+                    "ポジティブな空気を作る",
+                    "調整と発信のバランスが良い"
+                ],
+                tendencies:
+                    "■ 可能性を信じて引き出す\n相手の強みを見つけ、前向きな言葉で伸ばします。小さな成功を積み重ねる設計が得意で、挑戦する意欲を高めます。\n\n" +
+                    "■ 明るい空気で導く\nチームの雰囲気をポジティブに保ち、迷ったときも笑顔で背中を押します。安心して意見を出せる場をつくり、前向きな挑戦を促します。\n\n" +
+                    "■ 調整と発信のバランス\n状況を見ながら調整し、必要なメッセージをわかりやすく届けます。一体感を生み、チーム全体を同じ方向に向けて進めます。",
+                jobs: [
+                    { title: "営業職（総合）", reason: "強み発見と鼓舞が核になる" },
+                    { title: "販売職", reason: "伴走と前向きな導きが得意" },
+                    { title: "マーケティング職", reason: "関係性と成果を両立できる" }
+                ]
+            },
+            {
+                id: "ESTP",
+                name: "アクション営業人材",
+                image: "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/ESTPdesu.jpg",
+                catchcopy: "瞬発力と交渉力で動き、\nチャンスを掴み取り、\n現場で結果を出すフィールド型。",
+                strengths: [
+                    "行動が速く即断即決できる",
+                    "交渉と折衝に強い",
+                    "社交性が高く打ち解けやすい",
+                    "変化に強く柔軟に動ける"
+                ],
+                tendencies:
+                    "■ 速く決めて動く瞬発力\nチャンスを見つけたらすぐに行動し、即断即決で前へ進みます。現場での判断が速く、流れをつくる初動が得意です。\n\n" +
+                    "■ 交渉で流れを変える力\n対人折衝に強く、勢いと説得力で場を動かします。状況が変わっても柔軟に路線を切り替え、チャンスをつかみ続けます。\n\n" +
+                    "■ 実戦から学ぶ吸収力\n動きながら学んだことをすぐ反映し、次の一手に活かします。スピード感を保ったまま改善を重ね、成果に結びつけます。",
+                jobs: [
+                    { title: "法人営業", reason: "即応と交渉力が活きる" },
+                    { title: "個人営業", reason: "対人と提案の速攻に強い" },
+                    { title: "自動車販売スタッフ", reason: "動きながら最適解を出せる" }
+                ]
+            },
+            {
+                id: "ESFP",
+                name: "ムードメーカー人材",
+                image: "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/ESFPdesu.jpg",
+                catchcopy: "明るさと感受性で場を変え、\n人との距離を縮め、\nチームに活気を届ける。",
+                strengths: [
+                    "親しみやすく関係を築く",
+                    "柔軟でその場に合わせられる",
+                    "観察力で変化に気づく",
+                    "楽観性で空気を明るくする"
+                ],
+                tendencies:
+                    "■ 明るく場をほぐす力\n温かい魅力で緊張をやわらげ、初対面でもすぐに距離を縮めます。笑顔と柔らかな空気づくりで、チームに前向きな雰囲気を広げます。\n\n" +
+                    "■ 直感と柔軟さ\nその場の雰囲気を感じ取り、直感的に心地よい方向へ調整します。変化にも柔軟に対応し、空気を軽やかに保ちながら場を整えます。\n\n" +
+                    "■ 変化に気づく観察眼\n表情やトーンのわずかな変化にも敏感で、相手の気持ちに合わせて寄り添えます。やわらかな関係性を育て、周囲を安心させます。",
+                jobs: [
+                    { title: "販売職", reason: "親しみやすさと柔軟性が活きる" },
+                    { title: "店舗販売スタッフ", reason: "場づくりと発信が得意" },
+                    { title: "個人営業", reason: "感性と対人力を両立" }
+                ]
+            },
+            {
+                id: "ISTP",
+                name: "実践問題解決人材",
+                image: "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/ISTPdesu.jpg",
+                catchcopy: "冷静に状況を読み、\n手を動かしながら最適解を見つけ、\n現場で素早く片付ける。",
+                strengths: [
+                    "状況把握と迅速な判断が得意",
+                    "手を動かし技術で解く",
+                    "トラブルでも冷静に対応",
+                    "一人でも高い集中力を出せる"
+                ],
+                tendencies:
+                    "■ 冷静に状況を読む\n事実をもとに落ち着いて状況を把握し、感情に振り回されず判断します。トラブルが起きても慌てず、まず優先度を見極めます。\n\n" +
+                    "■ 手を動かして解決する\n実際に触れながら理解を深め、技術で素早く片付けます。現場での即応力が高く、やりながら修正するスタイルが持ち味です。\n\n" +
+                    "■ 集中してやり切る\n一度スイッチが入ると高い集中力で仕上げます。無駄のない動きで最短距離を探し、最適解に速くたどり着きます。",
+                jobs: [
+                    { title: "建築・土木技術者", reason: "手を動かし解決する力が活きる" },
+                    { title: "施工管理", reason: "現場対応と冷静さが強み" },
+                    { title: "自動車販売スタッフ", reason: "分析と即応で対処する" }
+                ]
+            },
+            {
+                id: "ISFP",
+                name: "感性クリエイティブ人材",
+                image: "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/ISFPdesu.jpg",
+                catchcopy: "繊細な美意識で世界を切り取り、\n静かに表現を重ね、\n作品で人を惹きつける。",
+                strengths: [
+                    "美意識とセンスが高い",
+                    "相手に寄り添う共感性",
+                    "丁寧で正確な仕上げ",
+                    "表現力で世界観を形にする"
+                ],
+                tendencies:
+                    "■ 美しさに敏感な感性\n直感的に心地よさや美しさを捉え、高いセンスで形にします。細部までこだわる丁寧さが作品に表れ、仕上がりの質を引き上げます。\n\n" +
+                    "■ 優しく寄り添う表現\n自分の世界観を大切にしながら、相手への思いやりを表現に込めます。静かでも温かい表現が心に残り、受け手に安心感を与えます。\n\n" +
+                    "■ 静かな存在感\n控えめでも質の高さで印象を残します。積み上げた表現が静かに強い影響力を持ち、信頼につながります。",
+                jobs: [
+                    { title: "販売職", reason: "美意識と丁寧さが活きる" },
+                    { title: "店舗販売スタッフ", reason: "感性と手仕事を両立" },
+                    { title: "個人営業", reason: "世界観の表現に強い" }
+                ]
+            },
+            {
+                id: "INTP",
+                name: "アイデア発明人材",
+                image: "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/INTPdesu.jpg",
+                catchcopy: "論理で構造を分解し、\n独創的な仮説を組み上げ、\n新しい仕組みを生み出す。",
+                strengths: [
+                    "分析と仮説構築が得意",
+                    "独創的な発想で枠を越える",
+                    "探求心が強く深掘りする",
+                    "冷静で客観的に判断する"
+                ],
+                tendencies:
+                    "■ 構造を見抜く分析力\n複雑な事象を冷静に分解し、仕組みを理解します。論理で筋道を立てることに喜びを感じ、問題の根っこを探るのが得意です。\n\n" +
+                    "■ 独創的な仮説づくり\n強い好奇心から生まれる発想で、新しい枠組みを考えます。常識に縛られず組み立てる力があり、アイデアを論理で裏打ちできます。\n\n" +
+                    "■ 探求を楽しむ姿勢\n深く掘り下げることをいとわず、納得するまで考え続けます。知的な探求心がモチベーションとなり、革新への道を開きます。",
+                jobs: [
+                    { title: "建築・土木技術者", reason: "仮説構築と深掘りが活きる" },
+                    { title: "コンサルタント", reason: "構造化と発想を両立" },
+                    { title: "マーケティング職", reason: "論理と独創性を活かす" }
+                ]
+            },
+            {
+                id: "INFP",
+                name: "共感クリエイティブ人材",
+                image: "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/INFPdesu.jpg",
+                catchcopy: "優しさと想像力で心を捉え、\n物語や表現に乗せて、\n人の感情を動かす。",
+                strengths: [
+                    "豊かな想像力で描ける",
+                    "共感力が高く寄り添える",
+                    "感情を言語化する表現力",
+                    "価値観に忠実で誠実"
+                ],
+                tendencies:
+                    "■ 心に寄り添う共感力\n人の感情を丁寧に受け止め、安心して本音を話してもらえる関係を築きます。背景を想像しながら最適な言葉を選び、静かに支えることができます。\n\n" +
+                    "■ 物語を形にする想像力\n理想や物語を思い浮かべ、それを言葉や表現で具体的に描きます。読み手や聞き手の心を動かすストーリーづくりが得意で、価値観をあたたかく伝えます。\n\n" +
+                    "■ 誠実で温かなまなざし\n静かで誠実な姿勢が信頼を生みます。相手のペースを尊重しながら長く伴走し、穏やかな影響で関係を育て続けます。",
+                jobs: [
+                    { title: "一般事務", reason: "感情と言葉の橋渡しが得意" },
+                    { title: "営業事務", reason: "共感と誠実さを活かす" },
+                    { title: "貿易事務", reason: "世界観を作品にできる" }
+                ]
+            },
+            {
+                id: "ENTP",
+                name: "発想逆転人材",
+                image: "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/ENTPdesu.jpg",
+                catchcopy: "既存の枠をひっくり返し、\n議論で新しい視点を提示し、\n革新のきっかけを生む。",
+                strengths: [
+                    "発想転換で革新を起こす",
+                    "即興で議論をリードする",
+                    "企画力と好奇心が強い",
+                    "挑戦を楽しみ推進する"
+                ],
+                tendencies:
+                    "■ 発想をひっくり返す\n常識にとらわれず視点を切り替え、新しいアイデアを提案します。議論に新風を入れて周囲を刺激し、考え方の幅を広げます。\n\n" +
+                    "■ 即興で形にする\n思いついたことをすぐ言語化し、テンポよく議論をリードします。スピード感あるやり取りで、アイデアを形にしていきます。\n\n" +
+                    "■ 変化を楽しむ推進力\n挑戦を面白がり、自分から変化を起こします。試行錯誤を恐れず、場の流れを前向きに動かすことで、次の可能性を切り開きます。",
+                jobs: [
+                    { title: "マーケティング職", reason: "枠を壊し発想する力が核" },
+                    { title: "コンサルタント", reason: "多視点で企画を練れる" },
+                    { title: "広告営業", reason: "仮説と議論で方向を作る" }
+                ]
+            },
+            {
+                id: "ENFP",
+                name: "バイタリティ人材",
+                image: "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/ENFPdesu.jpg",
+                catchcopy: "行動力とポジティブ思考で流れを作り、\n人を巻き込みチャンスを掴み続け、\nチームを前へ押し出すエネルギッシュリーダー。",
+                strengths: [
+                    "ポジティブで前進力がある",
+                    "巻き込みと即応が得意",
+                    "即興の発想で企画を動かす",
+                    "社交性が高く関係を広げる"
+                ],
+                tendencies:
+                    "■ エネルギッシュな推進力\n明るいエネルギーで流れをつくり、困難も前向きに乗り越えます。勢いが必要な場面で力を発揮し、停滞を打開します。\n\n" +
+                    "■ 巻き込みのうまさ\n人とすぐにつながり、楽しさを共有しながら周囲を動かします。交渉や新しい挑戦で場を活性化させ、チームに勢いを与えます。\n\n" +
+                    "■ 即興で企画を走らせる\n直感的にアイデアを形にし、すぐ試して改善します。スピードを保ちながらチャンスをつかみ続け、前に進めます。",
+                jobs: [
+                    { title: "営業職（総合）", reason: "巻き込みと即応で前進" },
+                    { title: "広告営業", reason: "発想と推進力を活かす" },
+                    { title: "不動産営業", reason: "前向きな対話と発信が強み" }
+                ]
+            }
+        ];
+
+        // 職種名と画像ファイルのマッピング
+        const jobImageMap = {
+            "営業職（総合）": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/営業職総合.png",
+            "法人営業": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/法人営業.png",
+            "個人営業": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/個人営業.png",
+            "インサイドセールス": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/インサイドセールス.png",
+            "広告営業": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/広告営業.png",
+            "不動産営業": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/不動産営業.png",
+            "金融・保険営業": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/金融保険営業.png",
+            "販売職": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/販売職.png",
+            "店舗販売スタッフ": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/店舗販売スタッフ.png",
+            "自動車販売スタッフ": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/自動車販売スタッフ.png",
+            "店長（小売・卸売）": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/店長.png",
+            "一般事務": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/一般事務.png",
+            "営業事務": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/営業事務.png",
+            "経理事務": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/経理事務.png",
+            "人事・総務事務": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/人事・総務事務.png",
+            "貿易事務": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/貿易事務.png",
+            "施工管理": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/施工管理.png",
+            "建築・土木技術者": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/建設・土木技術者.png",
+            "マーケティング職": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/マーケティング職.png",
+            "コンサルタント": "https://agent.migi-nanameue.co.jp/wp-content/uploads/2025/12/コンサルタント.png"
+        };
+
+        // --- STATE ---
+        let currentQuestionIndex = 0;
+        let answers = [];
+        let logicalJobs = [];    // 「向いている職種」の配列
+        let currentJobIndex = 0; // 現在選択中のインデックス
+        let additionalAnswers = {}; // 追加質問の回答（年齢、住まい、転職時期）
+
+        // --- CACHE FUNCTIONS ---
+        // WordPress REST APIのベースURL（実際のWordPressサイトのURLに変更してください）
+        const WP_API_BASE = window.location.origin + '/wp-json/diagnosis/v1';
+        
+        // 固定キー（ローカルストレージ用のフォールバック）
+        const CACHE_KEY = 'latest_diagnosis_result';
+        
+        // LIFF設定
+        const LIFF_ID = '2008810576-exbaYv79'; // よりそい転職用のLIFFアプリID
+        
+        // LIFF初期化状態
+        let liffInitialized = false;
+        let liffLoggedIn = false;
+        
+        
+        // LIFF初期化
+        let liffInitPromise = null; // 初期化Promiseをキャッシュして重複初期化を防ぐ
+        
+        async function initLIFF() {
+            // 既に初期化済みの場合はスキップ
+            if (liffInitialized) {
+                return true;
+            }
+            
+            // 初期化中の場合は既存のPromiseを返す（重複初期化防止）
+            if (liffInitPromise) {
+                return liffInitPromise;
+            }
+            
+            if (typeof liff === 'undefined') {
+                return false;
+            }
+            
+            // 初期化Promiseを作成
+            liffInitPromise = (async () => {
+                try {
+                    await liff.init({ liffId: LIFF_ID });
+                    liffInitialized = true;
+                    liffLoggedIn = liff.isLoggedIn();
+                    return true;
+                } catch (error) {
+                    liffInitPromise = null; // エラー時はリトライ可能にする
+                    return false;
+                }
+            })();
+            
+            return liffInitPromise;
+        }
+        
+        // LINEプロファイル情報をキャッシュ
+        let cachedLineProfile = null;
+        
+        // lineUserIdを取得
+        async function getLineUserId() {
+            if (!liffInitialized) {
+                const initialized = await initLIFF();
+                if (!initialized) {
+                    return null;
+                }
+            }
+            
+            if (!liffLoggedIn) {
+                // 診断結果を引き継ぐ必要がある（session_id付きなど）場合のみログインを促す
+                const urlParams = new URLSearchParams(window.location.search);
+                const hasSessionParam = urlParams.has('session_id') || urlParams.has('data');
+                if (!hasSessionParam) {
+                    return null;
+                }
+                try {
+                    liff.login({ redirectUri: window.location.href });
+                } catch (e) {
+                }
+                return null;
+            }
+            
+            try {
+                const profile = await liff.getProfile();
+                cachedLineProfile = profile; // プロファイルをキャッシュ
+                return profile.userId;
+            } catch (error) {
+                return null;
+            }
+        }
+        
+        // LINE表示名を取得（getLineUserId()を先に呼んでいる前提）
+        function getLineDisplayName() {
+            return cachedLineProfile ? cachedLineProfile.displayName : '';
+        }
+        
+        // ページ読み込み時にLIFFを初期化（非同期）
+        if (typeof liff !== 'undefined') {
+            initLIFF().catch(error => {
+            });
+        }
+        
+        // セッションIDを生成または取得（sessionStorageのみ使用、Cookieは使用しない）
+        // リンクコードとしても使用するため、6文字の覚えやすい形式にする
+        function getSessionId(forceNew = false) {
+            if (!forceNew) {
+                // sessionStorageから取得を試みる
+                let sessionId = sessionStorage.getItem('diagnosis_session_id');
+                if (sessionId) {
+                    return sessionId;
+                }
+            }
+            
+            // 新規生成：6文字のリンクコード（大文字アルファベット + 数字、Oと0、Iと1を除く）
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let sessionId = '';
+            for (let i = 0; i < 6; i++) {
+                sessionId += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            sessionStorage.setItem('diagnosis_session_id', sessionId);
+            
+            return sessionId;
+        }
+
+        // モバイル側のローカル/セッションキャッシュを全消し（診断関連のみ）
+        function clearDiagnosisCache() {
+            try {
+                // セッションID
+                sessionStorage.removeItem('diagnosis_session_id');
+                // 診断関連のローカルストレージ
+                Object.keys(localStorage).forEach(k => {
+                    if (k.startsWith('diagnosis_result')) {
+                        localStorage.removeItem(k);
+                    }
+                });
+            } catch (e) {
+            }
+        }
+
+        // 診断結果をキャッシュに保存（サーバー + ローカルストレージ）
+        async function saveResultToCache(result, scores, answers, additionalAnswers, distributionTag, distributionTagDetails) {
+            const sessionId = getSessionId();
+            const cacheData = {
+                timestamp: Date.now(),
+                result: {
+                    typeId: result.id,
+                    typeName: result.name,
+                    scores: scores,
+                    answers: answers
+                },
+                additionalAnswers: additionalAnswers || {},
+                distributionTag: distributionTag || false,
+                distributionTagDetails: distributionTagDetails || {}
+            };
+            
+            
+            // サーバーに保存を試みる（HTTP/HTTPSプロトコルの場合のみ）
+            if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+                try {
+                    const response = await fetch(`${WP_API_BASE}/save-result`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Session-ID': sessionId
+                        },
+                        body: JSON.stringify(cacheData)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                    } else {
+                    }
+                } catch (error) {
+                }
+            } else {
+            }
+            
+            // ローカルストレージに保存（セッションIDをキーとして保存、24時間有効）
+            // 固定キーでも保存（後方互換性のため）
+            localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+            // セッションIDをキーとしても保存（LINE LIFFアプリ側で取得可能）
+            const sessionCacheKey = `diagnosis_result_${sessionId}`;
+            localStorage.setItem(sessionCacheKey, JSON.stringify(cacheData));
+            
+            // 保存確認
+            const saved = localStorage.getItem(CACHE_KEY);
+        }
+
+        // 診断結果をlineUserIdをキーとしてサーバーに保存
+        async function saveResultByLineUser(lineUserId, result, scores, answers, additionalAnswers, distributionTag, distributionTagDetails, lineDisplayName, sessionId) {
+            const cacheData = {
+                lineUserId: lineUserId,
+                lineDisplayName: lineDisplayName || getLineDisplayName() || '',
+                sessionId: sessionId || getSessionId() || '',
+                timestamp: Date.now(),
+                result: {
+                    typeId: result.id,
+                    typeName: result.name,
+                    scores: scores,
+                    answers: answers
+                },
+                additionalAnswers: additionalAnswers || {},
+                distributionTag: distributionTag || false,
+                distributionTagDetails: distributionTagDetails || {}
+            };
+            
+            
+            // サーバーに保存を試みる（HTTP/HTTPSプロトコルの場合のみ）
+            if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+                try {
+                    const response = await fetch(`${WP_API_BASE}/save-result-by-lineuser`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(cacheData)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                    } else {
+                    }
+                } catch (error) {
+                }
+            } else {
+            }
+            
+            // ローカルストレージにも保存（フォールバック）
+            const localCacheKey = `diagnosis_result_lineuser_${lineUserId}`;
+            localStorage.setItem(localCacheKey, JSON.stringify(cacheData));
+        }
+
+        // lineUserIdをキーとして診断結果を取得
+        async function getResultByLineUser(lineUserId) {
+            
+            // サーバーから取得を試みる（HTTP/HTTPSプロトコルの場合のみ）
+            if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+                try {
+                    const response = await fetch(`${WP_API_BASE}/get-result-by-lineuser?lineUserId=${encodeURIComponent(lineUserId)}`, {
+                        method: 'GET'
+                    });
+                    
+                    if (response.ok) {
+                        const responseData = await response.json();
+                        if (responseData.success && responseData.result) {
+                            // サーバーから返されるデータ構造を統一
+                            return {
+                                result: {
+                                    typeId: responseData.result.typeId,
+                                    typeName: responseData.result.typeName,
+                                    scores: responseData.result.scores,
+                                    answers: responseData.result.answers
+                                },
+                                additionalAnswers: responseData.result.additionalAnswers || {},
+                                distributionTag: responseData.result.distributionTag || false,
+                                distributionTagDetails: responseData.result.distributionTagDetails || {},
+                                timestamp: responseData.result.timestamp || Date.now()
+                            };
+                        } else {
+                        }
+                    } else {
+                    }
+                } catch (error) {
+                }
+            } else {
+            }
+            
+            // フォールバック: ローカルストレージから取得
+            const localCacheKey = `diagnosis_result_lineuser_${lineUserId}`;
+            const cacheData = localStorage.getItem(localCacheKey);
+            
+            if (!cacheData) {
+                return null;
+            }
+            
+            try {
+                const data = JSON.parse(cacheData);
+                return data;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // セッションIDの結果を lineUserId に引き継ぐ
+        let sessionTransferInProgress = false;
+        async function transferSessionResultToLineUser(sessionId, lineUserId) {
+            if (sessionTransferInProgress) {
+                return null;
+            }
+            sessionTransferInProgress = true;
+            try {
+                const resp = await fetch(`${WP_API_BASE}/get-result`, {
+                    headers: { 'X-Session-ID': sessionId }
+                });
+                if (!resp.ok) {
+                    sessionTransferInProgress = false;
+                    return null;
+                }
+                const data = await resp.json();
+                if (!data || data.success !== true || !data.result) {
+                    sessionTransferInProgress = false;
+                    return null;
+                }
+
+                await saveResultByLineUser(
+                    lineUserId,
+                    data.result,
+                    data.result.scores || data.scores || {},
+                    data.result.answers || data.answers || [],
+                    data.additionalAnswers || {},
+                    data.distributionTag || false,
+                    data.distributionTagDetails || {}
+                );
+                sessionTransferInProgress = false;
+                return data.result;
+            } catch (e) {
+                sessionTransferInProgress = false;
+                return null;
+            }
+        }
+
+        // キャッシュから最新の診断結果を取得（サーバー優先、フォールバックでローカルストレージ）
+        async function getLatestResultFromCache() {
+            const sessionId = getSessionId();
+            
+            // サーバーから取得を試みる（HTTP/HTTPSプロトコルの場合のみ）
+            if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+                try {
+                    const response = await fetch(`${WP_API_BASE}/get-result`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Session-ID': sessionId
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const responseData = await response.json();
+                        if (responseData.success && responseData.result) {
+                            // サーバーから返されるデータ構造に応じて調整
+                            // サーバーがdata全体を返す場合はそのまま、resultのみの場合はdata形式に変換
+                            return responseData.result;
+                        } else {
+                        }
+                    } else {
+                    }
+                } catch (error) {
+                }
+            } else {
+            }
+            
+            // フォールバック: ローカルストレージから取得
+            const cacheData = localStorage.getItem(CACHE_KEY);
+            
+            if (!cacheData) {
+                return null;
+            }
+            
+            try {
+                const data = JSON.parse(cacheData);
+                const now = Date.now();
+                const expiration = 24 * 60 * 60 * 1000; // 24時間
+                const elapsed = now - data.timestamp;
+                
+                
+                // 有効期限チェック
+                if (elapsed > expiration) {
+                    localStorage.removeItem(CACHE_KEY);
+                    return null;
+                }
+                
+                // data全体を返す（result, additionalAnswers, distributionTag等を含む）
+                return data;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // --- FUNCTIONS ---
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            answers = [];
+            additionalAnswers = {}; // 追加質問の回答をリセット
+            updateQuestion();
+            showScreen('question-screen');
+        }
+        // グローバルから呼び出せるように明示的に公開
+        window.startQuiz = startQuiz;
+
+        function goBack() {
+            if (currentQuestionIndex > 0) {
+                const prevQ = questions[currentQuestionIndex];
+                // 追加質問の場合はadditionalAnswersから削除
+                if (prevQ.isAdditional) {
+                    delete additionalAnswers[prevQ.questionType];
+                } else {
+                answers.pop();
+                }
+                currentQuestionIndex--;
+                updateQuestion();
+            } else {
+                showScreen('start-screen');
+            }
+        }
+        window.goBack = goBack;
+
+        function updateQuestion() {
+            const q = questions[currentQuestionIndex];
+            const container = document.getElementById('question-container');
+            const optionsContainer = document.querySelector('.options-container');
+
+            // Simple fade effect
+            container.classList.remove('fade-in');
+            container.classList.add('fade-out');
+
+            setTimeout(() => {
+                document.getElementById('question-text').innerText = q.isAdditional 
+                    ? additionalQuestions[q.questionType].text 
+                    : q.text;
+
+                // 追加質問の場合は選択肢を表示、通常の質問の場合は5段階評価を表示
+                if (q.isAdditional) {
+                    const questionData = additionalQuestions[q.questionType];
+                    optionsContainer.innerHTML = '';
+                    questionData.options.forEach(option => {
+                        const btn = document.createElement('button');
+                        btn.className = 'option-btn';
+                        btn.textContent = option.label;
+                        btn.onclick = () => handleAdditionalAnswer(q.questionType, option.value);
+                        optionsContainer.appendChild(btn);
+                    });
+                } else {
+                    // 通常の質問の場合は5段階評価ボタンを表示
+                    optionsContainer.innerHTML = `
+                        <button class="option-btn" onclick="handleAnswer(2)">当てはまる</button>
+                        <button class="option-btn" onclick="handleAnswer(1)">どちらかといえば当てはまる</button>
+                        <button class="option-btn" onclick="handleAnswer(0)">どちらでもない</button>
+                        <button class="option-btn" onclick="handleAnswer(-1)">どちらかといえば当てはまらない</button>
+                        <button class="option-btn" onclick="handleAnswer(-2)">当てはまらない</button>
+                    `;
+                }
+
+                const answeredCount = currentQuestionIndex + 1;
+                const totalCount = questions.length;
+                const progressFraction = answeredCount / totalCount;
+                const progressPercent = Math.round(progressFraction * 100);
+
+                document.getElementById('question-counter').innerText =
+                    `Q ${answeredCount} / ${totalCount}　(${progressPercent}％完了)`;
+
+                // Progress Bar
+                document.getElementById('progress-bar-fill').style.width = `${progressPercent}%`;
+
+                // Back button visibility
+                document.getElementById('back-btn').style.visibility = currentQuestionIndex === 0 ? 'hidden' : 'visible';
+
+                container.classList.remove('fade-out');
+                container.classList.add('fade-in');
+            }, 200);
+        }
+
+        function handleAnswer(score) {
+            const q = questions[currentQuestionIndex];
+            // 追加質問の場合は通常の回答処理をスキップ
+            if (q.isAdditional) {
+                return;
+            }
+            answers.push({ questionId: q.id, score: score });
+
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                updateQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+        window.handleAnswer = handleAnswer;
+
+        // 追加質問の回答を処理
+        function handleAdditionalAnswer(questionType, value) {
+            const questionData = additionalQuestions[questionType];
+            // 選択されたオプションを取得（表示用のlabelを取得するため）
+            const selectedOption = questionData.options.find(opt => opt.value === value);
+            const displayLabel = selectedOption ? selectedOption.label : String(value);
+            let answerData = {};
+
+            if (questionType === 'age') {
+                // 選択された範囲情報を取得
+                const minAge = selectedOption ? selectedOption.minAge : value;
+                const maxAge = selectedOption ? selectedOption.maxAge : value;
+                // 代表値として中間値を使用
+                const age = Math.round((minAge + maxAge) / 2);
+
+                let workYears = 0;
+                if (minAge >= 20) {
+                    // ざっくり: 20歳以降を社会人年数としてカウント（配布タグとは無関係な参考値）
+                    workYears = Math.max(0, minAge - 22);
+                }
+                const isUnder34 = maxAge <= 34;
+                // 配布タグ用: 20-29歳レンジのみtrue
+                const isTargetAge = (minAge >= 20 && maxAge <= 29);
+
+                answerData = {
+                    questionType: "age",
+                    value: displayLabel,  // 表示用ラベル（例: "25-29歳"）
+                    age: age,
+                    minAge: minAge,
+                    maxAge: maxAge,
+                    workYears: workYears,
+                    isUnder34: isUnder34,
+                    isTargetAge: isTargetAge
+                };
+            } else if (questionType === 'location') {
+                const prefecture = value;
+                // 配布タグ用: 東京、神奈川、埼玉、千葉、大阪、福岡、愛知のみ
+                const isTargetRegion = prefecture === "東京都" || 
+                                      prefecture === "神奈川県" || 
+                                      prefecture === "埼玉県" || 
+                                      prefecture === "千葉県" || 
+                                      prefecture === "大阪府" || 
+                                      prefecture === "福岡県" || 
+                                      prefecture === "愛知県";
+
+                answerData = {
+                    questionType: "location",
+                    value: displayLabel,  // 表示用ラベル（例: "東京都"）
+                    prefecture: prefecture,
+                    isTargetRegion: isTargetRegion
+                };
+            } else if (questionType === 'jobChangeCount') {
+                const jobChangeCount = value; // 転職回数（0, 1, 2, 3以上）
+                const experienceCompanyCount = jobChangeCount + 1; // 経験社数（転職回数+1）
+                // 配布タグ用: 転職回数2回まで（=経験社数3社まで）
+                const isTargetJobChangeCount = jobChangeCount <= 2;
+
+                answerData = {
+                    questionType: "jobChangeCount",
+                    value: displayLabel,  // 表示用ラベル（例: "1回（2社目）"）
+                    jobChangeCount: jobChangeCount,
+                    experienceCompanyCount: experienceCompanyCount,
+                    isTargetJobChangeCount: isTargetJobChangeCount
+                };
+            } else if (questionType === 'jobChangeTiming') {
+                const jobChangeTiming = value;
+                // 配布タグ用: 1年以内（すぐに、3ヶ月以内、6ヶ月以内、1年以内）
+                const isTargetTiming = jobChangeTiming === "1month" || 
+                                      jobChangeTiming === "3months" || 
+                                      jobChangeTiming === "6months" || 
+                                      jobChangeTiming === "1year";
+
+                answerData = {
+                    questionType: "jobChangeTiming",
+                    value: displayLabel,  // 表示用ラベル（例: "3ヶ月以内"）
+                    jobChangeTiming: jobChangeTiming,
+                    isTargetTiming: isTargetTiming
+                };
+            }
+
+            // 追加質問の回答を保存
+            additionalAnswers[questionType] = answerData;
+
+            // 次の質問へ
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                updateQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+        window.handleAdditionalAnswer = handleAdditionalAnswer;
+
+        // 診断結果を計算
+        function calculateResult() {
+            const scores = { E_I: 0, S_N: 0, T_F: 0, J_P: 0 };
+
+            // 性格診断の質問のみを処理（追加質問を除外）
+            answers.forEach(ans => {
+                const q = questions.find(q => q.id === ans.questionId && !q.isAdditional);
+                if (q && q.direction === 'pos') {
+                    scores[q.axis] += ans.score;
+                } else if (q) {
+                    scores[q.axis] -= ans.score;
+                }
+            });
+
+            const tieBreaker = (axis, pos, neg) => {
+                if (axis > 0) return pos;
+                if (axis < 0) return neg;
+                return pos; // 0のときは前者を優先
+            };
+
+            const p1 = tieBreaker(scores.E_I, "E", "I");
+            const p2 = tieBreaker(scores.S_N, "S", "N");
+            const p3 = tieBreaker(scores.T_F, "T", "F");
+            const p4 = tieBreaker(scores.J_P, "J", "P");
+
+            const typeId = `${p1}${p2}${p3}${p4}`;
+            const result = typesData.find(t => t.id === typeId) || typesData.find(t => t.id === "ESTJ") || typesData[0];
+
+            return { result, scores };
+        }
+
+        // 診断結果を画面に表示
+        function displayResult(result) {
+            // Render Result
+            // 結果画面のメイン画像を設定
+            const resultImageEl = document.getElementById('result-image');
+            if (result.image) {
+                const isMobile = window.innerWidth <= 768;
+                const borderRadius = isMobile ? '17px' : '50%';
+                resultImageEl.innerHTML = `<img src="${result.image}" alt="${result.name}" style="max-width: 100%; height: auto; border-radius: ${borderRadius}; object-fit: cover;" />`;
+            } else {
+                resultImageEl.innerHTML = "🎨"; // フォールバック
+            }
+            
+            document.getElementById('result-name').innerText = result.name;
+            document.getElementById('result-catchcopy').innerText = result.catchcopy;
+
+            const strengthsList = document.getElementById('result-strengths');
+            strengthsList.innerHTML = '';
+            result.strengths.forEach(s => {
+                const li = document.createElement('li');
+                li.textContent = s;
+                strengthsList.appendChild(li);
+            });
+
+            const descEl = document.getElementById('result-description');
+            descEl.innerHTML = "";
+            if (result.tendencies) {
+                const blocks = result.tendencies.split("\n\n");
+                blocks.forEach(block => {
+                    const trimmed = block.trim();
+                    if (!trimmed) return;
+                    const lines = trimmed.split("\n");
+                    const titleLine = lines[0].replace(/^■\s*/, "");
+                    const bodyText = lines.slice(1).join("\n");
+
+                    const subH = document.createElement("h4");
+                    subH.textContent = `▪ ${titleLine}`;
+                    subH.style.margin = "8px 0 4px";
+                    subH.style.fontSize = "1rem";
+                    subH.style.color = "var(--color-primary-dark)";
+                    subH.style.fontWeight = "600";
+                    descEl.appendChild(subH);
+
+                    const subP = document.createElement("p");
+                    subP.textContent = bodyText;
+                    subP.style.margin = "0 0 12px";
+                    subP.style.fontSize = "0.95rem";
+                    subP.style.lineHeight = "1.7";
+                    descEl.appendChild(subP);
+                });
+            }
+
+            // 向いている職種カルーセル＋詳細（非ループ・中央スナップ）
+            logicalJobs = Array.isArray(result.jobs) ? result.jobs.slice() : [];
+            currentJobIndex = 0;
+
+            const container = document.getElementById('result-jobs');
+            container.innerHTML = '';
+
+            if (!logicalJobs.length) {
+                renderJobDetail(null, result);
+            } else {
+                logicalJobs.forEach((job, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'job-card' + (index === 0 ? ' active' : '');
+                    card.dataset.index = String(index);
+                    // 職種画像を取得（なければ絵文字をフォールバック）
+                    const jobImage = jobImageMap[job.title] || null;
+                    
+                    // イラスト部分を作成
+                    const illustrationDiv = document.createElement('div');
+                    illustrationDiv.className = 'job-illustration';
+                    if (jobImage) {
+                        const img = document.createElement('img');
+                        img.src = jobImage;
+                        img.alt = job.title;
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        img.style.objectFit = 'cover';
+                        img.style.borderRadius = '12px';
+                        illustrationDiv.appendChild(img);
+                    } else {
+                        illustrationDiv.style.display = 'flex';
+                        illustrationDiv.style.alignItems = 'center';
+                        illustrationDiv.style.justifyContent = 'center';
+                        illustrationDiv.style.width = '100%';
+                        illustrationDiv.style.height = '100%';
+                        illustrationDiv.style.fontSize = '40px';
+                        illustrationDiv.textContent = '🧭';
+                    }
+                    
+                    // タイトル部分を作成
+                    const titleDiv = document.createElement('div');
+                    titleDiv.className = 'job-title';
+                    titleDiv.textContent = job.title;
+                    
+                    // カードに追加
+                    card.appendChild(illustrationDiv);
+                    card.appendChild(titleDiv);
+                    card.addEventListener('click', () => {
+                        setActiveJob(index);
+                        // クリックしたカードを中央に配置
+                        centerJobCard(index, true);
+                    });
+                    container.appendChild(card);
+                });
+
+                // 最初のカードを中央に & 詳細表示
+                setActiveJob(0);
+                // 最初のカードを中央に配置（スマホ版のみスナップ処理を有効化）
+                if (window.innerWidth < 1024) {
+                centerJobCard(0, false);
+                    // スクロール完了後に再度setActiveJobを呼んで説明を確実に表示
+                    setTimeout(() => {
+                        setActiveJob(0);
+                    }, 100);
+                } else {
+                    // パソコン版では初期表示時のみ中央に配置（スムーズスクロールなし）
+                    centerJobCard(0, false);
+                }
+                setupJobCarousel();
+            }
+
+            // 配布タグ情報を表示
+            updateDistributionTagDisplay();
+            
+            // コピーボタンのイベントリスナーを設定
+            setupCopyButton();
+
+            showScreen('result-screen');
+            window.scrollTo(0, 0);
+        }
+
+        // 配布タグ情報を表示する関数
+        async function updateDistributionTagDisplay() {
+            try {
+                const cachedResult = await getLatestResultFromCache();
+                const distributionTagSection = document.getElementById('distribution-tag-section');
+                const tagValueEl = document.getElementById('distribution-tag-value');
+                const tagAgeEl = document.getElementById('tag-age');
+                const tagLocationEl = document.getElementById('tag-location');
+                const tagTimingEl = document.getElementById('tag-timing');
+                const tagJobChangeCountEl = document.getElementById('tag-jobChangeCount');
+
+                if (cachedResult && cachedResult.distributionTagDetails) {
+                    const details = cachedResult.distributionTagDetails;
+                    const hasTag = cachedResult.distributionTag === true;
+
+                    // 配布タグの状態を表示
+                    if (hasTag) {
+                        tagValueEl.textContent = '✓ 対象';
+                        tagValueEl.style.color = '#28a745';
+                    } else {
+                        tagValueEl.textContent = '✗ 対象外';
+                        tagValueEl.style.color = '#dc3545';
+                    }
+
+                    // 詳細情報を表示
+                    tagAgeEl.textContent = details.age ? '✓ 対象（20-29歳）' : '✗ 対象外';
+                    tagAgeEl.style.color = details.age ? '#28a745' : '#dc3545';
+                    
+                    tagLocationEl.textContent = details.location ? '✓ 対象（東京・神奈川・埼玉・千葉・大阪・福岡・愛知）' : '✗ 対象外';
+                    tagLocationEl.style.color = details.location ? '#28a745' : '#dc3545';
+                    
+                    tagTimingEl.textContent = details.timing ? '✓ 対象（1年以内）' : '✗ 対象外';
+                    tagTimingEl.style.color = details.timing ? '#28a745' : '#dc3545';
+                    
+                    tagJobChangeCountEl.textContent = details.jobChangeCount ? '✓ 対象（2回まで）' : '✗ 対象外';
+                    tagJobChangeCountEl.style.color = details.jobChangeCount ? '#28a745' : '#dc3545';
+
+                    // セクションを表示
+                    if (distributionTagSection) {
+                        distributionTagSection.style.display = 'block';
+                    }
+                } else {
+                    // データがない場合は非表示
+                    if (distributionTagSection) {
+                        distributionTagSection.style.display = 'none';
+                    }
+                }
+            } catch (e) {
+                const distributionTagSection = document.getElementById('distribution-tag-section');
+                if (distributionTagSection) {
+                    distributionTagSection.style.display = 'none';
+                }
+            }
+        }
+
+        // 診断結果データをコピーする関数
+        async function copyResultData() {
+            try {
+                const cachedResult = await getLatestResultFromCache();
+                if (!cachedResult) {
+                    alert('診断結果データが見つかりません');
+                    return;
+                }
+
+                // 診断結果データを整形
+                const dataToCopy = {
+                    result: cachedResult.result,
+                    additionalAnswers: cachedResult.additionalAnswers || {},
+                    distributionTag: cachedResult.distributionTag || false,
+                    distributionTagDetails: cachedResult.distributionTagDetails || {},
+                    timestamp: cachedResult.timestamp || Date.now()
+                };
+
+                const jsonString = JSON.stringify(dataToCopy, null, 2);
+                
+                // クリップボードにコピー
+                await navigator.clipboard.writeText(jsonString);
+                
+                // フィードバックを表示
+                const feedbackEl = document.getElementById('copy-feedback');
+                if (feedbackEl) {
+                    feedbackEl.style.display = 'block';
+                    setTimeout(() => {
+                        feedbackEl.style.display = 'none';
+                    }, 2000);
+                }
+
+            } catch (e) {
+                alert('コピーに失敗しました: ' + e.message);
+            }
+        }
+
+        // コピーボタンのイベントリスナーを設定（displayResult内で呼び出す）
+        function setupCopyButton() {
+            const copyBtn = document.getElementById('copy-result-data-btn');
+            if (copyBtn) {
+                // 既存のイベントリスナーを削除してから追加
+                const newCopyBtn = copyBtn.cloneNode(true);
+                copyBtn.parentNode.replaceChild(newCopyBtn, copyBtn);
+                newCopyBtn.addEventListener('click', copyResultData);
+            }
+        }
+
+        // LINE登録URL（Lstepの流入経路分析用）
+        // 
+        // 【重要】LステップのリダイレクトURL設定について:
+        // - LステップのリダイレクトURLは1つしか設定できません
+        // - Lステップの標準機能では、固定のURLのみ設定可能です
+        // - このBASE_URLをLステップのリダイレクトURLとして設定してください
+        // - セッションIDは診断ツール側で自動的に追加されます（generateQRCode関数とopenLineRegistration関数で実装済み）
+        // 
+        // LステップのリダイレクトURL設定例:
+        // https://liff.line.me/1657698499-9xjEMXXe/landing?follow=%40507jyozr&lp=nIDKY0&liff_id=1657698499-9xjEMXXe
+        //
+        const LINE_REGISTRATION_BASE_URL = 'https://liff.line.me/1657698499-9xjEMXXe/landing?follow=%40507jyozr&lp=IaJO1r&liff_id=1657698499-9xjEMXXe';
+
+        // QRコード用URL生成（diagnosis.htmlに直接向ける - 1タップで結果表示）
+        function buildResultUrl(sessionId) {
+            // L-stepを経由せず、diagnosis.htmlに直接向けることで1タップで結果を表示
+            const baseUrl = window.location.origin + window.location.pathname;
+            const resultUrl = baseUrl + '?session_id=' + encodeURIComponent(sessionId);
+            return resultUrl;
+        }
+        
+        // LINE登録URL（L-step経由）
+        function buildLineRegistrationUrl(sessionId) {
+            const lineUrl = LINE_REGISTRATION_BASE_URL;
+            return lineUrl;
+        }
+
+        // デバッグログ関数（無効化）
+
+        async function openLineRegistration() {
+            
+            // セッションIDを取得してURLに追加（診断結果データはサーバーから取得）
+            const sessionId = getSessionId();
+            
+            // LINE登録URLにセッションIDを付与（Lステップ固定URLにセッションIDを乗せる）
+            const lineUrl = buildLineRegistrationUrl(sessionId);
+            window.open(lineUrl, '_blank');
+        }
+        window.openLineRegistration = openLineRegistration;
+        
+        // LINE登録ボタンのクリックイベントを設定
+        function setupLineRegistrationButton() {
+            const btn = document.getElementById('line-register-btn');
+            if (btn) {
+                // 既存のイベントリスナーを削除
+                btn.replaceWith(btn.cloneNode(true));
+                const newBtn = document.getElementById('line-register-btn');
+                // 新しいイベントリスナーを追加
+                newBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openLineRegistration();
+                });
+            }
+        }
+        
+        // LINE登録画面が表示された時にボタンのイベントを設定
+        const originalShowScreen = showScreen;
+        showScreen = function(screenId) {
+            originalShowScreen(screenId);
+            if (screenId === 'line-registration-screen') {
+                setTimeout(setupLineRegistrationButton, 100);
+                // QRコードも画面表示後に生成
+                setTimeout(async () => {
+                    await generateQRCode();
+                }, 200);
+            }
+        };
+
+        // QRコードを生成して表示
+        async function generateQRCode() {
+            const qrCodeImage = document.getElementById('qr-code-image');
+            
+            if (qrCodeImage && LINE_REGISTRATION_BASE_URL) {
+                // セッションIDを取得してURLに追加（診断結果データはサーバーから取得）
+                const sessionId = getSessionId();
+                
+                // LINE登録URLにセッションIDを付与（Lステップ固定URLにセッションIDを乗せる）
+                const qrCodeDataUrl = buildLineRegistrationUrl(sessionId);
+                
+                // クライアント側でQRコードを生成（URL長制限を回避）
+                
+                // QRCodeライブラリの確認（複数の可能性をチェック）
+                const QRCodeLib = typeof QRCode !== 'undefined' ? QRCode : (typeof window !== 'undefined' && typeof window.QRCode !== 'undefined' ? window.QRCode : null);
+                
+                if (QRCodeLib) {
+                    // qrcode.jsライブラリを使用してQRコードを生成
+                    try {
+                        // URLが長い場合は、エラー訂正レベルを上げてサイズも大きくする
+                        const qrOptions = {
+                            width: qrCodeDataUrl.length > 1000 ? 300 : 200,
+                            margin: 2,
+                            errorCorrectionLevel: qrCodeDataUrl.length > 1000 ? 'H' : 'M', // H=30%, M=15%
+                            color: {
+                                dark: '#000000',
+                                light: '#FFFFFF'
+                            }
+                        };
+                        QRCodeLib.toDataURL(qrCodeDataUrl, qrOptions, function (err, url) {
+                            if (err) {
+                                // エラー時はフォールバックとしてAPIを使用
+                                const fallbackUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCodeDataUrl)}`;
+                                qrCodeImage.onload = function() {
+                                    qrCodeImage.style.display = 'block';
+                                };
+                                qrCodeImage.src = fallbackUrl;
+                            } else {
+                                qrCodeImage.src = url;
+                                qrCodeImage.style.display = 'block';
+                                // 画像の読み込みを確認
+                                qrCodeImage.onload = function() {
+                                };
+                                qrCodeImage.onerror = function() {
+                                };
+                            }
+                        });
+                    } catch (e) {
+                        // 例外時はフォールバックとしてAPIを使用
+                        const fallbackUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCodeDataUrl)}`;
+                        qrCodeImage.onload = function() {
+                            qrCodeImage.style.display = 'block';
+                        };
+                        qrCodeImage.src = fallbackUrl;
+                    }
+                } else {
+                    // ライブラリが読み込まれていない場合はAPIを使用（長いURLの場合はサイズとエラー訂正レベルを調整）
+                    const encodedUrl = encodeURIComponent(qrCodeDataUrl);
+                    let qrCodeUrl;
+                    if (encodedUrl.length > 2000) {
+                        // 長いURLの場合は、サイズを大きくし、エラー訂正レベルを上げる
+                        qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&ecc=H&data=${encodedUrl}`;
+                    } else if (encodedUrl.length > 1000) {
+                        qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&ecc=H&data=${encodedUrl}`;
+                    } else {
+                        qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodedUrl}`;
+                    }
+                    qrCodeImage.onload = function() {
+                        qrCodeImage.style.display = 'block';
+                    };
+                    qrCodeImage.onerror = function() {
+                    };
+                    qrCodeImage.src = qrCodeUrl;
+                }
+            } else {
+            }
+        }
+
+        async function finishQuiz() {
+            // 診断結果を計算
+            const { result, scores } = calculateResult();
+            
+            // 配布タグの判定
+            const shouldAddDistributionTag = 
+                additionalAnswers.age && additionalAnswers.age.isTargetAge === true &&
+                additionalAnswers.location && additionalAnswers.location.isTargetRegion === true &&
+                additionalAnswers.jobChangeTiming && additionalAnswers.jobChangeTiming.isTargetTiming === true &&
+                additionalAnswers.jobChangeCount && additionalAnswers.jobChangeCount.isTargetJobChangeCount === true;
+
+            // 配布タグの詳細情報を記録
+            const distributionTagDetails = {
+                age: additionalAnswers.age ? additionalAnswers.age.isTargetAge : false,
+                location: additionalAnswers.location ? additionalAnswers.location.isTargetRegion : false,
+                timing: additionalAnswers.jobChangeTiming ? additionalAnswers.jobChangeTiming.isTargetTiming : false,
+                jobChangeCount: additionalAnswers.jobChangeCount ? additionalAnswers.jobChangeCount.isTargetJobChangeCount : false,
+                checkedAt: new Date().toISOString()
+            };
+            
+            // LIFFログイン済みの場合はlineUserIdをキーとして保存
+            const lineUserId = await getLineUserId();
+            
+            if (lineUserId) {
+                await saveResultByLineUser(lineUserId, result, scores, answers, additionalAnswers, shouldAddDistributionTag, distributionTagDetails);
+            } else {
+                // 診断結果をキャッシュに保存（サーバー + ローカルストレージ）
+                await saveResultToCache(result, scores, answers, additionalAnswers, shouldAddDistributionTag, distributionTagDetails);
+            }
+            
+            // LINE登録促進画面を表示（結果表示の代わり）
+            // QRコードの生成はshowScreen関数内で行う
+            showScreen('line-registration-screen');
+        }
+
+        function centerJobCard(index, smooth = true) {
+            const container = document.getElementById('result-jobs');
+            const cards = container.querySelectorAll('.job-card');
+            if (!cards.length || !cards[index]) return;
+            const card = cards[index];
+            
+            // getBoundingClientRect()を使用して正確な位置を取得
+            const containerRect = container.getBoundingClientRect();
+            const cardRect = card.getBoundingClientRect();
+            
+            // カードの中心位置（ビューポートからの相対位置）
+            const cardCenter = cardRect.left + cardRect.width / 2;
+            // コンテナの中心位置（ビューポートからの相対位置）
+            const containerCenter = containerRect.left + containerRect.width / 2;
+            // 現在のスクロール位置
+            const currentScrollLeft = container.scrollLeft;
+            // スクロール位置の差分を計算
+            const scrollDiff = cardCenter - containerCenter;
+            // 新しいスクロール位置
+            const newScrollLeft = currentScrollLeft + scrollDiff;
+            
+            container.scrollTo({ left: Math.max(0, newScrollLeft), behavior: smooth ? 'smooth' : 'auto' });
+        }
+
+        function setupJobCarousel() {
+            const container = document.getElementById('result-jobs');
+            // パソコン版（1024px以上）ではスナップ処理を無効化
+            if (window.innerWidth >= 1024) {
+                return;
+            }
+            let scrollTimer = null;
+            let isProgrammaticScroll = false; // プログラムによるスクロールかどうかのフラグ
+            
+            container.addEventListener('scroll', () => {
+                if (scrollTimer) {
+                    clearTimeout(scrollTimer);
+                }
+                // スクロールが止まってからスナップ処理
+                scrollTimer = setTimeout(() => {
+                    // リサイズでパソコン版になった場合は処理をスキップ
+                    if (window.innerWidth >= 1024) {
+                        return;
+                    }
+                    // プログラムによるスクロールの場合は説明更新のみ実行（無限ループを防ぐ）
+                    if (isProgrammaticScroll) {
+                        isProgrammaticScroll = false;
+                    const cards = Array.from(container.querySelectorAll('.job-card'));
+                    if (!cards.length) return;
+                    const containerRect = container.getBoundingClientRect();
+                    const centerX = containerRect.left + container.clientWidth / 2;
+
+                    let nearestIndex = 0;
+                    let minDist = Infinity;
+                    cards.forEach((card, i) => {
+                        const rect = card.getBoundingClientRect();
+                        const cardCenter = rect.left + rect.width / 2;
+                        const dist = Math.abs(cardCenter - centerX);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            nearestIndex = i;
+                        }
+                    });
+
+                        // 説明を確実に更新
+                        if (currentJobIndex !== nearestIndex) {
+                    setActiveJob(nearestIndex);
+                        }
+                        return;
+                    }
+                    
+                    const cards = Array.from(container.querySelectorAll('.job-card'));
+                    if (!cards.length) return;
+                    const containerRect = container.getBoundingClientRect();
+                    const centerX = containerRect.left + container.clientWidth / 2;
+
+                    let nearestIndex = 0;
+                    let minDist = Infinity;
+                    cards.forEach((card, i) => {
+                        const rect = card.getBoundingClientRect();
+                        const cardCenter = rect.left + rect.width / 2;
+                        const dist = Math.abs(cardCenter - centerX);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            nearestIndex = i;
+                        }
+                    });
+
+                    // 現在のアクティブなカードと異なる場合のみ処理
+                    if (currentJobIndex !== nearestIndex) {
+                        // まず説明を更新
+                        setActiveJob(nearestIndex);
+                        // その後、カードを中央に配置（スムーズスクロール）
+                        isProgrammaticScroll = true;
+                        centerJobCard(nearestIndex, true);
+                    }
+                }, 120);
+            });
+        }
+
+        function setActiveJob(index) {
+            currentJobIndex = index;
+            const cards = document.querySelectorAll('.job-card');
+            cards.forEach((card, i) => {
+                if (i === index) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+            // 結果タイプ名（なければ空文字）
+            const typeNameEl = document.getElementById('result-name');
+            let typeName = "";
+            if (typeNameEl && typeof typeNameEl.innerText === "string") {
+                typeName = typeNameEl.innerText;
+            }
+            const srcResult =
+                typesData.find(t => t.name === typeName) ||
+                null;
+            const job = logicalJobs[index] || null;
+            renderJobDetail(job, srcResult);
+        }
+
+        // 職種ごとの詳細テキスト定義（全20種類）
+        const jobDetailsMap = {
+            "営業職（総合）": {
+                what:
+                    "営業職（総合）は、企業や個人を相手に自社の商品やサービスを提案し、契約や継続利用につなげていく仕事です。新規開拓から既存顧客のフォロー、商談の準備やヒアリング、提案資料の作成、条件交渉まで、営業活動の一連の流れを担当します。数字へのコミットと信頼関係づくりの両方が求められるポジションです。",
+                why:
+                    "営業職では、相手の状況を丁寧にヒアリングし、言葉を選びながら提案できるコミュニケーション力が大きな武器になります。相手目線で物事を整理し、「何から始めればいいか」を一緒に考えられるスタイルは、営業活動と非常に相性が良いです。関係性を大切にしながら、着実に成果につなげていく姿勢が強みとして活きます。",
+                how:
+                    "働き方としては、外出やオンライン商談が多く、日によってスケジュールが大きく変わることもあります。移動時間や商談の合間を使って資料作成や振り返りを行うなど、自分で時間を組み立てる力が求められます。成果が数字としてはっきり見える分、達成感も分かりやすい仕事です。経験を積むほど、より大きな案件や複雑な商談も任されるようになります。"
+            },
+            "法人営業": {
+                what:
+                    "法人営業は、企業や組織を相手に自社のサービスや商品を提案し、契約・継続につなげていく仕事です。商談の準備やヒアリング、提案資料の作成、条件交渉などを通じて、相手の課題に合った解決策を形にしていきます。BtoBの営業活動において、数字へのコミットと信頼関係づくりの両方が求められるポジションです。",
+                why:
+                    "法人営業では、状況に応じて素早く判断し、臨機応変に言葉を選べる力が大きな武器になります。相手の表情や反応をよく観察しながら、その場でアプローチを変えていける柔軟さは、法人営業と非常に相性が良いです。プレッシャーのある場面でも前向きに切り替えられるメンタルの強さも、強みとして活きてきます。",
+                how:
+                    "働き方としては、外出やオンライン商談が多く、日によってスケジュールが大きく変わることもあります。移動時間や商談の合間を使って資料作成や振り返りを行うなど、自分で時間を組み立てる力が求められます。成果が数字としてはっきり見える分、達成感も分かりやすい仕事です。長期的な関係構築を意識しながら、継続的な提案ができるようになると、より大きな成果につながります。"
+            },
+            "個人営業": {
+                what:
+                    "個人営業は、個人のお客様を相手に自社の商品やサービスを提案し、購入や契約につなげていく仕事です。対面や電話、オンラインでのコミュニケーションを通じて、お客様のニーズをくみ取り、最適な提案を行います。接客に近い要素もあり、親しみやすさと提案力の両方が求められるポジションです。",
+                why:
+                    "個人営業では、初対面の人ともすぐに打ち解けられる親しみやすさや、その場の空気を明るくできる力が大きな強みになります。相手の表情や雰囲気を感じ取りながら、自然な会話の中で提案を組み立てられるスタイルは、個人営業と非常に相性が良いです。細やかな気配りが自然にできることも、評価されやすいポイントです。",
+                how:
+                    "働き方としては、店舗での接客や訪問営業、電話やオンラインでの対応など、多様なスタイルがあります。お客様との会話を通じて信頼関係を築きながら、自然な流れで提案につなげていくイメージです。成果が数字として分かりやすく返ってくるため、やりがいを感じやすい仕事です。経験を積むほど、お客様との関係性も深まり、リピートや紹介につながりやすくなります。"
+            },
+            "インサイドセールス": {
+                what:
+                    "インサイドセールスは、オフィス内で電話やメール、オンラインミーティングなどを活用して営業活動を行う仕事です。新規開拓や既存顧客へのフォロー、見込み客へのアプローチ、商談のアポ取りなど、デスクワークを中心に営業の成果を出していきます。外出が少なく、効率的に多くの顧客と接点を持てるポジションです。",
+                why:
+                    "インサイドセールスでは、電話やメールでのコミュニケーションを通じて、相手の状況をくみ取りながら提案できる力が大きな武器になります。短時間で要点を伝え、次のステップにつなげられるスタイルは、インサイドセールスと非常に相性が良いです。効率的に多くの顧客と関係を築きながら、着実に成果を積み上げていける姿勢が強みになります。",
+                how:
+                    "働き方としては、オフィス内でのデスクワークが中心になり、電話やメール、オンラインミーティングを組み合わせて営業活動を進めます。外出が少ない分、時間を効率的に使え、多くの顧客と接点を持ちやすい環境です。データやツールを活用しながら、見込み客の管理やフォローをシステマティックに進められる仕事です。経験を積むほど、より大きな案件や複雑な商談も任されるようになります。"
+            },
+            "広告営業": {
+                what:
+                    "広告営業は、企業や店舗に対して広告媒体やプロモーション施策を提案し、契約につなげていく仕事です。クライアントの課題や目標をヒアリングし、最適な広告プランや媒体を提案します。デジタル広告や紙媒体、屋外広告など、多様な媒体を扱うこともあり、企画力と営業力の両方が求められるポジションです。",
+                why:
+                    "広告営業では、テンポの速い会話の中で要点をつかみ、柔らかくも的確に意見を伝えられる力が大きな武器になります。状況が変わっても前向きに路線変更できる柔軟さや、人を巻き込みながら物事を動かすスタイルは、広告営業と非常に相性が良いです。多様な関係者と楽しくやり取りできる対人力も強みになります。",
+                how:
+                    "働き方としては、クライアントとの打ち合わせや社内ミーティングが多く、同時に複数案件を走らせることが一般的です。締め切り前は忙しくなりがちですが、その分キャンペーンの反響が見えたときの達成感も大きい仕事です。さまざまな業界の案件に関わることで、知見や人脈も広がっていきます。経験を積むほど、より大規模なキャンペーンや戦略的な提案も任されるようになります。"
+            },
+            "不動産営業": {
+                what:
+                    "不動産営業は、不動産の売買や賃貸の仲介を通じて、お客様の住まい探しや資産運用をサポートする仕事です。物件情報の提供、内見の同行、条件交渉、契約手続きのサポートなど、お客様の人生の大きな決断に関わる重要な役割を担います。信頼関係と専門知識の両方が求められるポジションです。",
+                why:
+                    "不動産営業では、お客様の要望を丁寧にヒアリングし、最適な提案を組み立てられる力が大きな武器になります。前向きな対話と発信で、お客様の不安を和らげながら進められるスタイルは、不動産営業と非常に相性が良いです。長期的な関係を大切にしながら、着実に成果につなげていく姿勢が強みとして活きます。",
+                how:
+                    "働き方としては、物件の内見や商談で外出することが多く、日によってスケジュールが大きく変わることもあります。お客様のライフスタイルや予算に合わせて、最適な物件を提案していくイメージです。成果が数字としてはっきり見える分、達成感も分かりやすい仕事です。経験を積むほど、より高額な物件や複雑な案件も任されるようになります。"
+            },
+            "金融・保険営業": {
+                what:
+                    "金融・保険営業は、金融商品や保険商品を提案し、お客様の資産形成やリスク管理をサポートする仕事です。お客様のライフプランや資産状況をヒアリングし、最適な商品を提案します。生命保険や損害保険、投資信託、ローン商品など、多様な金融商品を扱うこともあり、専門知識とコミュニケーション力の両方が求められるポジションです。",
+                why:
+                    "金融・保険営業では、お客様の状況を丁寧にヒアリングし、言葉を選びながら提案できるコミュニケーション力が大きな武器になります。相手目線で物事を整理し、「何から始めればいいか」を一緒に考えられるスタイルは、金融・保険営業と非常に相性が良いです。長期的な関係を大切にしながら、着実に成果につなげていく姿勢が強みとして活きます。",
+                how:
+                    "働き方としては、お客様との面談や商談で外出することが多く、日によってスケジュールが大きく変わることもあります。お客様のライフプランや資産状況に合わせて、最適な商品を提案していくイメージです。成果が数字としてはっきり見える分、達成感も分かりやすい仕事です。経験を積むほど、より高額な商品や複雑な案件も任されるようになります。"
+            },
+            "販売職": {
+                what:
+                    "販売職は、店舗やオンラインで商品を販売し、お客様に最適な商品を提案する仕事です。商品の説明や接客、レジ業務、在庫管理など、販売に関わる一連の業務を担当します。お客様と直接向き合いながら、心地よい買い物体験を提供することが役割です。接客力と商品知識の両方が求められるポジションです。",
+                why:
+                    "販売職では、初対面の人ともすぐに打ち解けられる親しみやすさや、その場の空気を明るくできる力が大きな強みになります。相手の表情や雰囲気を感じ取りながら、自然な会話の中で提案を組み立てられるスタイルは、販売職と非常に相性が良いです。細やかな気配りが自然にできることも、評価されやすいポイントです。",
+                how:
+                    "働き方としては、シフト制で土日・祝日を含む勤務になることも多く、ピークタイムと落ち着く時間帯のメリハリがあります。立ち仕事やお客様対応が続くこともありますが、その分「ありがとう」という言葉を直接もらえる場面も多い仕事です。経験を重ねることで、リーダーや教育担当としてステップアップする道も開けていきます。"
+            },
+            "店舗販売スタッフ": {
+                what:
+                    "店舗販売スタッフは、小売店や専門店で商品を販売し、お客様に最適な商品を提案する仕事です。商品の説明や接客、レジ業務、在庫管理、商品陳列など、店舗運営に関わる多様な業務を担当します。お客様と直接向き合いながら、心地よい買い物体験を提供することが役割です。接客力と商品知識の両方が求められるポジションです。",
+                why:
+                    "店舗販売スタッフでは、初対面の人ともすぐに打ち解けられる親しみやすさや、その場の空気を明るくできる力が大きな強みになります。相手の表情や雰囲気を感じ取りながら、自然な会話の中で提案を組み立てられるスタイルは、店舗販売と非常に相性が良いです。細やかな気配りが自然にできることも、評価されやすいポイントです。",
+                how:
+                    "働き方としては、シフト制で土日・祝日を含む勤務になることも多く、ピークタイムと落ち着く時間帯のメリハリがあります。立ち仕事やお客様対応が続くこともありますが、その分「ありがとう」という言葉を直接もらえる場面も多い仕事です。経験を重ねることで、リーダーや教育担当としてステップアップする道も開けていきます。"
+            },
+            "自動車販売スタッフ": {
+                what:
+                    "自動車販売スタッフは、自動車の販売を通じて、お客様の移動手段やライフスタイルをサポートする仕事です。新車や中古車の提案、試乗の同行、条件交渉、契約手続きのサポートなど、お客様の大きな買い物に関わる重要な役割を担います。信頼関係と専門知識の両方が求められるポジションです。",
+                why:
+                    "自動車販売スタッフでは、お客様の要望を丁寧にヒアリングし、最適な提案を組み立てられる力が大きな武器になります。状況を冷静に分析しながら、その場で柔軟に対応できるスタイルは、自動車販売と非常に相性が良いです。長期的な関係を大切にしながら、着実に成果につなげていく姿勢が強みとして活きます。",
+                how:
+                    "働き方としては、店舗での接客や試乗の同行、商談などで外出することも多く、日によってスケジュールが大きく変わることもあります。お客様のライフスタイルや予算に合わせて、最適な車種を提案していくイメージです。成果が数字としてはっきり見える分、達成感も分かりやすい仕事です。経験を積むほど、より高額な車種や複雑な案件も任されるようになります。"
+            },
+            "店長（小売・卸売）": {
+                what:
+                    "店長（小売・卸売）は、店舗全体の運営をリードし、売上目標の達成とスタッフの育成を両立させる仕事です。売上管理やシフト作成、接客品質の確認、キャンペーン運用、在庫管理など、店舗運営に関わる多様な業務を担当します。現場の最前線で「お店の顔」として機能するポジションです。",
+                why:
+                    "店長では、状況を見て素早く判断し、チームに分かりやすく指示を出す力が求められます。段取りを組んで仕組みを回しながら、トラブル時には自ら前に出て立て直すスタイルは、店舗運営と非常に相性が良いと言えます。ルールを守りつつ、現場の声を取り入れて改善していける実務リーダー気質が、そのまま大きな強みになります。",
+                how:
+                    "働き方としては、現場に立ちながらスタッフと一緒に動く時間と、バックヤードで数字やシフトを調整する時間の両方を行き来します。営業時間や繁忙時間帯に合わせて柔軟に動く必要はありますが、その分、成果が数字やお客様の反応として分かりやすく返ってくる仕事です。経験を重ねるほど、複数店舗やエリア全体を任されるキャリアにもつながっていきます。"
+            },
+            "一般事務": {
+                what:
+                    "一般事務は、オフィスでの日常業務を支える多様な仕事を担当するポジションです。電話対応や来客対応、書類の作成や整理、データ入力、備品管理、各種手続きなど、組織がスムーズに動くための基盤となる業務を幅広く扱います。表には出にくいものの、誰もが安心して働ける環境を整える重要な役割です。",
+                why:
+                    "一般事務では、細かな実務を抜け漏れなく進める力や、相手目線で配慮しながら話せる姿勢が大きな武器になります。安定した運用を大切にしながら、小さな改善を積み上げていくスタイルは、一般事務と非常に相性が良いです。穏やかなコミュニケーションで不安を和らげられることも、大きな強みとして評価されます。",
+                how:
+                    "働き方としては、日々のルーチン業務と、突発的な問い合わせやトラブル対応の両方に関わるスタイルになります。社内のさまざまな部署とやり取りをしながら、地道に物事を前に進めていくイメージです。基本的にはオフィス内でのデスクワークが中心で、リモートワークとも相性が良い仕事です。長く続けるほど、組織の仕組みを理解し、頼られる存在になっていきます。"
+            },
+            "営業事務": {
+                what:
+                    "営業事務は、営業部門をサポートし、営業活動がスムーズに進むように裏側から支える仕事です。見積書や提案資料の作成、顧客情報の管理、契約書の整理、営業報告のまとめ、スケジュール調整など、営業活動に関わる多様な事務業務を担当します。営業と顧客をつなぐ橋渡し役として機能するポジションです。",
+                why:
+                    "営業事務では、細かな実務を抜け漏れなく進める力や、相手目線で配慮しながら話せる姿勢が大きな武器になります。安定した運用を大切にしながら、小さな改善を積み上げていくスタイルは、営業事務と非常に相性が良いです。営業と顧客の両方に寄り添いながら、関係性を育てていく姿勢が強みとして活きます。",
+                how:
+                    "働き方としては、日々のルーチン業務と、突発的な問い合わせや対応の両方に関わるスタイルになります。営業部門や顧客とやり取りをしながら、地道に物事を前に進めていくイメージです。基本的にはオフィス内でのデスクワークが中心で、リモートワークとも相性が良い仕事です。長く続けるほど、営業活動の流れを理解し、より高度なサポートもできるようになります。"
+            },
+            "経理事務": {
+                what:
+                    "経理事務は、会社のお金の流れを正確に記録し、数字から経営の状態を把握する仕事です。日々の伝票処理や支払い管理に加えて、月次・年次決算、予算の策定や資金繰りのチェックなども担当します。ミスのない処理で信頼を積み上げながら、数字を通じて会社の健康状態を見守るポジションです。",
+                why:
+                    "経理事務では、細かい数字を丁寧に扱いながら、決められたルールを着実に守る力が求められます。コツコツと積み上げる姿勢や、手順を磨き込み抜け漏れを減らすスタイルは、この職種と非常に相性が良いと言えます。また、安定して同じ品質を出し続ける実直さが、そのまま会社全体の安心感につながっていきます。",
+                how:
+                    "働き方としては、締め日や決算期など忙しいタイミングはあるものの、基本的には決まったサイクルに沿って業務を進めていくスタイルになります。リモートワークやフレックスとも相性が良く、仕組みを整えるほど効率化もしやすい仕事です。専門性を深めていくことで、将来的には財務企画や経営に近いポジションへのキャリアアップも目指せます。"
+            },
+            "人事・総務事務": {
+                what:
+                    "人事・総務事務は、組織全体の運営を支える「なんでも屋」的な役割で、備品管理や契約書の扱い、各種手続き、イベント運営など幅広い仕事を担当します。人事関連では、採用手続きや勤怠管理、労務対応なども含まれます。表に出ない仕事も多いですが、誰もが安心して働ける環境や仕組みを整える重要なポジションです。",
+                why:
+                    "人事・総務事務では、ルールをきちんと守りながらも、現場の実情に合わせて工夫する力が求められます。手順を整え、抜け漏れを減らす実務力や、周囲の人を自然とサポートできるスタイルは、この領域で大きな強みになります。また、一度任されたことを最後までやり切る真面目さが、高い信頼となって返ってくる仕事です。",
+                how:
+                    "働き方は、日々のルーチン業務と、突発的な問い合わせやトラブル対応の両方に関わるスタイルになります。社内のさまざまな部署とやり取りをしながら、地道に物事を前に進めていくイメージです。年次イベントや制度変更など、少し長いスパンで準備して形にする仕事も多く、じっくり腰を据えて関われる環境が整いやすい分野です。"
+            },
+            "貿易事務": {
+                what:
+                    "貿易事務は、海外との取引に関わる書類作成や手続きを担当する仕事です。輸出・輸入に関する書類の作成、通関手続きのサポート、船積みや配送の手配、為替管理など、国際取引がスムーズに進むように裏側から支えます。正確性とスピードの両方が求められるポジションです。",
+                why:
+                    "貿易事務では、細かな書類を正確に作成し、決められた手順を着実に進める力が大きな武器になります。コツコツと積み上げる姿勢や、手順を磨き込み抜け漏れを減らすスタイルは、貿易事務と非常に相性が良いです。また、多様な関係者との調整を丁寧に進められる姿勢も、大きな強みとして評価されます。",
+                how:
+                    "働き方としては、書類作成や手続きが中心になり、基本的にはオフィス内でのデスクワークが多くなります。締め切りに合わせて業務が集中することもありますが、その分、手続きが完了したときの達成感も大きい仕事です。リモートワークとも相性が良く、専門性を深めていくことで、より高度な案件も任されるようになります。"
+            },
+            "施工管理": {
+                what:
+                    "施工管理は、建設現場で工事が計画どおりに進むように、工程管理や品質管理、安全管理などを統括する仕事です。現場の進捗確認、資材の手配、職人との調整、書類の作成や提出など、建設プロジェクトがスムーズに完了するように裏側から支えます。現場とオフィスの両方に関わるポジションです。",
+                why:
+                    "施工管理では、段取りを組んで仕組みを回しながら、トラブル時には自ら前に出て立て直す力が求められます。状況を見て素早く判断し、関係者に分かりやすく指示を出すスタイルは、施工管理と非常に相性が良いです。ルールを守りつつ、現場の声を取り入れて改善していける実務リーダー気質が、そのまま大きな強みになります。",
+                how:
+                    "働き方としては、現場とオフィスの両方を行き来しながら、日々の運営状況を把握し、必要に応じて手を打っていく形になります。現場での確認作業や職人との調整、オフィスでの書類作成や手続きなど、多様な業務が混ざるスタイルです。経験を積むほど、より大規模なプロジェクトや複雑な案件も任されるようになります。"
+            },
+            "建築・土木技術者": {
+                what:
+                    "建築・土木技術者は、建物やインフラの設計や施工に関わる技術的な業務を担当する仕事です。構造計算や設計図の作成、現場での技術指導、品質管理、材料の選定など、建設プロジェクトの技術面を支えます。専門知識と実務経験の両方が求められるポジションです。",
+                why:
+                    "建築・土木技術者では、複雑な構造を分析し、仮説を立てて検証する思考プロセスが大きな強みになります。論理的にパターンを分解し、現実的に実装できる形に落とし込むスタイルは、建築・土木技術と非常に相性が良いです。手を動かしながら理解を深め、技術で素早く解決する姿勢も、大きな強みとして評価されます。",
+                how:
+                    "働き方としては、設計や計算に集中する時間と、現場での確認や指導を行う時間が交互に訪れるスタイルです。オフィスでのデスクワークと現場での実務が混ざる形になり、メリハリのある働き方になります。経験を積むほど、より大規模なプロジェクトや複雑な案件も任されるようになり、専門性の高いキャリアを築きやすい領域です。"
+            },
+            "マーケティング職": {
+                what:
+                    "マーケティング職は、ターゲットとなるお客様を理解し、どんなメッセージや企画で心を動かすかを設計する仕事です。キャンペーンやコンテンツの企画立案、コピーやクリエイティブの方向性決め、施策の振り返りなどを通じて、継続的にブランドを育てていきます。発想力と分析力の両方を使うポジションです。",
+                why:
+                    "マーケティング職では、多様な視点から物事を眺め、アイデアを次々と生み出せる力が大きな武器になります。数字や結果をきちんと見ながらも、遊び心を忘れずにプランを練れるスタイルは、マーケティングと非常に相性が良いです。議論を通じてアイデアを磨くことを楽しめる点も強みになります。",
+                how:
+                    "働き方としては、情報収集やブレスト、企画書作成に時間を使いながら、制作チームやクライアントとの打ち合わせも行うリズムになります。施策の実施と振り返りを繰り返す中で、仮説の精度が上がっていくのを実感しやすい仕事です。SNSやデジタル広告など、新しいメディアにも触れ続けることになります。経験を積むほど、より大規模なキャンペーンや戦略的な提案も任されるようになります。"
+            },
+            "コンサルタント": {
+                what:
+                    "コンサルタントは、企業や組織の課題を分析し、解決策を提案して実行をサポートする仕事です。現状分析や課題の特定、解決策の設計、実行計画の立案、進捗管理など、クライアントの成長を伴走しながら支援します。論理的な思考とコミュニケーション力の両方が求められるポジションです。",
+                why:
+                    "コンサルタントでは、複雑な情報を構造化し、仮説を立てて整理する力が大きな武器になります。長期視点で物事を考えたり、感覚だけでなく根拠を意識して判断する姿勢は、コンサルタントの場で強く評価されます。相手の状況を丁寧にヒアリングし、言葉を選びながら提案できるコミュニケーション力も、重要な強みとなります。",
+                how:
+                    "働き方としては、資料作成や数値分析に集中する時間と、クライアントとのミーティングで意見をすり合わせる時間が交互に訪れるスタイルです。短期の施策検討と、半年〜数年スパンの方向性検討が同時に走ることも多く、頭の切り替えが求められます。経験を積むほど、より大規模なプロジェクトや複雑な案件も任されるようになり、経営に近い立場で意思決定に関わるチャンスも増えていきます。"
+            },
+            "接客・ホスピタリティ": {
+                what:
+                    "接客・ホスピタリティは、お客様と直接向き合いながら、心地よい体験やサービスを提供する仕事です。受付や案内、商品・サービスの説明、困りごとの対応などを通じて、相手の不安やストレスを減らし、満足度を高めていきます。「また来たい」と思ってもらえる時間をつくるポジションです。",
+                why:
+                    "この職種では、初対面の人ともすぐに打ち解けられる親しみやすさや、その場の空気を明るくできる力が大きな強みになります。マニュアルに沿うだけでなく、相手の表情や雰囲気を感じ取りながら一言を添えられるスタイルは、接客・ホスピタリティと非常に相性が良いです。細やかな気配りが自然にできることも、評価されやすいポイントです。",
+                how:
+                    "働き方としては、シフト制で土日・祝日を含む勤務になることも多く、ピークタイムと落ち着く時間帯のメリハリがあります。立ち仕事やお客様対応が続くこともありますが、その分「ありがとう」という言葉を直接もらえる場面も多い仕事です。経験を重ねることで、リーダーや教育担当としてステップアップする道も開けていきます。"
+            },
+            "イベント/コミュニティ運営": {
+                what:
+                    "イベント/コミュニティ運営は、セミナーや交流会、オンラインコミュニティなどの場を企画・運営し、参加者同士のつながりや学びを生み出す仕事です。企画立案から集客、当日の進行、アフターフォローまで、一連のプロセスに関わります。場の雰囲気づくりと運営の両方を担うポジションです。",
+                why:
+                    "この職種では、人と人をつなげることを楽しめる感性や、その場の空気を読みながら動ける柔軟さが大きな武器になります。参加者が安心して話せる雰囲気をつくり、自然なコミュニケーションを促せるスタイルは、イベント運営と非常に相性が良いです。明るさと段取り力の両方を活かせるフィールドと言えます。",
+                how:
+                    "働き方としては、準備期間とイベント当日とでリズムが大きく変わります。日中の運営だけでなく、夜や休日に開催されるイベントもあるため、柔軟な時間の使い方が必要になるケースもあります。その分、多様な人と出会い、ネットワークが広がっていく面白さのある仕事です。"
+            },
+            "クリエイティブアシスト": {
+                what:
+                    "クリエイティブアシストは、デザイナーやディレクター、ライターなどのクリエイターが本来の制作に集中できるよう、周辺業務をサポートする仕事です。素材の整理や簡単な加工、スケジュールや依頼内容のとりまとめ、チェック作業などを通じて、プロジェクト全体の進行を支えます。裏方としてクリエイティブチームを支えるポジションです。",
+                why:
+                    "この職種では、細かいタスクを丁寧にこなしつつ、相手の意図をくみ取って動ける力が活きてきます。指示を待つだけでなく、「ここまでやっておくと助かりそう」と先回りできるスタイルは、クリエイティブアシスタントと非常に相性が良いです。感性と実務力の両方を少しずつ伸ばしていける点も強みになります。",
+                how:
+                    "働き方としては、複数の案件やクリエイターを横断的にサポートすることも多く、日によって関わる内容が変わる柔軟なスタイルになります。リモートワークとも相性が良く、オンラインでのコミュニケーションやファイル管理のスキルも求められます。経験を積むことで、自身がクリエイター側にステップアップする道も見えてきます。"
+            },
+            "エンジニア/テックサポート": {
+                what:
+                    "エンジニア/テックサポートは、システムやプロダクトの技術的な問題を解決し、ユーザーや社内メンバーが安心して利用できるよう支える仕事です。問い合わせ対応や不具合調査、設定変更、改善提案などを通じて、トラブルを素早く片付けていきます。手を動かしながら問題を解決する実務型のポジションです。",
+                why:
+                    "この職種では、状況を冷静に整理し、原因を一つずつ切り分けていく力が大きな武器になります。感情に流されず事実ベースで判断できるスタイルや、実際に手を動かしながら試していく姿勢は、テックサポートと非常に相性が良いです。トラブルの中でも落ち着いて対応できる点も、強みとして評価されます。",
+                how:
+                    "働き方としては、チャットやチケットシステムでの対応が中心になることが多く、リモートワークとも相性の良い仕事です。緊急度の高い案件が入ることもありますが、その分、解決できたときの達成感も大きくなります。経験を積むほど、開発側へのフィードバックやプロダクト改善にも深く関わっていけるようになります。"
+            },
+            "整備・フィールドエンジ": {
+                what:
+                    "整備・フィールドエンジは、機械や設備、システムなどの現場に直接赴き、不具合対応やメンテナンスを行う仕事です。点検や修理、部品交換、稼働テストなどを通じて、現場が安全かつ安定して動く状態を保ちます。トラブル時にも素早く駆け付け、状況を見極めながら対処するポジションです。",
+                why:
+                    "この職種では、現場の状況を冷静に観察し、手を動かしながら原因を探っていく力が活きてきます。マニュアルだけでなく、自分の経験や勘も総動員して最適な対処を考えられるスタイルは、フィールドエンジニアと非常に相性が良いです。プレッシャーのかかる場面でも、黙々とやるべきことを進められる姿勢が強みになります。",
+                how:
+                    "働き方としては、客先や現場への出張・移動が発生することが多く、日によってスケジュールが大きく変わる特徴があります。急な呼び出しに対応することもありますが、その分、現場から直接感謝される場面も多い仕事です。経験を積むことで、トラブルの予防や設計改善の提案など、上流にも関わっていけるようになります。"
+            },
+            "セキュリティ/インフラ": {
+                what:
+                    "セキュリティ/インフラは、システムやネットワークが安全かつ安定して動き続けるように、設計・運用・監視を行う仕事です。障害対応やログ解析、アクセス管理、セキュリティ対策の実装などを通じて、トラブルを未然に防ぎます。ユーザーからは見えにくいものの、サービスを支える心臓部のようなポジションです。",
+                why:
+                    "この職種では、細かな兆候から異常に気づく観察力や、最悪のケースを想定して対策を打てる慎重さが大きな強みになります。地味な作業でもコツコツと続けられるスタイルや、最新情報を追いながら知識をアップデートしていける姿勢は、インフラ・セキュリティ分野と非常に相性が良いです。問題が起きない状態を当たり前に保つことに価値を感じられる人に向いています。",
+                how:
+                    "働き方としては、日々の監視やメンテナンスがベースにありつつ、障害発生時には一時的に負荷が高まるメリハリのあるスタイルになります。夜間や休日対応が必要な体制もありますが、その分シフト制で時間を調整しやすいケースも多いです。継続的にスキルを磨くことで、専門性の高いキャリアを築きやすい領域です。"
+            },
+            "デザイナー/ビジュアル制作": {
+                what:
+                    "デザイナー/ビジュアル制作は、ロゴやWebサイト、バナー、資料などのビジュアル表現を通じて、伝えたいメッセージや世界観を形にする仕事です。クライアントやチームからの要望を整理し、色やレイアウト、フォントなどを組み合わせて、分かりやすく魅力的なデザインに仕上げていきます。視覚で心を動かすポジションです。",
+                why:
+                    "この職種では、細部までこだわる美意識や、相手のイメージをくみ取って表現に落とし込む力が大きな武器になります。言語化しづらい感覚をデザインとして整理し、丁寧にブラッシュアップしていけるスタイルは、ビジュアル制作と非常に相性が良いです。静かに作品で自己表現できることも強みになります。",
+                how:
+                    "働き方としては、集中してデザイン案を作り込む時間が多く、修正依頼への対応や打ち合わせを挟みながら進行します。フリーランスとして自宅で制作する形もあれば、チームに所属してブランド全体の世界観づくりに関わる形もあります。ポートフォリオを通じて、自分の成長が目に見えて実感しやすい仕事です。"
+            },
+            "メイク/スタイリング": {
+                what:
+                    "メイク/スタイリングは、人の魅力を引き出すヘアメイクやファッションの提案を通じて、外見から自信や世界観をつくる仕事です。撮影現場や店舗、サロンなどで、目的やシーンに合わせたスタイルを一緒に考え、実際に手を動かして形にしていきます。感性と技術の両方を使うポジションです。",
+                why:
+                    "この職種では、色や質感のわずかな違いにも気づける感性や、相手の雰囲気に合わせて提案を変えられる柔軟さが大きな強みになります。相手の話を聞きながら、「どうなりたいか」のイメージを一緒に膨らませていけるスタイルは、メイク・スタイリングと非常に相性が良いです。手仕事の丁寧さも価値として直接伝わります。",
+                how:
+                    "働き方としては、土日やイベント時に忙しくなることも多く、シフトや案件ベースで動くリズムになりがちです。現場ごとに求められるテイストが変わるため、日々インプットを続けることも大切になります。お客様からの「またお願いしたい」という言葉が、次の仕事につながりやすいフィールドです。"
+            },
+            "フォト・映像クリエイター": {
+                what:
+                    "フォト・映像クリエイターは、写真や動画を通じてストーリーや世界観を表現し、人の心に残るビジュアルコンテンツを制作する仕事です。撮影の構図やライティング、編集のテンポや色味などを調整しながら、伝えたいテーマを映像として形にしていきます。視覚的な物語づくりを担うポジションです。",
+                why:
+                    "この職種では、瞬間の表情や光のニュアンスを敏感にとらえる観察眼と、自分なりの世界観を持って表現できる感性が大きな武器になります。地道な編集作業を丁寧に積み上げられるスタイルは、フォト・映像制作と非常に相性が良いです。言葉ではなく映像で語ることが得意な人にとって、強みを生かしやすいフィールドです。",
+                how:
+                    "働き方としては、撮影の日と編集の日でリズムが大きく変わり、ロケやスタジオ撮影で外に出る日もあれば、自宅やオフィスで黙々と編集に向き合う日もあります。フリーランスとして案件ごとに動く形も多く、スケジュールや収入の波を自分でマネジメントする必要がありますが、その分、表現の自由度も高い仕事です。"
+            },
+            "研究・リサーチ": {
+                what:
+                    "研究・リサーチは、特定のテーマについて情報やデータを集め、分析し、知見としてまとめる仕事です。インタビューやアンケート、データ解析、文献調査などを通じて、仮説を立てて検証を繰り返し、結果をレポートとして共有します。意思決定や新規施策の土台になるインサイトを生み出すポジションです。",
+                why:
+                    "この職種では、興味を持ったテーマを徹底的に掘り下げていける探求心と、主観に偏らず事実ベースで考えられる冷静さが大きな強みになります。複雑なデータを整理し、分かりやすく言語化できるスタイルは、リサーチ業務と非常に相性が良いです。結論を急がず、「分からないこと」をそのまま扱える姿勢も評価されます。",
+                how:
+                    "働き方としては、調査設計・データ収集・分析・報告のサイクルを案件ごとに回していくスタイルになります。納期に向けて集中的に作業する期間もありますが、その分、一区切りごとに達成感が得られる仕事です。テーマによっては社会課題や新技術にも触れられ、知的好奇心を満たしやすいフィールドです。"
+            },
+            "テクノロジー企画": {
+                what:
+                    "テクノロジー企画は、新しい技術やツールを活用して、業務改善や新サービスのアイデアを具体的な企画に落とし込む仕事です。社内外のテクノロジートレンドをキャッチアップしながら、どこに活かせるかを考え、要件やロードマップにまとめていきます。エンジニアとビジネスサイドの橋渡し役になるポジションです。",
+                why:
+                    "この職種では、技術の仕組みをざっくりと理解しつつ、「それをどこに使うと価値が出るか」を考えられる力が大きな武器になります。構造を分解して整理するスタイルや、仮説ベースで可能性を検討できる姿勢は、テクノロジー企画と非常に相性が良いです。新しいものへの好奇心も、強みとして活きてきます。",
+                how:
+                    "働き方としては、情報収集や社内インタビュー、プロトタイピングの検討など、探索フェーズのタスクが多くなります。すぐに形にならないテーマも扱うため、短期的な成果だけでなく中長期の変化を見据えて動く必要があります。継続して経験を積むほど、技術とビジネスの両面から信頼される存在になっていきます。"
+            },
+            "データサイエンス/設計": {
+                what:
+                    "データサイエンス/設計は、大量のデータからパターンや傾向を見つけ出し、意思決定やサービス改善につなげる仕事です。分析基盤の設計や集計ロジックの構築、機械学習モデルの検討などを通じて、数字の裏側にある意味を明らかにしていきます。論理と数学を武器にするポジションです。",
+                why:
+                    "この職種では、数字や情報を冷静に扱い、仮説を立てて検証する思考プロセスが大きな強みになります。複雑なデータ構造を整理し、わかりやすい指標に落とし込めるスタイルは、データサイエンスと非常に相性が良いです。感情よりもロジックを重視する姿勢が、そのまま価値として評価される領域です。",
+                how:
+                    "働き方としては、集中してコードやクエリを書く時間が多く、定期的に関係者と結果や示唆を共有するサイクルを回していきます。リモートワークとも相性が良く、自分のペースで深く考える時間を取りやすい仕事です。スキルを磨くほど、専門性の高いポジションや高難度プロジェクトにも関わっていけるようになります。"
+            },
+            "ライター/編集": {
+                what:
+                    "ライター/編集は、物語や実体験、サービスの価値などを文章として形にし、読み手の感情を動かす仕事です。取材やヒアリングで集めたエピソードを整理し、構成や表現を工夫しながら、心に残るストーリーをつくっていきます。紙・Web・SNSなどさまざまな媒体で活躍できるポジションです。",
+                why:
+                    "この職種では、人の気持ちや背景を丁寧に受け止め、それを言葉で表現する力が大きな武器になります。静かに相手の話を聞き、感情をすくい上げて文章に落とし込めるスタイルは、ライター・編集と非常に相性が良いです。自分の内面や価値観を大切にしながら、読み手の心に寄り添えるところも強みとなります。",
+                how:
+                    "働き方としては、一人で執筆や編集に集中する時間が長く、締切に向けてマイペースに積み上げていくスタイルになります。フリーランスとして在宅で働く選択肢も多く、自分なりの働き方を設計しやすい領域です。書き続けるほど文章の精度が高まり、指名での依頼も増えていきます。"
+            },
+            "カウンセリング/支援": {
+                what:
+                    "カウンセリング/支援は、心や生活面で不安を抱える人に寄り添い、話を聞きながら問題の整理や選択をサポートする仕事です。対話やワークを通じて、自分の感情や考え方に気づけるように支援し、必要に応じて専門機関と連携することもあります。相手のペースを尊重しながら伴走するポジションです。",
+                why:
+                    "この職種では、相手を評価せずに受け止める姿勢や、長く寄り添い続けられる忍耐強さが大きな強みになります。言葉を慎重に選びながら安心できる空気をつくれるスタイルは、カウンセリング・支援と非常に相性が良いです。自分の価値観を押し付けず、相手の選択を尊重できるところも重要なポイントです。",
+                how:
+                    "働き方としては、予約制の個別面談やグループセッションが中心になり、その前後で記録作成やケース会議が行われます。感情的なテーマに触れることも多いため、自分自身のメンタルケアやチームでの振り返りも大切です。長く関わるほど、信頼関係が深まり、小さな変化を一緒に喜べる仕事です。"
+            },
+            "クリエイティブ職": {
+                what:
+                    "クリエイティブ職は、文章やデザイン、映像、音楽など多様な表現手段を用いて、世界観やメッセージを形にする仕事です。オリジナルの作品や企画を生み出し、受け手に新しい視点や感情の動きを届けていきます。自分の感性を軸にしながら表現を重ねるポジションです。",
+                why:
+                    "この職種では、自分の内側にある感情やイメージを大切にし、それを丁寧に作品へ落とし込める力が大きな武器になります。派手ではなくても、静かに深く響く表現を目指せるスタイルは、クリエイティブ領域と非常に相性が良いです。こだわりや世界観を諦めずに育てていけるところも強みになります。",
+                how:
+                    "働き方としては、一人で制作に集中する時間が多くなり、締切や発表のタイミングに合わせて創作のペースを調整していくスタイルになります。フリーランスや副業として活動する人も多く、自分なりのペースで長く続けやすい領域です。少しずつ作品を積み重ねることで、自分だけのポートフォリオとファンが育っていきます。"
+            },
+            "新規事業・企画": {
+                what:
+                    "新規事業・企画は、まだ世の中にない価値やビジネスモデルを考え、ゼロから事業のタネをつくって検証していく仕事です。アイデア出しだけでなく、仮説検証や小さな実験、数値の振り返りなどを繰り返しながら、形になる可能性のある案を育てていきます。変化の激しい領域で挑戦を楽しむポジションです。",
+                why:
+                    "この職種では、常識にとらわれずに発想を転換できる力や、失敗を前提に試行錯誤できるマインドが大きな強みになります。議論を通じて新しい視点を提示し、人を巻き込みながら仮説を磨いていけるスタイルは、新規事業と非常に相性が良いです。変化を楽しみ、好奇心で動けるところも評価されます。",
+                how:
+                    "働き方としては、調査・企画・実験・振り返りのサイクルを短いスパンで何度も回していくスタイルになります。成功が保証されないテーマも多い分、自分でモチベーションを管理し、チームで一緒に試す文化をつくることが大切です。経験を重ねるほど、「うまくいく種」を見極めるセンスも磨かれていきます。"
+            },
+            "マーケ/クリエイティブプラン": {
+                what:
+                    "マーケ/クリエイティブプランは、ターゲットとなるお客様を理解し、どんなメッセージや企画で心を動かすかを設計する仕事です。キャンペーンやコンテンツの企画立案、コピーやクリエイティブの方向性決め、施策の振り返りなどを通じて、継続的にブランドを育てていきます。発想力と分析力の両方を使うポジションです。",
+                why:
+                    "この職種では、多様な視点から物事を眺め、アイデアを次々と生み出せる力が大きな武器になります。数字や結果をきちんと見ながらも、遊び心を忘れずにプランを練れるスタイルは、マーケ・クリエイティブ企画と非常に相性が良いです。議論を通じてアイデアを磨くことを楽しめる点も強みになります。",
+                how:
+                    "働き方としては、情報収集やブレスト、企画書作成に時間を使いながら、制作チームやクライアントとの打ち合わせも行うリズムになります。施策の実施と振り返りを繰り返す中で、仮説の精度が上がっていくのを実感しやすい仕事です。SNSやデジタル広告など、新しいメディアにも触れ続けることになります。"
+            },
+            "プロダクトディスカバリ": {
+                what:
+                    "プロダクトディスカバリは、「本当にユーザーが求めているものは何か」を探り当てるために、インタビューやプロトタイプ検証を繰り返す仕事です。ユーザーの行動や声を観察しながら、課題の本質を見つけ出し、どのような機能や体験に落とし込むかを検討していきます。仮説と実験を行き来するポジションです。",
+                why:
+                    "この職種では、前提を疑いながら問いを立て直す力や、意見の違いを楽しみながら議論できる姿勢が大きな強みになります。インタビューの中からヒントを拾い上げ、チームで新しい方向性をつくっていけるスタイルは、プロダクトディスカバリと非常に相性が良いです。失敗を学びに変えるマインドも重要な要素です。",
+                how:
+                    "働き方としては、ユーザーリサーチと社内ディスカッションを短いサイクルで回し、仮説と検証を行き来する日々になります。完成形を急がず、「何が本当に価値なのか」を見極めることに時間を使う仕事です。プロダクトの方向性に深く関わるため、やりがいも大きく、難易度も高いフィールドです。"
+            },
+            "営業/アライアンス": {
+                what:
+                    "営業/アライアンスは、自社と他社の強みを組み合わせた協業やパートナーシップをつくり、新しい価値や売上機会を生み出す仕事です。提携先候補の開拓や打ち合わせ、条件交渉、共同施策の企画などを通じて、お互いにメリットのある関係性を形にしていきます。人と人、組織と組織をつなぐポジションです。",
+                why:
+                    "この職種では、初対面の人とも前向きに関係を築ける社交性と、Win-Winの落としどころを探れる交渉力が大きな武器になります。相手の立場や事情を想像しながら提案を組み立てられるスタイルは、アライアンス営業と非常に相性が良いです。巻き込み力とスピード感を活かしやすいフィールドです。",
+                how:
+                    "働き方としては、社外との打ち合わせやイベント参加が多くなり、人と会う機会が豊富な仕事です。社内の複数部署とも連携しながら進めるため、調整力や情報共有のスキルも求められます。関係が深まるほど、中長期で大きな成果につながる提携を育てていけるポジションです。"
+            },
+            "企画・プロデュース": {
+                what:
+                    "企画・プロデュースは、コンテンツやサービス、イベントなどの全体像を描き、関係者をまとめながら実現していく仕事です。コンセプトづくりから企画書作成、チーム編成、進行管理、クオリティチェックまで、プロジェクト全体を俯瞰して動きます。発想と推進力の両方を使うポジションです。",
+                why:
+                    "この職種では、アイデアを出すだけでなく、それを実際に形にするための段取りを組める力が大きな武器になります。人を巻き込みながら楽しくプロジェクトを進めていけるスタイルは、プロデュース業務と非常に相性が良いです。場の空気を前向きに保ちつつ、必要なときには判断できる点も強みとして評価されます。",
+                how:
+                    "働き方としては、複数の案件を並行して進めることも多く、打ち合わせや連絡調整の時間が多くなりがちです。その一方で、自分の企画が世の中に出たときの達成感は大きく、反響をダイレクトに感じやすい仕事です。経験を積むほど、より大規模なプロジェクトのプロデュースも任されるようになります。"
+            },
+            "広報/PR/CS": {
+                what:
+                    "広報/PR/CSは、会社やサービスの魅力を社外・社内に伝え、ファンや信頼を増やしていく仕事です。プレスリリースやSNS発信、イベント企画に加え、お客様の声を受け止めて社内にフィードバックする役割も担います。発信と傾聴の両方を通じて、ブランドの印象を育てるポジションです。",
+                why:
+                    "この職種では、ポジティブで前向きなメッセージをつくれる力と、相手の感情に共感しながら対応できる力が大きな強みになります。明るいコミュニケーションで場を和らげつつ、誠実に説明できるスタイルは、広報・PR・CS業務と非常に相性が良いです。人とのつながりを大切にする姿勢も、そのまま価値になります。",
+                how:
+                    "働き方としては、日々の情報発信と、キャンペーンやイベントなどの企画・運営が組み合わさるスタイルになります。メディア対応やSNSの反応チェック、お客様の声への返信など、外部との接点も多い仕事です。会社の\"顔\"として見られることも増えるため、自分の言葉や態度がブランドに与える影響を意識しながら働くことになります。"
+            }
+        };
+
+        function renderJobDetail(job, result) {
+            const h1El = document.getElementById('job-detail-h1');
+            const b1El = document.getElementById('job-detail-body1');
+            const h2El = document.getElementById('job-detail-h2');
+            const b2El = document.getElementById('job-detail-body2');
+            const h3El = document.getElementById('job-detail-h3');
+            const b3El = document.getElementById('job-detail-body3');
+
+            if (!job) {
+                h1El.innerText = "";
+                b1El.innerText = "";
+                h2El.innerText = "";
+                b2El.innerText = "";
+                h3El.innerText = "";
+                b3El.innerText = "";
+                return;
+            }
+
+            const title = job.title;
+
+            // 職種ごとに解像度の高いテキストが用意されている場合はそれを優先
+            const jobDetail = jobDetailsMap[title];
+
+            h1El.innerText = `▪ ${title}はどういう仕事なのか？`;
+
+            h2El.innerText = `▪ あなたの強みが${title}で活きる理由`;
+            // result が null の場合は、現在表示中タイプ名から typesData を引いて強みを取得
+            let strengthsText = "あなたの強み";
+            const typeNameEl = document.getElementById('result-name');
+            let typeName = "";
+            if (typeNameEl && typeof typeNameEl.innerText === "string") {
+                typeName = typeNameEl.innerText;
+            }
+            const srcResult =
+                result ||
+                typesData.find(t => t.name === typeName) ||
+                null;
+            if (srcResult && Array.isArray(srcResult.strengths) && srcResult.strengths.length) {
+                strengthsText = `「${srcResult.strengths.slice(0, 2).join("」「")}」`;
+            }
+
+            if (jobDetail) {
+                // 職種ごとの詳細テキストを使用
+                b1El.innerText = jobDetail.what;
+                b2El.innerText = jobDetail.why.replace("{STRENGTHS}", strengthsText);
+                h3El.innerText = `▪ ${title}はどのような働き方なのか？`;
+                b3El.innerText = jobDetail.how;
+            } else {
+                // 定義がない職種は汎用テンプレートでフォールバック
+                b1El.innerText =
+                    `${title}は、相手の課題やニーズを理解し、それに合った価値を提供していく仕事です。` +
+                    `日々の業務を通じて、お客様や関係者との信頼関係を築きながら、成果を積み上げていきます。`;
+                b2El.innerText = `${strengthsText}が、${title}の場面で活かされ、成果につながっていきます。`;
+                h3El.innerText = `▪ ${title}はどのような働き方なのか？`;
+                b3El.innerText =
+                    `${title}では、日々の業務を通じて経験を積み、スキルを向上させていく働き方が一般的です。` +
+                    `チームで協力しながら、目標達成に向けて取り組んでいきます。`;
+            }
+
+            // モバイルでの「もっと見る」トグル機能
+            // DOMの更新を待ってからチェックするため、setTimeoutを使用
+            setTimeout(() => {
+                const detailBodies = [b1El, b2El, b3El];
+                const isMobile = window.innerWidth <= 768;
+
+                detailBodies.forEach(bodyEl => {
+                    if (!bodyEl) return;
+
+                    // 既存のトグルボタンを削除
+                    const existingToggle = bodyEl.nextElementSibling;
+                    if (existingToggle && existingToggle.classList.contains('more-toggle')) {
+                        existingToggle.remove();
+                    }
+
+                    // クラスをリセット
+                    bodyEl.classList.remove('expanded');
+
+                    // 強制的にレイアウトを計算させる
+                    void bodyEl.offsetHeight;
+
+                    if (isMobile && bodyEl.scrollHeight > bodyEl.clientHeight) {
+                        // テキストが2行を超える場合のみトグルを追加
+                        const toggle = document.createElement('button');
+                        toggle.className = 'more-toggle';
+                        toggle.textContent = '▼ もっと見る（タップで全文表示）';
+                        toggle.style.display = 'block';
+                        toggle.style.marginTop = '8px';
+                        toggle.style.color = 'var(--color-primary)';
+                        toggle.style.background = 'none';
+                        toggle.style.border = 'none';
+                        toggle.style.cursor = 'pointer';
+                        toggle.style.textDecoration = 'underline';
+                        toggle.style.fontSize = '0.9rem';
+
+                        toggle.addEventListener('click', () => {
+                            if (bodyEl.classList.contains('expanded')) {
+                                bodyEl.classList.remove('expanded');
+                                toggle.textContent = '▼ もっと見る（タップで全文表示）';
+                            } else {
+                                bodyEl.classList.add('expanded');
+                                toggle.textContent = '▲ 閉じる';
+                            }
+                        });
+
+                        bodyEl.parentNode.insertBefore(toggle, bodyEl.nextSibling);
+                    }
+                });
+            }, 0);
+        }
+
+        function resetQuiz() {
+            currentQuestionIndex = 0;
+            answers = [];
+            additionalAnswers = {}; // 追加質問の回答もリセット
+            showScreen('start-screen');
+        }
+        window.resetQuiz = resetQuiz;
+
+        // ページ読み込み時にURLパラメータから診断結果をチェック（非同期対応）
+        async function checkURLForResult() {
+            
+            const urlParams = new URLSearchParams(window.location.search);
+
+            // 強制リセット: 診断を最初から始めたいとき用（PCで結果が残っている場合のテスト用）
+            const forceStart = urlParams.has('reset') || urlParams.has('force_start') || urlParams.has('clear') || urlParams.has('start');
+            if (forceStart) {
+                clearDiagnosisCache();
+                // URLパラメータを除去してからスタート
+                const cleanUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+                return false; // 結果を探さず、最初の質問へ
+            }
+
+            // 【重要】LIFF初期化を明示的に待つ（競合状態防止）
+            if (typeof liff !== 'undefined' && !liffInitialized) {
+                await initLIFF();
+            }
+
+            // LIFFログイン済みの場合はlineUserIdで結果を取得
+            const lineUserId = await getLineUserId();
+            
+            // session_idをクエリパラメータとハッシュフラグメントの両方から取得
+            // L-stepがクエリパラメータを削除するため、ハッシュフラグメントを優先
+            let sessionIdFromQuery = urlParams.get('session_id');
+            if (!sessionIdFromQuery && window.location.hash) {
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                sessionIdFromQuery = hashParams.get('session_id');
+            }
+            if (lineUserId) {
+                
+                // session_idパラメータがある場合は、セッション結果を移行
+                if (sessionIdFromQuery) {
+                    await transferSessionResultToLineUser(sessionIdFromQuery, lineUserId);
+                } else {
+                    // session_idがない場合、PENDING結果を自動でリンク（PCからの結果引き継ぎ）
+                    try {
+                        const claimResp = await fetch(`${WP_API_BASE}/claim-pending-result`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                lineUserId: lineUserId,
+                                lineDisplayName: getLineDisplayName()
+                            })
+                        });
+                        const claimData = await claimResp.json();
+                        
+                        if (claimData.success && claimData.result && claimData.result.typeId) {
+                            // PENDING結果をリンク成功 - 結果を表示
+                            const result = typesData.find(t => t.id === claimData.result.typeId);
+                            if (result) {
+                                answers = claimData.result.answers || [];
+                                additionalAnswers = claimData.result.additionalAnswers || {};
+                                displayResult(result);
+                                return true;
+                            }
+                        } else {
+                        }
+                    } catch (e) {
+                    }
+                }
+                
+                let cachedData = await getResultByLineUser(lineUserId);
+                
+                if (cachedData && cachedData.result && cachedData.result.typeId) {
+                    
+                    // 結果を表示
+                    const result = typesData.find(t => t.id === cachedData.result.typeId);
+                    if (result) {
+                        // 回答データを復元
+                        answers = cachedData.result.answers || [];
+                        additionalAnswers = cachedData.additionalAnswers || {};
+                        
+                        displayResult(result);
+                        
+                        return true;
+                    } else {
+                    }
+                } else {
+                }
+            } else {
+            }
+            
+            // URLパラメータから診断結果データを取得（LINE経由リダイレクト対応、後方互換性）
+            let encodedData = urlParams.get('data');
+            
+            // URLパラメータにdataがある場合のみ結果を表示
+            if (encodedData) {
+                try {
+                    // Base64デコードしてJSONを復元
+                    const decoded = decodeURIComponent(atob(encodedData));
+                    const diagnosticData = JSON.parse(decoded);
+                    
+                    // 診断結果データの整合性チェック
+                    if (diagnosticData.result && diagnosticData.result.typeId) {
+                        // 診断結果をキャッシュに保存（リロード対策）
+                        await saveResultToCache(
+                            { id: diagnosticData.result.typeId, name: diagnosticData.result.typeName },
+                            diagnosticData.result.scores || {},
+                            diagnosticData.result.answers || [],
+                            diagnosticData.additionalAnswers || {},
+                            diagnosticData.distributionTag || false,
+                            diagnosticData.distributionTagDetails || {}
+                        );
+                        
+                        // 結果を表示
+                        const result = typesData.find(t => t.id === diagnosticData.result.typeId);
+                        if (result) {
+                            // 回答データを復元
+                            answers = diagnosticData.result.answers || [];
+                            additionalAnswers = diagnosticData.additionalAnswers || {};
+                            
+                            displayResult(result);
+                            
+                            // URLからパラメータを削除（クリーンなURLにする）
+                            const cleanUrl = window.location.pathname;
+                            window.history.replaceState({}, document.title, cleanUrl);
+                            
+                            return true;
+                        } else {
+                        }
+                    } else {
+                    }
+                } catch (e) {
+                }
+            }
+            
+            // セッションIDベースで結果を取得（後方互換性）
+            // lineUserIdがない場合（PCブラウザなど）のみ、キャッシュから結果を取得
+            // lineUserIdがある場合は既に上でチェック済み
+            // ただし、session_idパラメータがない場合は、新しい診断を開始したいと判断してキャッシュを無視
+            if (!lineUserId) {
+                const sessionIdFromQueryForCache = urlParams.get('session_id');
+                // session_idパラメータがある場合のみキャッシュをチェック
+                // session_idパラメータがない場合は、新しい診断を開始したいと判断してQ1から開始
+                if (sessionIdFromQueryForCache) {
+                    const cachedResult = await getLatestResultFromCache();
+                    if (cachedResult && cachedResult.typeId) {
+                        const result = typesData.find(t => t.id === cachedResult.typeId);
+                        if (result) {
+                            displayResult(result);
+                            return true;
+                        }
+                    } else {
+                        // session_idパラメータがあるが結果が見つからない場合は、Q1から開始
+                    }
+                } else {
+                    // session_idパラメータがない場合は、新しい診断を開始したいと判断してQ1から開始
+                }
+            }
+            
+            // 結果が見つからない場合は、診断画面を表示
+            return false;
+        }
+
+        // ページ読み込み時に実行
+        window.addEventListener('DOMContentLoaded', async () => {
+            // スマホ側のキャッシュを強制クリアしたいときは ?clear=1 を付けて開く
+            const urlParamsAtLoad = new URLSearchParams(window.location.search);
+            if (urlParamsAtLoad.has('clear')) {
+                clearDiagnosisCache();
+                // クエリを削除してリロード
+                const cleanUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+            }
+
+            // URLパラメータから診断結果をチェック（非同期）
+            const hasResult = await checkURLForResult();
+            
+            // 診断結果がない場合は、最初の質問画面を表示
+            if (!hasResult) {
+                startQuiz();
+            }
+        });
+
+    </script>
+    
+    <!-- QRコード生成ライブラリ -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        // ライブラリの読み込み確認
+        window.addEventListener('load', function() {
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,1349 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>人気300企業 転職可能性診断</title>
+  <style>
+    :root {
+      --bg: #f8f7f4;
+      --panel: #ffffff;
+      --border: #e9e5dd;
+      --primary: #ff6b03;
+      --primary-2: #ffa347;
+      --text: #1f2933;
+      --muted: #6b7280;
+      --radius: 16px;
+      --font: 'Inter', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
+      --shadow: 0 16px 40px rgba(0,0,0,0.10);
+      --shadow-soft: 0 8px 20px rgba(0,0,0,0.06);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font);
+      background: radial-gradient(circle at 20% 20%, rgba(255,107,3,0.07), transparent 26%),
+                  radial-gradient(circle at 80% 0%, rgba(255,163,71,0.08), transparent 22%),
+                  var(--bg);
+      color: var(--text);
+      padding: 24px;
+    }
+    .shell {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
+    }
+    .hero {
+      padding: 24px 28px;
+      background: linear-gradient(135deg, rgba(255,107,3,0.10), rgba(255,163,71,0.10));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+    }
+    .hero h1 { margin: 0 0 8px; font-size: 24px; letter-spacing: 0.01em; }
+    .hero p { margin: 4px 0; color: var(--muted); }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+      padding: 20px;
+    }
+    .question-card {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #fffaf5;
+      margin-bottom: 12px;
+    }
+    .question-title { margin: 0 0 8px; font-weight: 700; }
+    .options { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
+    .opt {
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #ffffff;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      color: var(--text);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+    }
+    .opt:hover { border-color: var(--primary); transform: translateY(-1px); }
+    .opt.active { border-color: var(--primary); background: #fff2e7; box-shadow: 0 6px 14px rgba(255,107,3,0.18); color: #7a2f00; }
+    .nav { display: flex; justify-content: space-between; gap: 10px; margin-top: 12px; }
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(255,107,3,0.26);
+    }
+    .btn-primary:hover { filter: brightness(1.05); transform: translateY(-1px); }
+    .btn-secondary {
+      background: #fff;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+    .btn-secondary[disabled] { opacity: 0.4; cursor: default; }
+    .progress-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .progress { flex: 1; height: 10px; background: #f4ede5; border-radius: 999px; overflow: hidden; }
+    .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--primary-2)); transition: width 0.2s ease; }
+    .progress-text { font-size: 13px; color: var(--muted); min-width: 110px; text-align: right; }
+    .error { color: #ef4444; font-size: 13px; margin-top: 6px; }
+    
+    /* 画面切り替え */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* LINE登録画面 */
+    #line-registration-screen { align-items: center; justify-content: center; }
+    #line-registration-screen.active { display: flex; }
+    .line-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 40px 30px;
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+    }
+    .line-card h1 { font-size: 24px; margin-bottom: 16px; color: var(--text); }
+    .line-card p { color: var(--muted); line-height: 1.8; margin-bottom: 20px; }
+    .btn-line {
+      background: #06C755;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 16px 32px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 10px 24px rgba(6,199,85,0.26);
+    }
+    .btn-line:hover { filter: brightness(1.05); transform: translateY(-1px); }
+
+    /* 結果画面 */
+    .result-list { display: flex; flex-direction: column; gap: 10px; max-height: 600px; overflow: auto; padding-right: 4px; }
+    .meter {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #fffaf5;
+    }
+    .meter-bar {
+      position: relative;
+      width: 100%;
+      height: 12px;
+      background: #f4ede5;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .meter-fill { position: absolute; inset: 0; width: 20%; border-radius: 999px; }
+    .tag { padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; border: 1px solid var(--border); }
+    .muted { color: var(--muted); font-size: 14px; }
+    .radar-poly { transform-origin: center; animation: radarGrow 0.9s ease-out forwards; opacity: 0; }
+    .radar-label { animation: fadeIn 0.8s ease-out forwards; opacity: 0; }
+    @keyframes radarGrow { from { transform: scale(0.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .meter { opacity: 0; transform: translateX(-20px); transition: opacity 0.4s ease-out, transform 0.4s ease-out; }
+    .meter.visible { opacity: 1; transform: translateX(0); }
+    .top10-card {
+      display: inline-block;
+      width: calc(20% - 8px);
+      min-width: 120px;
+      padding: 12px;
+      margin: 4px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fffaf5;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .top10-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-soft); }
+    .filter-panel {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #fffaf5;
+    }
+    .filter-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: white;
+      font-size: 14px;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+    .filter-select:focus { outline: none; border-color: var(--primary); }
+    .speech-bubble-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      opacity: 0;
+      animation: fadeIn 0.6s ease-out 0.3s forwards;
+    }
+    .character-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 12px;
+      object-fit: contain;
+      background: transparent;
+      flex-shrink: 0;
+    }
+    .speech-bubble {
+      position: relative;
+      background: #fffaf5;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 4px 8px;
+      font-size: 35px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      flex: 1;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(-10px);
+      animation: bubbleFadeIn 0.6s ease-out 0.4s forwards;
+      line-height: 1.2;
+      text-align: center;
+      overflow: hidden;
+      word-break: keep-all;
+      min-width: 0;
+    }
+    @keyframes bubbleFadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-right: 8px solid var(--border);
+    }
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      left: -7px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-right: 8px solid #fffaf5;
+    }
+    @media (max-width: 1080px) and (min-width: 641px) {
+      .character-img { width: 100px; height: 100px; }
+      .speech-bubble { height: 100px; font-size: 36px; padding: 4px 8px; }
+    }
+    @media (max-width: 640px) {
+      body { padding: 16px; }
+      .hero { padding: 18px; }
+      .options { grid-template-columns: 1fr; }
+      .btn { width: 100%; text-align: center; }
+      .nav { flex-direction: column; }
+      .progress-text { min-width: 72px; font-size: 12px; }
+      .meter { padding: 10px; }
+      .meter div { font-size: 14px; }
+      .meter .tag { font-size: 11px; }
+      .result-list { max-height: 400px; }
+      .speech-bubble-container { flex-direction: column; align-items: center; }
+      .character-img { width: 80px; height: 80px; }
+      .speech-bubble { height: 80px; font-size: 28px; width: 100%; padding: 4px 8px; }
+      .speech-bubble::before {
+        left: 50%;
+        top: -8px;
+        transform: translateX(-50%);
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 8px solid var(--border);
+        border-top: none;
+        border-right: none;
+      }
+      .speech-bubble::after {
+        left: 50%;
+        top: -7px;
+        transform: translateX(-50%);
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 8px solid #fffaf5;
+        border-top: none;
+        border-right: none;
+      }
+      .top10-card { flex: 1 1 100%; min-width: 100px; }
+      .line-card { padding: 30px 20px; }
+    }
+  </style>
+  <!-- LIFF SDK -->
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
+  <!-- QRCode Library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <!-- QUESTION SCREEN -->
+    <div id="question-screen" class="screen active">
+      <div class="hero">
+        <h1>人気300企業 転職可能性診断</h1>
+        <p></p>
+      </div>
+
+      <div class="panel">
+        <div class="progress-wrap">
+          <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+          <div class="progress-text" id="progress-text">0/20 (0%)</div>
+        </div>
+        <div class="error" id="error-message" style="display:none;"></div>
+        <div id="form-area"></div>
+      </div>
+    </div>
+
+    <!-- LINE REGISTRATION SCREEN -->
+    <div id="line-registration-screen" class="screen">
+      <div class="line-card">
+        <h1>診断結果を見る</h1>
+        <p>
+          診断結果を見るには、<br>
+          LINE公式アカウントに<br>
+          友だち追加が必要です。
+        </p>
+        
+        <div id="qr-code-container" style="margin: 20px 0;">
+          <img id="qr-code-image" src="" alt="LINE登録QRコード" style="display: none; max-width: 200px; margin: 0 auto; border: 4px solid #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        </div>
+        <p style="font-size: 0.9rem; color: var(--muted); margin: 10px 0;">
+          スマホの方はQRコードを読み取るか、<br>
+          下のボタンからLINE登録してください
+        </p>
+        <button id="line-register-btn" class="btn-line" onclick="openLineRegistration()">
+          LINE登録して結果を見る
+        </button>
+      </div>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div id="result-screen" class="screen">
+      <div class="hero">
+        <h1>転職市場価値診断の結果</h1>
+      </div>
+      <div class="hero">
+        <div class="speech-bubble-container">
+          <img src="http://migi-nanameue.co.jp/column/wp-content/uploads/2026/01/名称未設定のデザイン-10.png" alt="キャラクター" class="character-img">
+          <div class="speech-bubble">
+            あなたの市場価値での合格率はこちらです！
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div id="radar-area"></div>
+        <div id="top3-area" style="margin-top: 24px;"></div>
+        <div id="filter-area" style="margin-top: 24px;"></div>
+        <div style="margin-top: 24px;">
+          <h3 style="margin:0 0 12px;">合格可能性メーター（300社）</h3>
+          <div class="result-list" id="result-list"></div>
+        </div>
+        <div style="margin-top: 24px; text-align: center;">
+          <button onclick="restartDiagnosis()" class="btn btn-primary">もう一度診断する</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========================================
+    // 設定値（★要変更★）
+    // ========================================
+    const DIAGNOSIS_TYPE = 'career_probability';
+    const CACHE_KEY = 'diagnosis_result_career';
+    
+    // WordPress API URL（転職可能性診断用）
+    const WP_API_BASE = window.location.origin + '/column/wp-json/career-probability/v1';
+    
+    // LIFF設定
+    const LIFF_ID = '2008810576-Z3TZWmQK';
+    
+    // LINE登録URL
+    const LINE_REGISTRATION_BASE_URL = 'https://liff.line.me/1657698499-9xjEMXXe/landing?follow=%40507jyozr&lp=200llq&liff_id=1657698499-9xjEMXXe';
+
+    // ========================================
+    // 追加質問の定義（配布タグ判定用）
+    // ========================================
+    const additionalQuestions = {
+      age: {
+        questionType: "age",
+        text: "あなたの年齢を教えてください",
+        options: [
+          { value: 19, label: "18-19歳", minAge: 18, maxAge: 19 },
+          { value: 22, label: "20-24歳", minAge: 20, maxAge: 24 },
+          { value: 27, label: "25-29歳", minAge: 25, maxAge: 29 },
+          { value: 32, label: "30-34歳", minAge: 30, maxAge: 34 },
+          { value: 37, label: "35-39歳", minAge: 35, maxAge: 39 },
+          { value: 40, label: "40歳以上", minAge: 40, maxAge: 100 }
+        ]
+      },
+      location: {
+        questionType: "location",
+        text: "現在お住まいの都道府県を教えてください",
+        options: [
+          { value: "東京都", label: "東京都" },
+          { value: "神奈川県", label: "神奈川県" },
+          { value: "埼玉県", label: "埼玉県" },
+          { value: "千葉県", label: "千葉県" },
+          { value: "大阪府", label: "大阪府" },
+          { value: "福岡県", label: "福岡県" },
+          { value: "愛知県", label: "愛知県" },
+          { value: "その他", label: "その他" }
+        ]
+      },
+      jobChangeCount: {
+        questionType: "jobChangeCount",
+        text: "転職回数は何回ですか？（現在の会社を含めて何社目か）",
+        options: [
+          { value: 0, label: "転職経験なし（1社目）" },
+          { value: 1, label: "1回（2社目）" },
+          { value: 2, label: "2回（3社目）" },
+          { value: 3, label: "3回以上（4社目以上）" }
+        ]
+      },
+      jobChangeTiming: {
+        questionType: "jobChangeTiming",
+        text: "転職を検討している場合、どのタイミングを考えていますか？",
+        options: [
+          { value: "1month", label: "すぐに（1ヶ月以内）" },
+          { value: "3months", label: "3ヶ月以内" },
+          { value: "6months", label: "6ヶ月以内" },
+          { value: "1year", label: "1年以内" },
+          { value: "1yearplus", label: "1年以上先" },
+          { value: "not_considered", label: "転職は考えていない" }
+        ]
+      }
+    };
+
+    // ========================================
+    // 転職可能性診断の質問
+    // ========================================
+    const careerQuestions = [
+      { id: 'Q1', title: '現在の職種はどれに該当しますか', options: ['一般事務・アシスタント', '営業・セールス', 'マーケティング・企画・PdM', 'IT・エンジニア', 'AI・データ・高度専門職', 'その他専門職'] },
+      { id: 'Q2', title: '現在の役職・職位はどれに該当しますか', options: ['一般職', 'リーダー・主任', 'マネージャー', '部長・ディレクター', '事業責任者・役員'] },
+      { id: 'Q3', title: '現在の年収はどれに該当しますか', options: ['〜300万円', '300〜400万円', '400〜600万円', '600〜800万円', '800〜1000万円', '1000万円以上'] },
+      { id: 'Q4', title: '現在の業種は？', options: ['IT・通信', '製造業・自動車', '金融・保険', '商社・流通', '食品・飲料', '建設・不動産', 'メディア・エンターテインメント', '医薬品・化学', 'サービス・コンサル', '小売・流通', '運輸・物流', 'エネルギー', '化粧品・日用品', '公的機関', 'その他'] },
+      { id: 'Q5', title: '過去1年間で達成した具体的な成果はありますか（売上・利益・コスト削減・ユーザー数など）', options: ['成果なし', '定性的な成果のみ', '一部で数値目標を達成', '主要な数値目標を達成', '数値目標を大幅に達成'] },
+      { id: 'Q6', title: '月間の売り上げは？', options: ['なし（売上に関与していない）', '30万円未満', '30万円〜50万円', '50万円〜100万円', '100万円〜200万円', '200万円〜500万円', '500万円〜1000万円', '1000万円以上'] },
+      { id: 'Q7', title: '担当している業務の範囲は', options: ['単一業務のみ', '複数業務を担当', '部門横断プロジェクトに参加', '事業全体に関わる業務'] },
+      { id: 'Q8', title: '業務上の意思決定権限はどの程度ありますか', options: ['指示された業務を実行', '一部の業務で自律判断', '担当領域で意思決定', '戦略レベルの意思決定'] },
+      { id: 'Q9', title: '現在の会社での在籍年数は', options: ['1年未満', '1〜3年', '3〜5年', '5〜10年', '10年以上'] },
+      { id: 'Q10', title: '転職回数は（現在の会社を含む）', options: ['1社のみ（転職経験なし）', '2社', '3社', '4社', '5社以上'] },
+      { id: 'Q11', title: '最終学歴は', options: ['高卒・専門卒', '日東駒専・地方国公立', 'MARCH・関関同立', '早慶', '旧帝大・海外トップ大'] },
+      { id: 'Q12', title: '保有している資格は（複数該当可）', options: ['資格なし', 'TOEIC（700点以上）・簿記2級・基本情報技術者など', '税理士・公認会計士・弁護士・医師・薬剤師・中小企業診断士・社会保険労務士・行政書士・宅建士など'] },
+      { id: 'Q13', title: 'プログラミング・デジタルツールの活用経験は', options: ['ほぼ使えない', 'Excel・Wordなど一般ツール', '業務改善でツールを活用', 'プログラミング・AI活用で成果を出している'] },
+      { id: 'Q14', title: 'プロジェクト管理・推進経験は？', options: ['経験なし', '小規模プロジェクト（3名以下）', '中規模プロジェクト（5〜10名）', '大規模プロジェクト（10名以上）', '複数プロジェクトを同時管理', '事業レベルのプロジェクトを主導'] },
+      { id: 'Q15', title: '社内外のステークホルダーとの調整・交渉経験は', options: ['経験なし', '社内のみ', '社外との調整経験あり', '社内外の重要な交渉を担当'] },
+    ];
+
+    // 質問配列を構築（最初の4問を追加質問にする）
+    const questions = [
+      { id: "age", questionType: "age", isAdditional: true },
+      { id: "location", questionType: "location", isAdditional: true },
+      { id: "jobChangeTiming", questionType: "jobChangeTiming", isAdditional: true },
+      { id: "jobChangeCount", questionType: "jobChangeCount", isAdditional: true },
+      ...careerQuestions
+    ];
+
+    // 質問ごとの点数
+    const questionPoints = {
+      Q1:[0,4,6,8,10,6],
+      Q2:[0,3,6,8,10],
+      Q3:[0,3,5,7,9,10],
+      Q4:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14],
+      Q5:[0,2,4,6,8,10],
+      Q6:[0,1,2,3,4,5,6,7],
+      Q7:[0,4,7,10],
+      Q8:[0,2,4,5],
+      Q9:[0,1,2,3,4],
+      Q10:[0,1,2,3,4],
+      Q11:[1,2,3,4,5],
+      Q12:[0,1,2],
+      Q13:[0,2,4,5],
+      Q14:[0,2,4,6,8,10],
+      Q15:[0,2,4,5],
+    };
+
+    // 企業リスト（300社）
+    const companies = [
+      'トヨタ自動車','グーグル','ソニー','楽天グループ','キーエンス','任天堂','パナソニック','アマゾンジャパン','Apple Japan','伊藤忠商事',
+      '三菱商事','ソフトバンク','本田技研工業（Honda）','味の素','全日本空輸（ANA）','サントリーホールディングス','東日本電信電話（NTT東日本）','ファーストリテイリング','西日本電信電話（NTT西日本）','日本航空（JAL）',
+      '日本マイクロソフト','リクルートホールディングス','LINEヤフー','オリエンタルランド','東日本旅客鉄道（JR東日本）','三井物産','資生堂','明治','イオン','アクセンチュア',
+      '東海旅客鉄道（JR東海）','カゴメ','日立製作所','NTTドコモ','花王','NTTデータ','日本電気（NEC）','電通','富士通','東京海上日動火災保険',
+      'バンダイナムコホールディングス','デンソー','三井不動産','バンダイ','KDDI','未来工業','JTB','フジテレビジョン','武田薬品工業','日本たばこ産業（JT）',
+      '丸紅','JR西日本','ニトリ','東芝','NRI（野村総合研究所）','ZOZO','富士フイルム','良品計画','IBM Japan','キヤノン',
+      'カルビー','三菱UFJ銀行','東京エレクトロン','村田製作所','日本中央競馬会（JRA）','AGC','サイバーエージェント','日産自動車','オムロン','旭化成',
+      '三菱地所','スターバックス コーヒー ジャパン','三菱電機','日本コカ・コーラ','キリンホールディングス','TOTO','タニタ','DeNA','積水ハウス','ゴールドマン・サックス',
+      'アステラス製薬','集英社','日本郵船','日本テレビ（NTV）','みずほ銀行','クボタ','住友商事','サンリオ','三菱重工','第一三共',
+      '日本銀行','三井住友銀行','スクウェア・エニックス','サイボウズ','清水建設','アサヒビール','シャープ','博報堂','マツダ','鹿島建設',
+      'しまむら','セガサミーHD','NHK','日本製鉄','キユーピー','大林組','江崎グリコ','ローソン','大成建設','京セラ',
+      'テスラ','ウォルト・ディズニー・ジャパン','OpenAI','大和ハウス工業','ヤクルト本社','東京都庁','ヤマハ','ブルボン','スズキ','Meta',
+      '竹中工務店','メルカリ','アイシン','SUBARU','キッコーマン','マッキンゼー','ファナック','東レ','中外製薬','九州電力',
+      '講談社','野村證券','タカラトミー','ベネッセコーポレーション','信越化学','日清食品','ロッテ','セイコーエプソン','阪神タイガース','不二家',
+      'ダイキン工業','コナミグループ','日本マクドナルド','アイリスオーヤマ','日本生命保険','コクヨ','日本赤十字社','JR九州','ニデック','デロイトトーマツコンサルティング',
+      '森永製菓','セブン-イレブン・ジャパン','日本郵便','JAXA','SCSK','コーセー','P&Gジャパン','キリンビール','山崎製パン','川崎重工',
+      'TOPPAN','Sky（スカイ）','日本ガイシ','IHI','ファンケル','伊藤園','阪急電鉄','大塚製薬','サッポロビール','吉本興業HD',
+      '住友林業','タミヤ','森ビル','三菱ケミカル','コストコ','TBS','ジャパネットたかた','読売ジャイアンツ','佐川急便','東京メトロ',
+      'ユニバーサルミュージック','東宝','第一生命','マツモトキヨシ','東北電力','島津製作所','ダイハツ工業','モンベル','エーザイ','HIS',
+      'Alphabet','Nike Japan','ファミリーマート','PwC','BCG','テレビ朝日','レゴジャパン','日本オラクル','北海道電力','関西電力',
+      'マイナビ','MIXI','大創産業（ダイソー）','東京電力','すかいらーくHD','大日本印刷','ヤマハ発動機','東急電鉄','横浜DeNAベイスターズ','ルイ・ヴィトン・ジャパン',
+      '刀','コーエーテクモHD','ワコール','オリックス','塩野義製薬','シマノ','ミツカン','中部電力','ディスコ','星野リゾート',
+      '湖池屋','ANYCOLOR','NTTコミュニケーションズ','日本通運','経済産業省','理化学研究所','中国銀行（中銀）','帝国ホテル','リコー','西日本鉄道',
+      '住友不動産','テレビ東京','リクシル（LIXIL）','小田急電鉄','毎日放送（MBS）','伊那食品工業','コマツ','ヒューリック','ネスレ日本','積水化学工業',
+      '福岡ソフトバンクホークス','日清製粉','バンダイナムコフィルムワークス','霧島酒造','カネカ','LDH','松竹','七十七銀行','ByteDance','サンフレッチェ広島',
+      'NVIDIA','ヤマト運輸','高島屋','アビームコンサルティング','三越伊勢丹HD','ENEOS','キオクシア','京成電鉄','小野薬品工業','サミー',
+      'ライオン','東京都交通局','日本生活協同組合連合会（生協）','三浦工業','JFEホールディングス','ゼンリン','出光興産','中国電力','三菱UFJフィナンシャル・グループ','インテル',
+      '徳洲会','ドン・キホーテ','名古屋鉄道（名鉄）','商船三井','損害保険ジャパン','サンテレビジョン','国土交通省','財務省','JCB','伊藤商事',
+      'オリンパス','アスクル','クラレ','JICA','TSMC','ポケモン','ロート製薬','小学館','パソナ','学研ホールディングス',
+      '国立国会図書館','ニコン','沖縄電力','奥村組','四国電力','レーザーテック','スペースX','ユニセフ','日本食研ホールディングス','関西テレビ放送'
+    ];
+
+    // アーキタイプ定義
+    const archetypes = {
+      A1: { rank: 'A', k: 1.15 },
+      A2: { rank: 'A', k: 1.15 },
+      A3: { rank: 'B', k: 1.10 },
+      A4: { rank: 'C', k: 1.00 },
+      A5: { rank: 'C', k: 1.00 },
+      A6: { rank: 'C', k: 1.05 },
+      A7: { rank: 'B', k: 1.10 },
+      A8: { rank: 'B', k: 1.05 },
+    };
+
+    // 企業→アーキタイプ割当
+    const companyToArch = {
+      'トヨタ自動車':'A3','グーグル':'A1','ソニー':'A1','楽天グループ':'A8','キーエンス':'A3','任天堂':'A6','パナソニック':'A3','アマゾンジャパン':'A1','Apple Japan':'A1','伊藤忠商事':'A2',
+      '三菱商事':'A2','ソフトバンク':'A8','本田技研工業（Honda）':'A3','味の素':'A4','全日本空輸（ANA）':'A5','サントリーホールディングス':'A4','東日本電信電話（NTT東日本）':'A5','ファーストリテイリング':'A4','西日本電信電話（NTT西日本）':'A5','日本航空（JAL）':'A5',
+      '日本マイクロソフト':'A1','リクルートホールディングス':'A8','LINEヤフー':'A8','オリエンタルランド':'A6','東日本旅客鉄道（JR東日本）':'A5','三井物産':'A2','資生堂':'A4','明治':'A4','イオン':'A4','アクセンチュア':'A2',
+      '東海旅客鉄道（JR東海）':'A5','カゴメ':'A4','日立製作所':'A3','NTTドコモ':'A3','花王':'A4','NTTデータ':'A8','日本電気（NEC）':'A3','電通':'A6','富士通':'A3','東京海上日動火災保険':'A2',
+      'バンダイナムコホールディングス':'A6','デンソー':'A3','三井不動産':'A4','バンダイ':'A6','KDDI':'A3','未来工業':'A3','JTB':'A6','フジテレビジョン':'A6','武田薬品工業':'A7','日本たばこ産業（JT）':'A4',
+      '丸紅':'A2','JR西日本':'A5','ニトリ':'A4','東芝':'A3','NRI（野村総合研究所）':'A2','ZOZO':'A8','富士フイルム':'A7','良品計画':'A4','IBM Japan':'A1','キヤノン':'A3',
+      'カルビー':'A4','三菱UFJ銀行':'A2','東京エレクトロン':'A1','村田製作所':'A3','日本中央競馬会（JRA）':'A5','AGC':'A3','サイバーエージェント':'A8','日産自動車':'A3','オムロン':'A3','旭化成':'A7',
+      '三菱地所':'A4','スターバックス コーヒー ジャパン':'A4','三菱電機':'A3','日本コカ・コーラ':'A4','キリンホールディングス':'A4','TOTO':'A3','タニタ':'A4','DeNA':'A8','積水ハウス':'A4','ゴールドマン・サックス':'A2',
+      'アステラス製薬':'A7','集英社':'A6','日本郵船':'A5','日本テレビ（NTV）':'A6','みずほ銀行':'A2','クボタ':'A3','住友商事':'A2','サンリオ':'A6','三菱重工':'A3','第一三共':'A7',
+      '日本銀行':'A2','三井住友銀行':'A2','スクウェア・エニックス':'A6','サイボウズ':'A8','清水建設':'A5','アサヒビール':'A4','シャープ':'A3','博報堂':'A6','マツダ':'A3','鹿島建設':'A5',
+      'しまむら':'A4','セガサミーHD':'A6','NHK':'A5','日本製鉄':'A3','キユーピー':'A4','大林組':'A5','江崎グリコ':'A4','ローソン':'A4','大成建設':'A5','京セラ':'A3',
+      'テスラ':'A1','ウォルト・ディズニー・ジャパン':'A6','OpenAI':'A1','大和ハウス工業':'A4','ヤクルト本社':'A4','東京都庁':'A5','ヤマハ':'A3','ブルボン':'A4','スズキ':'A3','Meta':'A1',
+      '竹中工務店':'A5','メルカリ':'A8','アイシン':'A3','SUBARU':'A3','キッコーマン':'A4','マッキンゼー':'A2','ファナック':'A3','東レ':'A3','中外製薬':'A7','九州電力':'A5',
+      '講談社':'A6','野村證券':'A2','タカラトミー':'A6','ベネッセコーポレーション':'A6','信越化学':'A3','日清食品':'A4','ロッテ':'A4','セイコーエプソン':'A3','阪神タイガース':'A6','不二家':'A4',
+      'ダイキン工業':'A3','コナミグループ':'A6','日本マクドナルド':'A4','アイリスオーヤマ':'A4','日本生命保険':'A2','コクヨ':'A4','日本赤十字社':'A5','JR九州':'A5','ニデック':'A3','デロイトトーマツコンサルティング':'A2',
+      '森永製菓':'A4','セブン-イレブン・ジャパン':'A4','日本郵便':'A5','JAXA':'A5','SCSK':'A8','コーセー':'A4','P&Gジャパン':'A4','キリンビール':'A4','山崎製パン':'A4','川崎重工':'A3',
+      'TOPPAN':'A3','Sky（スカイ）':'A8','日本ガイシ':'A3','IHI':'A3','ファンケル':'A4','伊藤園':'A4','阪急電鉄':'A5','大塚製薬':'A7','サッポロビール':'A4','吉本興業HD':'A6',
+      '住友林業':'A4','タミヤ':'A6','森ビル':'A4','三菱ケミカル':'A7','コストコ':'A4','TBS':'A6','ジャパネットたかた':'A6','読売ジャイアンツ':'A6','佐川急便':'A5','東京メトロ':'A5',
+      'ユニバーサルミュージック':'A6','東宝':'A6','第一生命':'A2','マツモトキヨシ':'A4','東北電力':'A5','島津製作所':'A7','ダイハツ工業':'A3','モンベル':'A6','エーザイ':'A7','HIS':'A6',
+      'Alphabet':'A1','Nike Japan':'A4','ファミリーマート':'A4','PwC':'A2','BCG':'A2','テレビ朝日':'A6','レゴジャパン':'A6','日本オラクル':'A1','北海道電力':'A5','関西電力':'A5',
+      'マイナビ':'A8','MIXI':'A8','大創産業（ダイソー）':'A4','東京電力':'A5','すかいらーくHD':'A4','大日本印刷':'A3','ヤマハ発動機':'A3','東急電鉄':'A5','横浜DeNAベイスターズ':'A6','ルイ・ヴィトン・ジャパン':'A4',
+      '刀':'A6','コーエーテクモHD':'A6','ワコール':'A4','オリックス':'A2','塩野義製薬':'A7','シマノ':'A3','ミツカン':'A4','中部電力':'A5','ディスコ':'A3','星野リゾート':'A6',
+      '湖池屋':'A4','ANYCOLOR':'A6','NTTコミュニケーションズ':'A3','日本通運':'A5','経済産業省':'A5','理化学研究所':'A5','中国銀行（中銀）':'A2','帝国ホテル':'A6','リコー':'A3','西日本鉄道':'A5',
+      '住友不動産':'A4','テレビ東京':'A6','リクシル（LIXIL）':'A3','小田急電鉄':'A5','毎日放送（MBS）':'A6','伊那食品工業':'A4','コマツ':'A3','ヒューリック':'A4','ネスレ日本':'A4','積水化学工業':'A3',
+      '福岡ソフトバンクホークス':'A6','日清製粉':'A4','バンダイナムコフィルムワークス':'A6','霧島酒造':'A4','カネカ':'A3','LDH':'A6','松竹':'A6','七十七銀行':'A2','ByteDance':'A1','サンフレッチェ広島':'A6',
+      'NVIDIA':'A1','ヤマト運輸':'A5','高島屋':'A4','アビームコンサルティング':'A2','三越伊勢丹HD':'A4','ENEOS':'A5','キオクシア':'A1','京成電鉄':'A5','小野薬品工業':'A7','サミー':'A6',
+      'ライオン':'A4','東京都交通局':'A5','日本生活協同組合連合会（生協）':'A5','三浦工業':'A3','JFEホールディングス':'A3','ゼンリン':'A6','出光興産':'A5','中国電力':'A5','三菱UFJフィナンシャル・グループ':'A2','インテル':'A1',
+      '徳洲会':'A7','ドン・キホーテ':'A4','名古屋鉄道（名鉄）':'A5','商船三井':'A5','損害保険ジャパン':'A2','サンテレビジョン':'A6','国土交通省':'A5','財務省':'A5','JCB':'A2','伊藤商事':'A2',
+      'オリンパス':'A3','アスクル':'A4','クラレ':'A3','JICA':'A5','TSMC':'A1','ポケモン':'A6','ロート製薬':'A7','小学館':'A6','パソナ':'A6','学研ホールディングス':'A6',
+      '国立国会図書館':'A5','ニコン':'A3','沖縄電力':'A5','奥村組':'A5','四国電力':'A5','レーザーテック':'A1','スペースX':'A1','ユニセフ':'A5','日本食研ホールディングス':'A4','関西テレビ放送':'A6'
+    };
+
+    const rankToNeeded = { A:80, B:70, C:60, D:50, E:40, F:30 };
+
+    // 業種リスト
+    const industries = ['IT・通信', '製造業・自動車', '金融・保険', '商社・流通', '食品・飲料', '建設・不動産', 'メディア・エンターテインメント', '医薬品・化学', 'サービス・コンサル', '小売・流通', '運輸・物流', 'エネルギー', '化粧品・日用品', '公的機関', 'その他'];
+
+    // 企業→業種マッピング（簡略版）
+    const companyToIndustry = {
+      'グーグル':'IT・通信','ソニー':'IT・通信','楽天グループ':'IT・通信','LINEヤフー':'IT・通信','日本マイクロソフト':'IT・通信','NTTドコモ':'IT・通信','NTTデータ':'IT・通信','KDDI':'IT・通信','サイバーエージェント':'IT・通信','DeNA':'IT・通信',
+      'トヨタ自動車':'製造業・自動車','本田技研工業（Honda）':'製造業・自動車','日産自動車':'製造業・自動車','パナソニック':'製造業・自動車','日立製作所':'製造業・自動車',
+      '三菱UFJ銀行':'金融・保険','みずほ銀行':'金融・保険','三井住友銀行':'金融・保険','日本銀行':'金融・保険',
+      '伊藤忠商事':'商社・流通','三菱商事':'商社・流通','三井物産':'商社・流通',
+      '味の素':'食品・飲料','サントリーホールディングス':'食品・飲料','カゴメ':'食品・飲料',
+      '三井不動産':'建設・不動産','三菱地所':'建設・不動産','清水建設':'建設・不動産',
+      '任天堂':'メディア・エンターテインメント','オリエンタルランド':'メディア・エンターテインメント','電通':'メディア・エンターテインメント',
+      '武田薬品工業':'医薬品・化学','アステラス製薬':'医薬品・化学','第一三共':'医薬品・化学',
+      'アクセンチュア':'サービス・コンサル','NRI（野村総合研究所）':'サービス・コンサル','マッキンゼー':'サービス・コンサル',
+      'ファーストリテイリング':'小売・流通','イオン':'小売・流通','ニトリ':'小売・流通',
+      '全日本空輸（ANA）':'運輸・物流','日本航空（JAL）':'運輸・物流',
+      '九州電力':'エネルギー','東京電力':'エネルギー','関西電力':'エネルギー',
+      '資生堂':'化粧品・日用品','花王':'化粧品・日用品','コーセー':'化粧品・日用品',
+      '東京都庁':'公的機関','日本赤十字社':'公的機関','JAXA':'公的機関'
+    };
+
+    // ========================================
+    // LIFF関連
+    // ========================================
+    let liffInitialized = false;
+    let liffLoggedIn = false;
+    let liffInitPromise = null;
+    let cachedLineProfile = null;
+
+    async function initLIFF() {
+      if (liffInitPromise) return liffInitPromise;
+      
+      liffInitPromise = (async () => {
+        if (typeof liff === 'undefined') return false;
+        try {
+          await liff.init({ liffId: LIFF_ID });
+          liffInitialized = true;
+          liffLoggedIn = liff.isLoggedIn();
+          return true;
+        } catch (error) {
+          liffInitPromise = null;
+          return false;
+        }
+      })();
+      
+      return liffInitPromise;
+    }
+
+    async function getLineUserId() {
+      if (!liffInitialized) {
+        const success = await initLIFF();
+        if (!success) return null;
+      }
+      if (!liff.isLoggedIn()) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasSessionParam = urlParams.has('session_id') || urlParams.has('data');
+        if (!hasSessionParam) return null;
+        try { liff.login({ redirectUri: window.location.href }); } catch (e) {}
+        return null;
+      }
+      try {
+        if (cachedLineProfile) return cachedLineProfile.userId;
+        const profile = await liff.getProfile();
+        cachedLineProfile = profile;
+        return profile.userId;
+      } catch (error) { return null; }
+    }
+
+    function getLineDisplayName() {
+      return cachedLineProfile ? cachedLineProfile.displayName : null;
+    }
+
+    if (typeof liff !== 'undefined') {
+      initLIFF().catch(() => {});
+    }
+
+    // ========================================
+    // セッション管理
+    // ========================================
+    function getSessionId() {
+      let sessionId = sessionStorage.getItem('career_session_id');
+      if (sessionId) return sessionId;
+      const urlParams = new URLSearchParams(window.location.search);
+      sessionId = urlParams.get('session_id');
+      if (sessionId) {
+        sessionStorage.setItem('career_session_id', sessionId);
+        return sessionId;
+      }
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      sessionId = '';
+      for (let i = 0; i < 8; i++) {
+        sessionId += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      sessionStorage.setItem('career_session_id', sessionId);
+      return sessionId;
+    }
+
+    function clearDiagnosisCache() {
+      try {
+        localStorage.removeItem(CACHE_KEY);
+        sessionStorage.removeItem('career_session_id');
+      } catch (e) {}
+    }
+
+    // ========================================
+    // 結果保存・取得
+    // ========================================
+    async function saveResultToCache(result, additionalAnswersData, distributionTag, distributionTagDetails) {
+      const sessionId = getSessionId();
+      const cacheData = {
+        diagnosisType: DIAGNOSIS_TYPE,
+        sessionId: sessionId,
+        result: result,
+        additionalAnswers: additionalAnswersData,
+        distributionTag: distributionTag,
+        distributionTagDetails: distributionTagDetails,
+        timestamp: Date.now()
+      };
+      localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        try {
+          await fetch(`${WP_API_BASE}/save-result`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Session-ID': sessionId },
+            body: JSON.stringify({
+              result: result,
+              additionalAnswers: additionalAnswersData,
+              distributionTag: distributionTag,
+              distributionTagDetails: distributionTagDetails
+            })
+          });
+        } catch (error) {}
+      }
+    }
+
+    async function saveResultByLineUser(lineUserId, result, additionalAnswersData, distributionTag, distributionTagDetails) {
+      const sessionId = getSessionId();
+      const lineDisplayName = getLineDisplayName();
+      const cacheData = {
+        diagnosisType: DIAGNOSIS_TYPE,
+        lineUserId: lineUserId,
+        lineDisplayName: lineDisplayName,
+        sessionId: sessionId,
+        result: result,
+        additionalAnswers: additionalAnswersData,
+        distributionTag: distributionTag,
+        distributionTagDetails: distributionTagDetails,
+        timestamp: Date.now()
+      };
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        try {
+          await fetch(`${WP_API_BASE}/save-result-by-lineuser`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              lineUserId: lineUserId,
+              lineDisplayName: lineDisplayName,
+              result: result,
+              additionalAnswers: additionalAnswersData,
+              distributionTag: distributionTag,
+              distributionTagDetails: distributionTagDetails,
+              sessionId: sessionId
+            })
+          });
+        } catch (error) {}
+      }
+      const localCacheKey = `career_result_lineuser_${lineUserId}`;
+      localStorage.setItem(localCacheKey, JSON.stringify(cacheData));
+    }
+
+    async function getResultByLineUser(lineUserId) {
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        try {
+          const response = await fetch(`${WP_API_BASE}/get-result-by-lineuser?lineUserId=${encodeURIComponent(lineUserId)}`);
+          if (response.ok) {
+            const responseData = await response.json();
+            if (responseData.success && responseData.result) return responseData.result;
+          }
+        } catch (error) {}
+      }
+      const localCacheKey = `career_result_lineuser_${lineUserId}`;
+      const cacheData = localStorage.getItem(localCacheKey);
+      if (!cacheData) return null;
+      try { return JSON.parse(cacheData); } catch (e) { return null; }
+    }
+
+    async function getLatestResultFromCache() {
+      const sessionId = getSessionId();
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        try {
+          const response = await fetch(`${WP_API_BASE}/get-result`, {
+            method: 'GET',
+            headers: { 'X-Session-ID': sessionId }
+          });
+          if (response.ok) {
+            const responseData = await response.json();
+            if (responseData.success && responseData.result) return responseData.result;
+          }
+        } catch (error) {}
+      }
+      const cacheData = localStorage.getItem(CACHE_KEY);
+      if (!cacheData) return null;
+      try {
+        const data = JSON.parse(cacheData);
+        const now = Date.now();
+        const expiration = 24 * 60 * 60 * 1000;
+        if (now - data.timestamp > expiration) {
+          localStorage.removeItem(CACHE_KEY);
+          return null;
+        }
+        return data;
+      } catch (e) { return null; }
+    }
+
+    async function claimPendingResult(lineUserId) {
+      const lineDisplayName = getLineDisplayName();
+      try {
+        const response = await fetch(`${WP_API_BASE}/claim-pending-result`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lineUserId: lineUserId, lineDisplayName: lineDisplayName || '' })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.result) return data.result;
+        }
+      } catch (error) {}
+      return null;
+    }
+
+    async function transferSessionResultToLineUser(sessionId, lineUserId) {
+      try {
+        const resp = await fetch(`${WP_API_BASE}/get-result`, {
+          headers: { 'X-Session-ID': sessionId }
+        });
+        if (!resp.ok) return null;
+        
+        const data = await resp.json();
+        if (!data || data.success !== true || !data.result) return null;
+
+        await saveResultByLineUser(
+          lineUserId, 
+          data.result, 
+          data.result.additionalAnswers || {},
+          data.result.distributionTag || false,
+          data.result.distributionTagDetails || {}
+        );
+        return data.result;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // ========================================
+    // 画面切り替え
+    // ========================================
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+      if (screenId === 'line-registration-screen') {
+        setTimeout(() => { generateQRCode(); }, 200);
+      }
+    }
+
+    // ========================================
+    // LINE登録関連
+    // ========================================
+    function buildLineRegistrationUrl(sessionId) {
+      return LINE_REGISTRATION_BASE_URL;
+    }
+
+    function openLineRegistration() {
+      const sessionId = getSessionId();
+      const lineUrl = buildLineRegistrationUrl(sessionId);
+      window.open(lineUrl, '_blank');
+    }
+
+    async function generateQRCode() {
+      const qrCodeImage = document.getElementById('qr-code-image');
+      if (qrCodeImage && LINE_REGISTRATION_BASE_URL && LINE_REGISTRATION_BASE_URL !== 'YOUR_LINE_REGISTRATION_URL_HERE') {
+        const sessionId = getSessionId();
+        const qrCodeDataUrl = buildLineRegistrationUrl(sessionId);
+        const QRCodeLib = typeof QRCode !== 'undefined' ? QRCode : (typeof window.QRCode !== 'undefined' ? window.QRCode : null);
+        if (QRCodeLib && typeof QRCodeLib.toDataURL === 'function') {
+          try {
+            const qrOptions = { errorCorrectionLevel: 'M', margin: 2, width: 200, color: { dark: '#000000', light: '#ffffff' } };
+            QRCodeLib.toDataURL(qrCodeDataUrl, qrOptions, function (err, url) {
+              if (err) {
+                qrCodeImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCodeDataUrl)}`;
+              } else {
+                qrCodeImage.src = url;
+              }
+              qrCodeImage.style.display = 'block';
+            });
+          } catch (e) {
+            qrCodeImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCodeDataUrl)}`;
+            qrCodeImage.style.display = 'block';
+          }
+        } else {
+          qrCodeImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCodeDataUrl)}`;
+          qrCodeImage.onload = function() { qrCodeImage.style.display = 'block'; };
+        }
+      }
+    }
+
+    // ========================================
+    // 診断ロジック
+    // ========================================
+    function calcScores(answers) {
+      const get = (id) => {
+        const val = answers[id];
+        if (!val) return 0;
+        const q = careerQuestions.find(q => q.id === id);
+        if (!q) return 0;
+        const idx = q.options.indexOf(val);
+        const ptsArr = questionPoints[id] || [];
+        return ptsArr[idx] ?? 0;
+      };
+      const S_exp = get('Q5')+get('Q6')+get('Q7')+get('Q8')+get('Q9')+get('Q14');
+      const S_income = get('Q2')+get('Q3')+(4-get('Q10'));
+      const S_skill = get('Q13')+get('Q15');
+      const S_academic = get('Q11')+get('Q12');
+      const 職務経験 = (S_exp / 46) * 45;
+      const 年収役職 = (S_income / 30) * 25;
+      const スキル汎用性 = (S_skill / 10) * 20;
+      const 学歴資格 = (S_academic / 7) * 10;
+      const total = 職務経験 + 年収役職 + スキル汎用性 + 学歴資格;
+      return { total, axes: [職務経験, 年収役職, スキル汎用性] };
+    }
+
+    function sigmoid(x){ return 1/(1+Math.exp(-x)); }
+
+    function computeProb(marketValue, archKey, name, userIndustry){
+      const arch = archetypes[archKey] || archetypes.A4;
+      const needed = rankToNeeded[arch.rank] || 60;
+      const gap = marketValue - needed * arch.k;
+      const seed = (name.charCodeAt(0) + name.length * 17) % 17;
+      const bias = (seed - 8) * 0.12;
+      const base = 10 + 20 * sigmoid((gap + bias*3.5) / 2.8);
+      const micro = bias * 2.5;
+      const bonus = gap > 10 ? Math.min(30, ((gap - 10) / 2.5) * (1 + bias * 0.3)) : 0;
+      const companyIndustry = companyToIndustry[name];
+      const industryBonus = (userIndustry && companyIndustry && userIndustry === companyIndustry) ? 11.3 : 0;
+      let prob = base + micro + bonus + industryBonus;
+      if (Math.abs(prob - 10) < 0.01) {
+        prob = 9.5 + Math.random() * 1.0;
+      } else {
+        prob = Math.min(60, Math.max(10, prob));
+      }
+      return prob;
+    }
+
+    function generateResults(scores, answers){
+      const marketValue = scores.total;
+      const userIndustry = answers['Q4'];
+      return companies.map((name) => {
+        const arch = companyToArch[name] || 'A4';
+        const prob = computeProb(marketValue, arch, name, userIndustry);
+        return { name, prob };
+      }).sort((a,b)=> b.prob - a.prob || a.name.localeCompare(b.name));
+    }
+
+    function colorByProb(p) {
+      if (p >= 40) return ['#3b82f6', '合格率超高'];
+      if (p >= 25) return ['#22c55e', '合格率高'];
+      if (p >= 15) return ['#f97316', '合格率中'];
+      return ['#eab308', '可能性あり'];
+    }
+
+    // ========================================
+    // フォーム描画
+    // ========================================
+    let step = 0;
+    const answers = {};
+    const errors = {};
+    let additionalAnswers = {};
+    let savedResults = null;
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const formArea = document.getElementById('form-area');
+    const errorMessage = document.getElementById('error-message');
+
+    function setProgress() {
+      const answered = Math.min(step + 1, questions.length);
+      const pct = Math.round((answered / questions.length) * 100);
+      progressBar.style.width = `${pct}%`;
+      progressText.textContent = `${answered}/${questions.length} (${pct}%)`;
+    }
+
+    async function goResult() {
+      const scores = calcScores(answers);
+      const results = generateResults(scores, answers);
+      savedResults = { scores, results, answers };
+      
+      const shouldAddDistributionTag = 
+        additionalAnswers.age && additionalAnswers.age.isTargetAge === true &&
+        additionalAnswers.location && additionalAnswers.location.isTargetRegion === true &&
+        additionalAnswers.jobChangeTiming && additionalAnswers.jobChangeTiming.isTargetTiming === true &&
+        additionalAnswers.jobChangeCount && additionalAnswers.jobChangeCount.isTargetJobChangeCount === true;
+
+      const distributionTagDetails = {
+        age: additionalAnswers.age ? additionalAnswers.age.isTargetAge : false,
+        location: additionalAnswers.location ? additionalAnswers.location.isTargetRegion : false,
+        timing: additionalAnswers.jobChangeTiming ? additionalAnswers.jobChangeTiming.isTargetTiming : false,
+        jobChangeCount: additionalAnswers.jobChangeCount ? additionalAnswers.jobChangeCount.isTargetJobChangeCount : false,
+        checkedAt: new Date().toISOString()
+      };
+      
+      const lineUserId = await getLineUserId();
+      if (lineUserId) {
+        await saveResultByLineUser(lineUserId, savedResults, additionalAnswers, shouldAddDistributionTag, distributionTagDetails);
+      } else {
+        await saveResultToCache(savedResults, additionalAnswers, shouldAddDistributionTag, distributionTagDetails);
+      }
+      
+      showScreen('line-registration-screen');
+    }
+
+    function handleAdditionalAnswer(questionType, value, answerData) {
+      additionalAnswers[questionType] = answerData;
+      if (step < questions.length - 1) {
+        step += 1;
+        renderQuestion();
+      } else {
+        goResult();
+      }
+    }
+
+    function renderQuestion() {
+      errorMessage.style.display = 'none';
+      if (step < 0) step = 0;
+      if (step >= questions.length) step = questions.length - 1;
+      setProgress();
+
+      const q = questions[step];
+
+      if (q.isAdditional) {
+        const addQ = additionalQuestions[q.questionType];
+        const existingAnswer = additionalAnswers[q.questionType];
+        
+        let bodyHtml = `
+          <div class="question-title">${addQ.text}</div>
+          <div class="options">
+            ${addQ.options.map(opt => {
+              const isSelected = existingAnswer && existingAnswer.value === opt.value;
+              return `<div class="opt ${isSelected ? 'active' : ''}" data-val="${opt.value}" data-label="${opt.label}">${opt.label}</div>`;
+            }).join('')}
+          </div>
+        `;
+
+        formArea.innerHTML = `
+          <div class="question-card">
+            ${bodyHtml}
+            <div class="nav">
+              <button class="btn btn-secondary" id="prev" ${step === 0 ? 'disabled' : ''}>戻る</button>
+              <button class="btn btn-primary" id="next">次へ</button>
+            </div>
+          </div>
+        `;
+
+        formArea.querySelectorAll('.opt').forEach(el => {
+          el.addEventListener('click', () => {
+            const val = el.dataset.val;
+            const label = el.dataset.label;
+            const opt = addQ.options.find(o => String(o.value) === val);
+            let answerData = { value: label };
+            if (q.questionType === 'age') {
+              answerData.minAge = opt.minAge;
+              answerData.maxAge = opt.maxAge;
+              answerData.isTargetAge = opt.minAge >= 20 && opt.maxAge <= 34;
+            } else if (q.questionType === 'location') {
+              answerData.prefecture = opt.value;
+              const targetRegions = ['東京都', '神奈川県', '埼玉県', '千葉県', '大阪府', '福岡県', '愛知県'];
+              answerData.isTargetRegion = targetRegions.includes(opt.value);
+            } else if (q.questionType === 'jobChangeTiming') {
+              answerData.jobChangeTiming = opt.value;
+              const targetTimings = ['1month', '3months', '6months', '1year'];
+              answerData.isTargetTiming = targetTimings.includes(opt.value);
+            } else if (q.questionType === 'jobChangeCount') {
+              answerData.jobChangeCount = opt.value;
+              answerData.isTargetJobChangeCount = opt.value <= 2;
+            }
+            handleAdditionalAnswer(q.questionType, val, answerData);
+          });
+        });
+
+        formArea.querySelector('#prev').addEventListener('click', () => {
+          if (step > 0) { step -= 1; renderQuestion(); }
+        });
+
+        formArea.querySelector('#next').addEventListener('click', () => {
+          if (!additionalAnswers[q.questionType]) {
+            errorMessage.textContent = '選択してください。';
+            errorMessage.style.display = 'block';
+            return;
+          }
+          if (step < questions.length - 1) { step += 1; renderQuestion(); }
+          else { goResult(); }
+        });
+        return;
+      }
+
+      const selected = answers[q.id];
+      const err = errors[q.id] || '';
+      formArea.innerHTML = `
+        <div class="question-card">
+          <div class="question-title">${q.title}</div>
+          <div class="options">
+            ${q.options.map(opt => {
+              const active = selected === opt ? 'active' : '';
+              return `<div class="opt ${active}" data-val="${opt}">${opt}</div>`;
+            }).join('')}
+          </div>
+          ${err ? `<div class="error" style="margin-top:6px;">${err}</div>` : ''}
+          <div class="nav">
+            <button class="btn btn-secondary" id="prev" ${step === 0 ? 'disabled' : ''}>戻る</button>
+            <button class="btn btn-primary" id="next">${step === questions.length - 1 ? '結果を見る' : '次へ'}</button>
+          </div>
+        </div>
+      `;
+      formArea.querySelectorAll('.opt').forEach(el => {
+        el.addEventListener('click', () => {
+          answers[q.id] = el.dataset.val;
+          errors[q.id] = '';
+          if (step < questions.length - 1) { step += 1; }
+          else { step = questions.length; }
+          renderQuestion();
+        });
+      });
+      formArea.querySelector('#prev').addEventListener('click', () => {
+        step = Math.max(0, step - 1);
+        renderQuestion();
+      });
+      formArea.querySelector('#next').addEventListener('click', () => {
+        if (!answers[q.id]) {
+          errors[q.id] = '選択してください';
+          renderQuestion();
+          return;
+        }
+        errors[q.id] = '';
+        if (step < questions.length - 1) { step += 1; }
+        else { step = questions.length; goResult(); return; }
+        renderQuestion();
+      });
+    }
+
+    // ========================================
+    // 結果表示ロジック
+    // ========================================
+    function renderTop3(results) {
+      const top3Area = document.getElementById('top3-area');
+      const top3 = results.slice(0, 3);
+      const top3Cards = top3.map((c, i) => {
+        const [color] = colorByProb(c.prob);
+        const pct = Math.min(c.prob / 60 * 100, 100);
+        return `
+          <div class="top10-card" style="flex:1; min-width:200px;">
+            <div style="font-size:12px; color:var(--muted); margin-bottom:4px;">${i + 1}位</div>
+            <div style="font-weight:700; font-size:16px; margin-bottom:8px;">${c.name}</div>
+            <div style="font-weight:800; font-size:24px; color:${color}; margin-bottom:8px;">合格率 ${c.prob.toFixed(1)}%</div>
+            <div class="meter-bar" style="height:8px; margin-bottom:6px;">
+              <div class="meter-fill" style="width:${pct}%; background: linear-gradient(90deg, ${color}, ${color}88);"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      top3Area.innerHTML = `
+        <h3 style="margin:0 0 16px; font-size:16px;">トップ3企業</h3>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">${top3Cards}</div>
+      `;
+    }
+
+    function renderFilter() {
+      const filterArea = document.getElementById('filter-area');
+      const options = '<option value="">すべての業種</option>' + industries.map(industry => `<option value="${industry}">${industry}</option>`).join('');
+      filterArea.innerHTML = `
+        <div class="filter-panel">
+          <h3 style="margin:0 0 12px; font-size:16px;">業種で絞り込み</h3>
+          <select class="filter-select" id="industry-filter" onchange="applyFilter()">${options}</select>
+        </div>
+      `;
+    }
+
+    window.applyFilter = function() {
+      const selected = document.getElementById('industry-filter')?.value || '';
+      const allResults = savedResults ? savedResults.results : [];
+      if (!selected) {
+        renderResultsList(allResults);
+      } else {
+        const filtered = allResults.filter(c => {
+          const industry = companyToIndustry[c.name] || 'その他';
+          return industry === selected;
+        });
+        filtered.sort((a, b) => b.prob - a.prob || a.name.localeCompare(b.name));
+        renderResultsList(filtered);
+      }
+    };
+
+    function renderResultsList(list) {
+      const resultList = document.getElementById('result-list');
+      resultList.innerHTML = '';
+      list.forEach((c, i) => {
+        const [color, label] = colorByProb(c.prob);
+        const pct = Math.min(c.prob / 60 * 100, 100);
+        const meterEl = document.createElement('div');
+        meterEl.className = 'meter';
+        meterEl.innerHTML = `
+          <div>
+            <div style="font-weight:700;">${i + 1}. ${c.name}</div>
+            <div class="meter-bar">
+              <div class="meter-fill" style="width:${pct}%; background: linear-gradient(90deg, ${color}, ${color}88);"></div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-weight:800; font-size:16px;">${c.prob.toFixed(1)}%</div>
+            <div class="tag" style="color:${color}; border-color:${color}55;">${label}</div>
+          </div>
+        `;
+        resultList.appendChild(meterEl);
+      });
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+      resultList.querySelectorAll('.meter').forEach(meter => observer.observe(meter));
+    }
+
+    async function displayResult(resultData) {
+      const data = resultData.result ? resultData : { result: resultData };
+      const { scores, results, answers: savedAnswers } = data.result || data;
+      savedResults = { scores, results, answers: savedAnswers };
+      
+      const lineUserId = await getLineUserId();
+      if (lineUserId && results) {
+        const additionalAnswersData = data.additionalAnswers || resultData.additionalAnswers || {};
+        const distributionTag = data.distributionTag || resultData.distributionTag || false;
+        const distributionTagDetails = data.distributionTagDetails || resultData.distributionTagDetails || {};
+        await saveResultByLineUser(lineUserId, savedResults, additionalAnswersData, distributionTag, distributionTagDetails);
+      }
+      
+      document.getElementById('radar-area').innerHTML = '';
+      renderTop3(results);
+      renderFilter();
+      renderResultsList(results);
+      showScreen('result-screen');
+    }
+
+    function restartDiagnosis() {
+      clearDiagnosisCache();
+      step = 0;
+      for (const key in answers) delete answers[key];
+      for (const key in errors) delete errors[key];
+      additionalAnswers = {};
+      savedResults = null;
+      showScreen('question-screen');
+      renderQuestion();
+    }
+
+    // ========================================
+    // 初期化
+    // ========================================
+    async function checkURLForResult() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('reset') || urlParams.has('clear') || urlParams.has('start')) {
+        clearDiagnosisCache();
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return false;
+      }
+      if (typeof liff !== 'undefined' && !liffInitialized) {
+        await initLIFF();
+      }
+      const lineUserId = await getLineUserId();
+      let sessionIdFromQuery = urlParams.get('session_id');
+      if (!sessionIdFromQuery && window.location.hash) {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        sessionIdFromQuery = hashParams.get('session_id');
+      }
+      if (lineUserId) {
+        if (sessionIdFromQuery) {
+          // session_idがある場合は移行
+          await transferSessionResultToLineUser(sessionIdFromQuery, lineUserId);
+        } else {
+          // session_idがない場合、先にPENDING結果をclaimする（適職診断と同じ）
+          const claimedResult = await claimPendingResult(lineUserId);
+          if (claimedResult && claimedResult.results) {
+            await displayResult(claimedResult);
+            return true;
+          }
+        }
+
+        // claimで見つからなかった場合、lineUserIdで結果を検索
+        const cachedData = await getResultByLineUser(lineUserId);
+        if (cachedData && cachedData.results) {
+          await displayResult(cachedData);
+          return true;
+        }
+      }
+      if (sessionIdFromQuery) {
+        const cachedResult = await getLatestResultFromCache();
+        if (cachedResult && cachedResult.results) {
+          await displayResult(cachedResult);
+          return true;
+        }
+      }
+      const encodedData = urlParams.get('data');
+      if (encodedData) {
+        try {
+          const json = decodeURIComponent(atob(encodedData));
+          const payload = JSON.parse(json);
+          if (payload && payload.results) {
+            await displayResult(payload);
+            return true;
+          }
+        } catch (e) {}
+      }
+      return false;
+    }
+
+    async function runAutoDebug() {
+      const debugResults = { timestamp: new Date().toISOString(), apiBase: WP_API_BASE, liffId: LIFF_ID, checks: {} };
+      try {
+        const response = await fetch(`${WP_API_BASE}/debug`, { method: 'GET' });
+        if (response.ok) {
+          const data = await response.json();
+          debugResults.checks.apiConnection = '✅ OK';
+          debugResults.checks.pendingExists = data.pending_exists ? '✅ あり' : '❌ なし';
+        } else {
+          debugResults.checks.apiConnection = `❌ エラー (${response.status})`;
+        }
+      } catch (e) {
+        debugResults.checks.apiConnection = `❌ 接続失敗`;
+      }
+      debugResults.checks.liffInitialized = liffInitialized ? '✅ 初期化済み' : '❌ 未初期化';
+      const lineUserId = await getLineUserId();
+      debugResults.checks.lineUserId = lineUserId ? `✅ ${lineUserId.substring(0, 10)}...` : '❌ 取得できず';
+      debugResults.checks.sessionId = getSessionId() ? '✅ あり' : '❌ なし';
+      console.log('========== 転職可能性診断デバッグ結果 ==========');
+      console.log(JSON.stringify(debugResults, null, 2));
+      if (window.location.search.includes('debug')) {
+        const debugDiv = document.createElement('div');
+        debugDiv.style.cssText = 'position:fixed;top:10px;right:10px;background:#111;color:#0f0;padding:15px;border-radius:8px;font-family:monospace;font-size:12px;max-width:400px;z-index:9999;';
+        debugDiv.innerHTML = `<div style="font-weight:bold;margin-bottom:10px;">🔧 デバッグ情報</div>
+          <div>API: ${debugResults.checks.apiConnection}</div>
+          <div>PENDING: ${debugResults.checks.pendingExists || 'N/A'}</div>
+          <div>LIFF: ${debugResults.checks.liffInitialized}</div>
+          <div>LINE User ID: ${debugResults.checks.lineUserId}</div>
+          <button onclick="this.parentElement.remove()" style="margin-top:10px;padding:5px 10px;cursor:pointer;">閉じる</button>`;
+        document.body.appendChild(debugDiv);
+      }
+      return debugResults;
+    }
+
+    async function init() {
+      runAutoDebug().catch(() => {});
+      const hasResult = await checkURLForResult();
+      if (!hasResult) { renderQuestion(); }
+    }
+
+    init();
+  </script>
+</body>
+</html>
+
