@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>現在の職種について | ジョブリー建設</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans JP', sans-serif; background: #f0f2f5; color: #333; }
+
+  /* ── ヘッダー ── */
+  .site-header {
+    text-align: center; padding: 10px 16px;
+    font-size: 12px; color: #888; letter-spacing: .5px;
+    background: #fff; border-bottom: 1px solid #e8e8e8;
+  }
+
+  /* ── 適正年収バナー ── */
+  .salary-banner {
+    background: #fff; text-align: center;
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid #eee;
+  }
+  .salary-label { font-size: 12px; color: #888; margin-bottom: 4px; }
+  .salary-value {
+    font-size: 26px; font-weight: 900; color: #1a1a2e;
+    letter-spacing: 2px;
+  }
+  .salary-value span { font-size: 16px; font-weight: 700; margin-left: 4px; }
+
+  /* ── ステップ進捗 ── */
+  .step-section {
+    background: #fff; padding: 14px 20px 16px;
+    border-bottom: 1px solid #eee;
+  }
+  .step-label { font-size: 12px; color: #888; margin-bottom: 8px; text-align: center; }
+  .step-dots {
+    display: flex; align-items: center; justify-content: center; gap: 0;
+  }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .step-dot.done {
+    background: #f97316; color: #fff;
+  }
+  .step-dot.current {
+    background: #f97316; color: #fff;
+    box-shadow: 0 0 0 3px rgba(249,115,22,.25);
+  }
+  .step-dot.pending {
+    background: #e0e0e0; color: #999;
+  }
+  .step-line {
+    flex: 1; height: 2px; background: #e0e0e0; max-width: 32px;
+  }
+  .step-line.done { background: #f97316; }
+
+  /* ── メインコンテンツ ── */
+  .main { padding: 20px 14px 100px; max-width: 600px; margin: 0 auto; }
+
+  .page-title {
+    font-size: 18px; font-weight: 900; color: #1a1a2e;
+    margin-bottom: 16px; line-height: 1.5;
+  }
+
+  /* ── アコーディオン ── */
+  .accordion { display: flex; flex-direction: column; gap: 10px; }
+
+  .acc-item {
+    background: #fff; border-radius: 8px;
+    border: 1.5px solid #e0e0e0;
+    overflow: hidden;
+    transition: border-color .25s;
+  }
+  .acc-item.open    { border-color: #f97316; }
+  .acc-item.selected { border-color: #f97316; }
+
+  .acc-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+  }
+  .acc-header-left { display: flex; align-items: center; gap: 10px; }
+
+  .acc-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: #ccc; color: #fff;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background .25s;
+  }
+  .acc-item.open .acc-num    { background: #f97316; }
+  .acc-item.selected .acc-num { background: #22c55e; font-size: 14px; }
+
+  .acc-title { font-size: 14px; font-weight: 700; color: #222; }
+
+  .acc-arrow {
+    font-size: 13px; color: #aaa;
+    transition: transform .3s ease, color .25s;
+    flex-shrink: 0;
+  }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); color: #f97316; }
+
+  .acc-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .35s cubic-bezier(.4,0,.2,1), padding .35s;
+    padding: 0 16px;
+    border-top: 0px solid #f0f0f0;
+  }
+  .acc-item.open .acc-body {
+    max-height: 600px;
+    padding: 0 16px 16px;
+    border-top-width: 1px;
+  }
+
+  /* ラジオボタン */
+  .radio-list { list-style: none; padding-top: 4px; }
+  .radio-list li {
+    display: flex; align-items: center;
+    padding: 11px 0;
+    border-bottom: 1px solid #f5f5f5;
+    cursor: pointer;
+    transition: background .12s;
+  }
+  .radio-list li:last-child { border-bottom: none; }
+  .radio-list li:active { background: #fff8f3; }
+  .radio-list input[type="radio"] { display: none; }
+  .radio-custom {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 2px solid #ccc;
+    margin-right: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color .15s, background .15s;
+  }
+  .radio-list input[type="radio"]:checked + .radio-custom {
+    border-color: #f97316;
+    background: #f97316;
+  }
+  .radio-list input[type="radio"]:checked + .radio-custom::after {
+    content: ''; width: 8px; height: 8px; border-radius: 50%; background: #fff;
+  }
+  .radio-label { font-size: 14px; color: #333; }
+
+  .acc-selected-inline {
+    font-size: 13px; color: #f97316; font-weight: 600;
+    margin-left: 6px;
+    display: none;
+  }
+  .acc-item.selected .acc-selected-inline { display: inline; }
+
+  .acc-item { position: relative; }
+
+  /* フローティング指アイコン */
+  .guide-pointer {
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    pointer-events: none;
+    opacity: 0;
+    transform: rotate(-10deg);
+    transition:
+      left .4s cubic-bezier(.22,.8,.25,1),
+      top .4s cubic-bezier(.22,.8,.25,1),
+      opacity .2s ease-out;
+    animation: point-bounce .7s ease-in-out infinite alternate;
+    z-index: 1200;
+  }
+  @keyframes point-bounce {
+    from { transform: rotate(-10deg) translateY(0); }
+    to   { transform: rotate(-10deg) translateY(4px); }
+  }
+
+  /* ナビゲーション */
+  .nav-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: #fff; border-top: 1px solid #e8e8e8;
+    padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+    max-width: 600px; margin: 0 auto;
+  }
+  .btn-back {
+    font-size: 14px; font-weight: 700; color: #888;
+    background: none; border: none; cursor: pointer;
+    padding: 10px 16px;
+  }
+  .btn-next {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: #f97316; color: #fff;
+    font-size: 15px; font-weight: 700;
+    padding: 13px 20px; border-radius: 6px;
+    border: none; cursor: pointer;
+    animation: pulse-bg 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse-bg {
+    0%, 100% { background: #f97316; }
+    50%       { background: #ea580c; }
+  }
+</style>
+</head>
+<body>
+
+<div class="site-header"><img src="salary-diagnosis-assets/header-logo.png" alt="よりそい転職" style="height:28px;"></div>
+
+<div class="salary-banner">
+  <p class="salary-label">あなたの適正年収</p>
+  <div class="salary-value">？ ？ ？<span>円</span></div>
+</div>
+
+<div class="step-section">
+  <p class="step-label">現在の職種について</p>
+  <div class="step-dots">
+    <div class="step-dot done">✓</div>
+    <div class="step-line done"></div>
+    <div class="step-dot done">✓</div>
+    <div class="step-line done"></div>
+    <div class="step-dot done">✓</div>
+    <div class="step-line done"></div>
+    <div class="step-dot current">4</div>
+    <div class="step-line"></div>
+    <div class="step-dot pending">5</div>
+  </div>
+</div>
+
+<div class="main">
+  <p class="page-title">現在の職種と希望職種を<br>教えてください</p>
+
+  <div class="accordion">
+
+    <!-- 1. 現在の職種 -->
+    <div class="acc-item open" id="acc1">
+      <div class="acc-header" onclick="toggleAcc('acc1')">
+        <div class="acc-header-left">
+          <div class="acc-num" id="acc1-num">1</div>
+          <span class="acc-title">現在の職種</span>
+          <span class="acc-selected-inline" id="acc1-selected"></span>
+        </div>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <ul class="radio-list">
+          <li onclick="selectRadio(this, 'current_job', '営業', 'acc1')">
+            <input type="radio" name="current_job" value="営業">
+            <div class="radio-custom"></div>
+            <span class="radio-label">営業</span>
+          </li>
+          <li onclick="selectRadio(this, 'current_job', '販売・サービス', 'acc1')">
+            <input type="radio" name="current_job" value="販売・サービス">
+            <div class="radio-custom"></div>
+            <span class="radio-label">販売・サービス</span>
+          </li>
+          <li onclick="selectRadio(this, 'current_job', '企画', 'acc1')">
+            <input type="radio" name="current_job" value="企画">
+            <div class="radio-custom"></div>
+            <span class="radio-label">企画</span>
+          </li>
+          <li onclick="selectRadio(this, 'current_job', '事務', 'acc1')">
+            <input type="radio" name="current_job" value="事務">
+            <div class="radio-custom"></div>
+            <span class="radio-label">事務</span>
+          </li>
+          <li onclick="selectRadio(this, 'current_job', '人事・労務', 'acc1')">
+            <input type="radio" name="current_job" value="人事・労務">
+            <div class="radio-custom"></div>
+            <span class="radio-label">人事・労務</span>
+          </li>
+          <li onclick="selectRadio(this, 'current_job', '総務・法務', 'acc1')">
+            <input type="radio" name="current_job" value="総務・法務">
+            <div class="radio-custom"></div>
+            <span class="radio-label">総務・法務</span>
+          </li>
+          <li onclick="selectRadio(this, 'current_job', '経理・財務', 'acc1')">
+            <input type="radio" name="current_job" value="経理・財務">
+            <div class="radio-custom"></div>
+            <span class="radio-label">経理・財務</span>
+          </li>
+          <li onclick="selectRadio(this, 'current_job', 'ITエンジニア', 'acc1')">
+            <input type="radio" name="current_job" value="ITエンジニア">
+            <div class="radio-custom"></div>
+            <span class="radio-label">ITエンジニア</span>
+          </li>
+          <li onclick="selectRadio(this, 'current_job', 'Web・クリエイティブ', 'acc1')">
+            <input type="radio" name="current_job" value="Web・クリエイティブ">
+            <div class="radio-custom"></div>
+            <span class="radio-label">Web・クリエイティブ</span>
+          </li>
+          <li onclick="selectRadio(this, 'current_job', '製造・生産', 'acc1')">
+            <input type="radio" name="current_job" value="製造・生産">
+            <div class="radio-custom"></div>
+            <span class="radio-label">製造・生産</span>
+          </li>
+          <li onclick="selectRadio(this, 'current_job', '建築・土木', 'acc1')">
+            <input type="radio" name="current_job" value="建築・土木">
+            <div class="radio-custom"></div>
+            <span class="radio-label">建築・土木</span>
+          </li>
+          <li onclick="selectRadio(this, 'current_job', '医療・福祉', 'acc1')">
+            <input type="radio" name="current_job" value="医療・福祉">
+            <div class="radio-custom"></div>
+            <span class="radio-label">医療・福祉</span>
+          </li>
+          <li onclick="selectRadio(this, 'current_job', '公務員', 'acc1')">
+            <input type="radio" name="current_job" value="公務員">
+            <div class="radio-custom"></div>
+            <span class="radio-label">公務員</span>
+          </li>
+          <li onclick="selectRadio(this, 'current_job', '大学生', 'acc1')">
+            <input type="radio" name="current_job" value="大学生">
+            <div class="radio-custom"></div>
+            <span class="radio-label">大学生</span>
+          </li>
+          <li onclick="selectRadio(this, 'current_job', 'その他', 'acc1')">
+            <input type="radio" name="current_job" value="その他">
+            <div class="radio-custom"></div>
+            <span class="radio-label">その他</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 2. 希望する職種 -->
+    <div class="acc-item" id="acc2">
+      <div class="acc-header" onclick="toggleAcc('acc2')">
+        <div class="acc-header-left">
+          <div class="acc-num" id="acc2-num">2</div>
+          <span class="acc-title">希望する職種</span>
+          <span class="acc-selected-inline" id="acc2-selected"></span>
+        </div>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <ul class="radio-list">
+          <li onclick="selectRadio(this, 'desired_job', '営業', 'acc2')">
+            <input type="radio" name="desired_job" value="営業">
+            <div class="radio-custom"></div>
+            <span class="radio-label">営業</span>
+          </li>
+          <li onclick="selectRadio(this, 'desired_job', '販売・サービス', 'acc2')">
+            <input type="radio" name="desired_job" value="販売・サービス">
+            <div class="radio-custom"></div>
+            <span class="radio-label">販売・サービス</span>
+          </li>
+          <li onclick="selectRadio(this, 'desired_job', '企画', 'acc2')">
+            <input type="radio" name="desired_job" value="企画">
+            <div class="radio-custom"></div>
+            <span class="radio-label">企画</span>
+          </li>
+          <li onclick="selectRadio(this, 'desired_job', '事務', 'acc2')">
+            <input type="radio" name="desired_job" value="事務">
+            <div class="radio-custom"></div>
+            <span class="radio-label">事務</span>
+          </li>
+          <li onclick="selectRadio(this, 'desired_job', '人事・労務', 'acc2')">
+            <input type="radio" name="desired_job" value="人事・労務">
+            <div class="radio-custom"></div>
+            <span class="radio-label">人事・労務</span>
+          </li>
+          <li onclick="selectRadio(this, 'desired_job', '総務・法務', 'acc2')">
+            <input type="radio" name="desired_job" value="総務・法務">
+            <div class="radio-custom"></div>
+            <span class="radio-label">総務・法務</span>
+          </li>
+          <li onclick="selectRadio(this, 'desired_job', '経理・財務', 'acc2')">
+            <input type="radio" name="desired_job" value="経理・財務">
+            <div class="radio-custom"></div>
+            <span class="radio-label">経理・財務</span>
+          </li>
+          <li onclick="selectRadio(this, 'desired_job', 'ITエンジニア', 'acc2')">
+            <input type="radio" name="desired_job" value="ITエンジニア">
+            <div class="radio-custom"></div>
+            <span class="radio-label">ITエンジニア</span>
+          </li>
+          <li onclick="selectRadio(this, 'desired_job', 'Web・クリエイティブ', 'acc2')">
+            <input type="radio" name="desired_job" value="Web・クリエイティブ">
+            <div class="radio-custom"></div>
+            <span class="radio-label">Web・クリエイティブ</span>
+          </li>
+          <li onclick="selectRadio(this, 'desired_job', '製造・生産', 'acc2')">
+            <input type="radio" name="desired_job" value="製造・生産">
+            <div class="radio-custom"></div>
+            <span class="radio-label">製造・生産</span>
+          </li>
+          <li onclick="selectRadio(this, 'desired_job', '建築・土木', 'acc2')">
+            <input type="radio" name="desired_job" value="建築・土木">
+            <div class="radio-custom"></div>
+            <span class="radio-label">建築・土木</span>
+          </li>
+          <li onclick="selectRadio(this, 'desired_job', '医療・福祉', 'acc2')">
+            <input type="radio" name="desired_job" value="医療・福祉">
+            <div class="radio-custom"></div>
+            <span class="radio-label">医療・福祉</span>
+          </li>
+          <li onclick="selectRadio(this, 'desired_job', '公務員', 'acc2')">
+            <input type="radio" name="desired_job" value="公務員">
+            <div class="radio-custom"></div>
+            <span class="radio-label">公務員</span>
+          </li>
+          <li onclick="selectRadio(this, 'desired_job', 'その他', 'acc2')">
+            <input type="radio" name="desired_job" value="その他">
+            <div class="radio-custom"></div>
+            <span class="radio-label">その他</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="nav-bar">
+  <button class="btn-back" onclick="history.back()">＜ 戻る</button>
+  <button class="btn-next" id="btnNext" onclick="goNext()">次へ進む</button>
+</div>
+
+<img id="guidePointer" class="guide-pointer" src="salary-diagnosis-assets/guide-pointer.png" alt="">
+
+<script>
+  const POINTER_MARGIN_RIGHT = 22;
+
+  function movePointerToAccordion(accId) {
+    const pointer = document.getElementById('guidePointer');
+    const item = document.getElementById(accId);
+    if (!pointer || !item) return;
+    const firstOption = item.querySelector('.radio-list li');
+    const targetRect = (firstOption || item).getBoundingClientRect();
+    const pointerH = pointer.offsetHeight || 30;
+    const x = targetRect.right - POINTER_MARGIN_RIGHT;
+    const y = targetRect.top + targetRect.height / 2 - pointerH / 2;
+    pointer.style.opacity = '1';
+    pointer.style.left = x + 'px';
+    pointer.style.top = y + 'px';
+  }
+
+  function movePointerToNextButton() {
+    const pointer = document.getElementById('guidePointer');
+    const btn = document.getElementById('btnNext');
+    if (!pointer || !btn) return;
+    const rect = btn.getBoundingClientRect();
+    const x = rect.right - 10;
+    const y = rect.top + rect.height / 2;
+    pointer.style.opacity = '1';
+    pointer.style.left = x + 'px';
+    pointer.style.top = y + 'px';
+  }
+
+  function scrollToAccTop(targetId) {
+    var target = document.getElementById(targetId);
+    if (!target) return;
+    var header = document.querySelector('.site-header');
+    var headerH = header ? header.offsetHeight : 0;
+    var margin = 4;
+    var start = Date.now();
+    function step() {
+      var rect = target.getBoundingClientRect();
+      window.scrollTo(0, Math.max(window.scrollY + rect.top - headerH - margin, 0));
+      if (Date.now() - start < 450) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function areAllAnswered() {
+    const accs = ['acc1', 'acc2'];
+    return accs.every(id => {
+      const el = document.getElementById(id);
+      return el && el.classList.contains('selected');
+    });
+  }
+
+  function toggleAcc(id) {
+    const item = document.getElementById(id);
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.acc-item.open').forEach(el => {
+      el.classList.remove('open');
+    });
+    if (!isOpen) {
+      item.classList.add('open');
+      scrollToAccTop(id);
+      if (areAllAnswered()) {
+        setTimeout(() => { movePointerToNextButton(); }, 260);
+      } else {
+        setTimeout(() => { movePointerToAccordion(id); }, 380);
+      }
+    }
+  }
+
+  function selectRadio(li, name, value, accId) {
+    const radio = li.querySelector('input[type="radio"]');
+    radio.checked = true;
+
+    const item = document.getElementById(accId);
+    const numEl = document.getElementById(accId + '-num');
+    numEl.textContent = '✓';
+    const selectedEl = document.getElementById(accId + '-selected');
+    selectedEl.textContent = value;
+
+    item.classList.add('selected');
+    item.classList.remove('open');
+
+    const accs = ['acc1', 'acc2'];
+    const idx = accs.indexOf(accId);
+
+    if (areAllAnswered()) {
+      setTimeout(() => { movePointerToNextButton(); }, 260);
+      return;
+    }
+
+    if (idx < accs.length - 1) {
+      const nextId = accs[idx + 1];
+      setTimeout(() => {
+        const nextItem = document.getElementById(nextId);
+        if (!nextItem.classList.contains('selected')) {
+          nextItem.classList.add('open');
+        }
+        scrollToAccTop(nextId);
+        setTimeout(() => { movePointerToAccordion(nextId); }, 380);
+      }, 300);
+    } else {
+      setTimeout(() => { movePointerToNextButton(); }, 260);
+    }
+  }
+
+  function goNext() {
+    const current = document.querySelector('input[name="current_job"]:checked');
+    const desired = document.querySelector('input[name="desired_job"]:checked');
+    if (!current || !desired) return;
+    try {
+      localStorage.setItem('diagnosisCurrentJob', current.value);
+      localStorage.setItem('diagnosisDesiredJob', desired.value);
+    } catch (e) {}
+    window.location.href = 'salary-diagnosis-step3.html';
+  }
+
+  window.addEventListener('load', () => {
+    const first = document.getElementById('acc1');
+    if (first) {
+      scrollToAccTop('acc1');
+      setTimeout(() => { movePointerToAccordion('acc1'); }, 380);
+    }
+  });
+</script>
+
+</body>
+</html>
+

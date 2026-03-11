@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>希望勤務地について | ジョブリー建設</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans JP', sans-serif; background: #f0f2f5; color: #333; }
+
+  .site-header {
+    text-align: center; padding: 10px 16px;
+    font-size: 12px; color: #888; letter-spacing: .5px;
+    background: #fff; border-bottom: 1px solid #e8e8e8;
+  }
+
+  .salary-banner {
+    background: #fff; text-align: center;
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid #eee;
+  }
+  .salary-label { font-size: 12px; color: #888; margin-bottom: 4px; }
+  .salary-value {
+    font-size: 26px; font-weight: 900; color: #1a1a2e;
+    letter-spacing: 2px;
+  }
+  .salary-value span { font-size: 16px; font-weight: 700; margin-left: 4px; }
+
+  .step-section {
+    background: #fff; padding: 14px 20px 16px;
+    border-bottom: 1px solid #eee;
+  }
+  .step-label { font-size: 12px; color: #888; margin-bottom: 8px; text-align: center; }
+  .step-dots {
+    display: flex; align-items: center; justify-content: center; gap: 0;
+  }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .step-dot.done {
+    background: #f97316; color: #fff;
+  }
+  .step-dot.current {
+    background: #f97316; color: #fff;
+    box-shadow: 0 0 0 3px rgba(249,115,22,.25);
+  }
+  .step-dot.pending {
+    background: #e0e0e0; color: #999;
+  }
+  .step-line {
+    flex: 1; height: 2px; background: #e0e0e0; max-width: 32px;
+  }
+  .step-line.done { background: #f97316; }
+
+  .main { padding: 20px 14px 100px; max-width: 600px; margin: 0 auto; }
+
+  .page-title {
+    font-size: 18px; font-weight: 900; color: #1a1a2e;
+    margin-bottom: 16px; line-height: 1.5;
+  }
+
+  .hint-text {
+    font-size: 13px; color: #666;
+    margin-bottom: 14px;
+  }
+
+  .anywhere-btn {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #d4d4d4;
+    background: #ffffff;
+    color: #333333;
+    font-size: 14px; font-weight: 700;
+    text-align: center;
+    margin-bottom: 16px;
+    cursor: pointer;
+  }
+  .anywhere-btn.selected {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    color: #111827;
+  }
+
+  .region-group {
+    margin-bottom: 18px;
+  }
+  .region-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #444;
+    margin-bottom: 8px;
+  }
+  .pref-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .pref-btn {
+    font-size: 12px;
+    padding: 8px 4px;
+    border-radius: 999px;
+    border: 1px solid #ddd;
+    background: #fff;
+    text-align: center;
+    cursor: pointer;
+  }
+  .pref-btn.selected {
+    border-color: #f97316;
+    background: #fff7ed;
+    color: #f97316;
+    font-weight: 700;
+  }
+
+  .nav-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: #fff; border-top: 1px solid #e8e8e8;
+    padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+    max-width: 600px; margin: 0 auto;
+  }
+  .btn-back {
+    font-size: 14px; font-weight: 700; color: #888;
+    background: none; border: none; cursor: pointer;
+    padding: 10px 16px;
+  }
+  .btn-next {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: #f97316; color: #fff;
+    font-size: 15px; font-weight: 700;
+    padding: 13px 20px; border-radius: 6px;
+    border: none; cursor: pointer;
+    animation: pulse-bg 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse-bg {
+    0%, 100% { background: #f97316; }
+    50%       { background: #ea580c; }
+  }
+</style>
+</head>
+<body>
+
+<div class="site-header"><img src="salary-diagnosis-assets/header-logo.png" alt="よりそい転職" style="height:28px;"></div>
+
+<div class="salary-banner">
+  <p class="salary-label">あなたの適正年収</p>
+  <div class="salary-value">？ ？ ？<span>円</span></div>
+</div>
+
+<div class="step-section">
+  <p class="step-label">希望勤務地について</p>
+  <div class="step-dots">
+    <div class="step-dot done">✓</div>
+    <div class="step-line done"></div>
+    <div class="step-dot done">✓</div>
+    <div class="step-line done"></div>
+    <div class="step-dot done">✓</div>
+    <div class="step-line done"></div>
+    <div class="step-dot done">✓</div>
+    <div class="step-line done"></div>
+    <div class="step-dot current">5</div>
+  </div>
+</div>
+
+<div class="main">
+  <p class="page-title">希望する勤務地エリアを<br>教えてください</p>
+  <p class="hint-text">複数選択できます。特にこだわりがなければ「全国どこでも」を選んでください。</p>
+
+  <button id="anywhereBtn" class="anywhere-btn" onclick="selectAnywhere()">全国どこでも</button>
+
+  <div class="region-group">
+    <div class="region-label">北海道・東北</div>
+    <div class="pref-grid">
+      <div class="pref-btn" onclick="togglePref(this)">北海道</div>
+      <div class="pref-btn" onclick="togglePref(this)">青森</div>
+      <div class="pref-btn" onclick="togglePref(this)">岩手</div>
+      <div class="pref-btn" onclick="togglePref(this)">宮城</div>
+      <div class="pref-btn" onclick="togglePref(this)">秋田</div>
+      <div class="pref-btn" onclick="togglePref(this)">山形</div>
+      <div class="pref-btn" onclick="togglePref(this)">福島</div>
+    </div>
+  </div>
+
+  <div class="region-group">
+    <div class="region-label">関東</div>
+    <div class="pref-grid">
+      <div class="pref-btn" onclick="togglePref(this)">茨城</div>
+      <div class="pref-btn" onclick="togglePref(this)">栃木</div>
+      <div class="pref-btn" onclick="togglePref(this)">群馬</div>
+      <div class="pref-btn" onclick="togglePref(this)">埼玉</div>
+      <div class="pref-btn" onclick="togglePref(this)">千葉</div>
+      <div class="pref-btn" onclick="togglePref(this)">東京</div>
+      <div class="pref-btn" onclick="togglePref(this)">神奈川</div>
+    </div>
+  </div>
+
+  <div class="region-group">
+    <div class="region-label">甲信越・北陸</div>
+    <div class="pref-grid">
+      <div class="pref-btn" onclick="togglePref(this)">新潟</div>
+      <div class="pref-btn" onclick="togglePref(this)">富山</div>
+      <div class="pref-btn" onclick="togglePref(this)">石川</div>
+      <div class="pref-btn" onclick="togglePref(this)">福井</div>
+      <div class="pref-btn" onclick="togglePref(this)">山梨</div>
+      <div class="pref-btn" onclick="togglePref(this)">長野</div>
+    </div>
+  </div>
+
+  <div class="region-group">
+    <div class="region-label">東海</div>
+    <div class="pref-grid">
+      <div class="pref-btn" onclick="togglePref(this)">岐阜</div>
+      <div class="pref-btn" onclick="togglePref(this)">静岡</div>
+      <div class="pref-btn" onclick="togglePref(this)">愛知</div>
+      <div class="pref-btn" onclick="togglePref(this)">三重</div>
+    </div>
+  </div>
+
+  <div class="region-group">
+    <div class="region-label">近畿</div>
+    <div class="pref-grid">
+      <div class="pref-btn" onclick="togglePref(this)">滋賀</div>
+      <div class="pref-btn" onclick="togglePref(this)">京都</div>
+      <div class="pref-btn" onclick="togglePref(this)">大阪</div>
+      <div class="pref-btn" onclick="togglePref(this)">兵庫</div>
+      <div class="pref-btn" onclick="togglePref(this)">奈良</div>
+      <div class="pref-btn" onclick="togglePref(this)">和歌山</div>
+    </div>
+  </div>
+
+  <div class="region-group">
+    <div class="region-label">中国</div>
+    <div class="pref-grid">
+      <div class="pref-btn" onclick="togglePref(this)">鳥取</div>
+      <div class="pref-btn" onclick="togglePref(this)">島根</div>
+      <div class="pref-btn" onclick="togglePref(this)">岡山</div>
+      <div class="pref-btn" onclick="togglePref(this)">広島</div>
+      <div class="pref-btn" onclick="togglePref(this)">山口</div>
+    </div>
+  </div>
+
+  <div class="region-group">
+    <div class="region-label">四国</div>
+    <div class="pref-grid">
+      <div class="pref-btn" onclick="togglePref(this)">徳島</div>
+      <div class="pref-btn" onclick="togglePref(this)">香川</div>
+      <div class="pref-btn" onclick="togglePref(this)">愛媛</div>
+      <div class="pref-btn" onclick="togglePref(this)">高知</div>
+    </div>
+  </div>
+
+  <div class="region-group">
+    <div class="region-label">九州・沖縄</div>
+    <div class="pref-grid">
+      <div class="pref-btn" onclick="togglePref(this)">福岡</div>
+      <div class="pref-btn" onclick="togglePref(this)">佐賀</div>
+      <div class="pref-btn" onclick="togglePref(this)">長崎</div>
+      <div class="pref-btn" onclick="togglePref(this)">熊本</div>
+      <div class="pref-btn" onclick="togglePref(this)">大分</div>
+      <div class="pref-btn" onclick="togglePref(this)">宮崎</div>
+      <div class="pref-btn" onclick="togglePref(this)">鹿児島</div>
+      <div class="pref-btn" onclick="togglePref(this)">沖縄</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="nav-bar">
+  <button class="btn-back" onclick="history.back()">＜ 戻る</button>
+  <button class="btn-next" onclick="goNext()">診断結果を見る</button>
+</div>
+
+<script>
+  function clearPrefSelection() {
+    document.querySelectorAll('.pref-btn.selected').forEach(el => el.classList.remove('selected'));
+  }
+
+  function selectAnywhere() {
+    const btn = document.getElementById('anywhereBtn');
+    const willSelect = !btn.classList.contains('selected');
+    document.getElementById('anywhereBtn').classList.toggle('selected', willSelect);
+    if (willSelect) {
+      clearPrefSelection();
+    }
+  }
+
+  function togglePref(btn) {
+    document.getElementById('anywhereBtn').classList.remove('selected');
+    btn.classList.toggle('selected');
+  }
+
+  function goNext() {
+    const anywhere = document.getElementById('anywhereBtn').classList.contains('selected');
+    const selected = Array.from(document.querySelectorAll('.pref-btn.selected')).map(el => el.textContent.trim());
+    if (!anywhere && selected.length === 0) return;
+    try {
+      const value = anywhere ? ['全国どこでも'] : selected;
+      localStorage.setItem('diagnosisAreas', JSON.stringify(value));
+    } catch (e) {}
+    window.location.href = 'salary-diagnosis-loading.html';
+  }
+</script>
+
+</body>
+</html>
+

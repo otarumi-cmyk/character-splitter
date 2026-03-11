@@ -1,0 +1,19 @@
+{
+    "name": "wp-rank-volume-manager",
+    "description": "A WordPress plugin to manage article rankings and keyword volumes.",
+    "type": "wordpress-plugin",
+    "require": {
+        "php": ">=7.2",
+        "composer/installers": "^1.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "WP_Rank_Volume_Manager\\": "src/"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "scripts": {
+        "test": "phpunit"
+    }
+}

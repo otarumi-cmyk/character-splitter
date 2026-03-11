@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>年収診断 | ジョブリー建設</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: #EEF2F8;
+    color: #333;
+  }
+
+  /* スマホ表示では背景を白にする */
+  @media (max-width: 767px) {
+    body {
+      background: #ffffff;
+    }
+  }
+
+  /* 全体ラッパー（ヘッダー固定分の余白を確保） */
+  .page-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 72px 16px 40px; /* 上下 + 左右に余白を確保 */
+  }
+
+  /* ── ヘッダー ── */
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1100;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 12px;
+    color: #666;
+    letter-spacing: .5px;
+    background: #fff;
+  }
+
+  /* ── ヒーロー ── */
+  .hero {
+    background: #fff;
+    padding: 24px 20px 24px;
+    text-align: center;
+  }
+
+  /* モバイル: “HTMLで見てた時”と同じ左右配置（absolute + %幅） */
+  .hero-row-mobile {
+    position: relative;
+    min-height: 180px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+  .worker-mobile {
+    position: absolute;
+    left: -20px;
+    bottom: 0;
+    width: 38%;
+    pointer-events: none;
+  }
+  .worker-mobile-right {
+    position: absolute;
+    right: -20px;
+    bottom: 0;
+    width: 38%;
+    pointer-events: none;
+  }
+  .worker-mobile img,
+  .worker-mobile-right img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* デスクトップ: 写真ワーカー2体 + タイトル（中央固定） */
+  .hero-row-desktop {
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    width: 100%;
+  }
+  .worker-desktop {
+    width: 200px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .worker-desktop img { width: 100%; height: auto; display: block; }
+
+  .hero-title {
+    font-size: 80px;
+    font-weight: 900;
+    line-height: 1;
+    color: #1a1a2e;
+    letter-spacing: -3px;
+    padding-bottom: 4px;
+    margin: 0;
+    text-align: center;
+  }
+
+  .hero-steps { font-size: 15px; font-weight: 700; color: #555; margin-bottom: 12px; }
+
+  /* AI バッジ */
+  .ai-block { margin-bottom: 16px; }
+  .ai-text { font-size: 17px; font-weight: 700; color: #222; line-height: 1.8; }
+  .ai-badge {
+    display: inline-block;
+    width: 32px; height: 32px;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+
+  /* CTA バナー */
+  .cta-banner {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #f97316; color: #fff;
+    font-size: 14px; font-weight: 700;
+    padding: 9px 20px; border-radius: 4px;
+    margin-bottom: 14px;
+    animation: pulse-bg 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse-bg {
+    0%, 100% { background: #f97316; }
+    50%       { background: #ea580c; }
+  }
+  .cta-arrow {
+    width: 20px; height: 20px;
+    animation: bounce-right .8s ease-in-out infinite alternate;
+    filter: brightness(0) invert(1);
+  }
+  @keyframes bounce-right {
+    from { transform: translateX(0); }
+    to   { transform: translateX(4px); }
+  }
+
+  /* 年収ボタングリッド */
+  .salary-grid-wrap {
+    position: relative;
+    max-width: 420px;
+    margin: 0 auto 10px;
+  }
+  .salary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+  /* モバイル2列: 300〜450万円(右列)の右下 */
+  .point-finger {
+    position: absolute;
+    top: 28px;
+    right: -10px;
+    width: 34px;
+    transform: rotate(-10deg);
+    animation: point-bounce .7s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  /* デスクトップ3列: 300〜450万円(中列)の右下 */
+  @media (min-width: 768px) {
+    .point-finger {
+      top: 28px;
+      right: auto;
+      /* PC版は性別の2択（2列）なので中央寄せ基準に合わせる */
+      left: calc(50% + 2px);
+    }
+  }
+  @keyframes point-bounce {
+    from { transform: rotate(-10deg) translateY(0); }
+    to   { transform: rotate(-10deg) translateY(5px); }
+  }
+  .salary-btn {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #fff;
+    border: 2.5px solid #f97316;
+    border-radius: 5px;
+    padding: 12px 10px 12px 12px;
+    font-size: 16px; font-weight: 700; color: #1a1a2e;
+    text-decoration: none; cursor: pointer;
+    transition: background .18s, color .18s;
+  }
+  .salary-btn .sarrow { color: #f97316; font-size: 20px; font-weight: 700; }
+  .salary-btn:hover { background: #f97316; color: #fff; }
+  .salary-btn:hover .sarrow { color: #fff; }
+
+  .privacy-note { font-size: 10px; color: #bbb; margin-top: 6px; }
+
+  /* ── 実績カード ── */
+  .results {
+    background: #fff;
+    padding: 22px 14px 26px;
+  }
+  .section-title {
+    text-align: center; font-size: 15px; font-weight: 800;
+    color: #222; margin-bottom: 14px;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .card {
+    background: #fff;
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid #9e9e9e;
+    box-shadow: none;
+  }
+  .card-badge {
+    background: #ea580c; color: #fff;
+    padding: 8px 14px;
+    font-size: 13px; font-weight: 700;
+    display: flex; align-items: baseline; gap: 1px;
+  }
+  .card-badge .num  { font-size: 26px; font-weight: 900; line-height: 1; }
+  .card-badge .unit { font-size: 12px; }
+  .card-body { padding: 10px 14px 14px; }
+  .card-name { font-size: 13px; font-weight: 700; color: #222; margin-bottom: 1px; }
+  .card-job  { font-size: 11px; color: #999; margin-bottom: 6px; }
+  .stars     { color: #f5a623; font-size: 13px; margin-bottom: 6px; letter-spacing: 1px; }
+  .card-text { font-size: 12px; color: #555; line-height: 1.7; }
+
+  /* ── 診断で手に入る3つのデータ ── */
+  .data-section { background: #fff; padding: 28px 16px 32px; }
+  .data-section .section-title { margin-bottom: 24px; }
+  .data-list {
+    display: flex; flex-direction: column;
+    gap: 16px;
+    max-width: 760px; margin: 0 auto 24px;
+  }
+  .data-item {
+    background: #f8f9fc; border-radius: 10px;
+    padding: 20px 16px;
+    text-align: center;
+  }
+  .data-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: #ea580c; color: #fff;
+    font-size: 20px; font-weight: 900;
+    margin: 0 auto 12px;
+  }
+  .data-title { font-size: 14px; font-weight: 700; color: #222; margin-bottom: 6px; }
+  .data-text  { font-size: 12px; color: #666; line-height: 1.7; }
+
+  .cta-center { text-align: center; }
+  .cta-main-btn {
+    display: inline-block;
+    background: #f97316; color: #fff;
+    font-size: 16px; font-weight: 700;
+    padding: 14px 40px; border-radius: 6px;
+    text-decoration: none;
+    animation: pulse-bg 2.4s ease-in-out infinite;
+  }
+
+  /* ── フッター ── */
+  .site-footer {
+    background: #fff;
+    padding: 28px 16px 20px;
+    font-size: 12px;
+    color: #666;
+  }
+  .footer-inner { max-width: 760px; margin: 0 auto; }
+  .footer-logo { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 10px; }
+  .footer-desc { font-size: 11px; color: #888; line-height: 1.8; margin-bottom: 20px; }
+  .footer-cols { display: flex; gap: 40px; flex-wrap: wrap; margin-bottom: 20px; }
+  .footer-col h4 { font-size: 11px; font-weight: 700; color: #333; margin-bottom: 8px; }
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 5px; }
+  .footer-col a { font-size: 11px; color: #666; text-decoration: none; }
+  .footer-col a:hover { color: #f97316; }
+  .footer-copy {
+    font-size: 10px;
+    color: #bbb;
+    text-align: center;
+    padding-top: 16px;
+  }
+
+  /* ════════════════════════════
+     デスクトップ (768px以上)
+  ════════════════════════════ */
+  @media (min-width: 768px) {
+    /* ヒーロー */
+    .hero { padding: 36px 40px 30px; max-width: 800px; margin: 0 auto; }
+    .hero-row-mobile  { display: none; }
+    .hero-row-desktop {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+    }
+    .hero-row-desktop .hero-title {
+      flex-shrink: 0;
+    }
+
+    /* PC: タイトルを70%程度に縮小し、スタッフ画像を1.2倍に調整 */
+    .hero .hero-title {
+      font-size: 100px;
+      letter-spacing: -4px;
+    }
+    .hero-row-desktop .worker-desktop {
+      width: 168px;
+    }
+    .hero-row-desktop .worker-desktop img {
+      width: 100%;
+      max-width: 168px;
+      height: auto;
+    }
+
+    /* 性別選択は2択なので2列のまま中央寄せ */
+    .salary-grid { grid-template-columns: repeat(2, 1fr); max-width: 420px; gap: 8px; }
+    .salary-btn  { font-size: 12.5px; padding: 11px 10px 11px 12px; }
+
+    /* ラッパーで中央寄せ */
+    .hero-wrap, .results-wrap, .data-wrap, .footer-inner {
+      max-width: 800px; margin-left: auto; margin-right: auto;
+    }
+
+    /* 実績カード: 2列（4枚を2×2配置） */
+    .results {
+      padding: 32px 24px 36px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .cards { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+
+    /* データセクションも上と同じ幅に揃える */
+    .data-section {
+      padding: 40px 24px 44px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .data-list { flex-direction: row; gap: 20px; }
+    .data-item { flex: 1; }
+
+    /* フッター */
+    .site-footer {
+      padding: 36px 24px 24px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .footer-desc { max-width: 420px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<div class="site-header"><img src="salary-diagnosis-assets/header-logo.png" alt="よりそい転職" style="height:28px;"></div>
+
+<div class="page-wrap">
+
+<!-- ヒーロー -->
+<div class="hero">
+
+  <!-- モバイル: 女性画像 + タイトル + 男性画像 -->
+  <div class="hero-row-mobile">
+    <div class="worker-mobile">
+      <img src="salary-diagnosis-assets/staff-female.png" alt="女性スタッフ">
+    </div>
+    <div class="hero-title">年収<br>診断</div>
+    <div class="worker-mobile-right">
+      <img src="salary-diagnosis-assets/staff-male.png" alt="男性スタッフ">
+    </div>
+  </div>
+
+  <!-- デスクトップ: 写真ワーカー2体 -->
+  <div class="hero-row-desktop">
+    <div class="worker-desktop">
+      <img src="salary-diagnosis-assets/staff-female.png" alt="女性スタッフ">
+    </div>
+
+    <div class="hero-title">年収<br>診断</div>
+
+    <div class="worker-desktop">
+      <img src="salary-diagnosis-assets/staff-male.png" alt="男性スタッフ">
+    </div>
+  </div>
+
+  <p class="hero-steps">5ステップの質問でカンタン診断！</p>
+
+  <div class="ai-block">
+    <p class="ai-text"><img class="ai-badge" src="salary-diagnosis-assets/ai-badge.png" alt="AI">によって適正年収と</p>
+    <p class="ai-text">おすすめの転職先を診断！</p>
+  </div>
+
+  <div class="cta-banner">
+    性別を選んで診断スタート
+  </div>
+
+  <div class="salary-grid-wrap">
+    <img class="point-finger" src="salary-diagnosis-assets/guide-pointer.png" alt="">
+    <div class="salary-grid">
+      <a class="salary-btn" href="salary-diagnosis-step.html" onclick="try{localStorage.setItem('diagnosisGender','male');}catch(e){}">男性 <span class="sarrow">›</span></a>
+      <a class="salary-btn" href="salary-diagnosis-step.html" onclick="try{localStorage.setItem('diagnosisGender','female');}catch(e){}">女性 <span class="sarrow">›</span></a>
+    </div>
+  </div>
+
+  <p class="privacy-note">※入力された情報は第三者に提供・公開されません。</p>
+</div>
+
+<!-- 実績カード -->
+<div class="results">
+  <p class="section-title">転職で年収アップの実績</p>
+  <div class="cards">
+
+    <div class="card">
+      <div class="card-badge">年収 +<span class="num">90</span><span class="unit">万円</span></div>
+      <div class="card-body">
+        <p class="card-name">Y.Nさん 23歳</p>
+        <p class="card-job">転職前：サービス職 → 転職後：販売職</p>
+        <div class="stars">★★★★★</div>
+        <p class="card-text">転職で1番の不安は面接でした。<br>今まで真面目に面接対策をした事が無かったので、志望動機の企業研究のやり方から文の構成を1から教えていただきました。<br>文の構成では伝えたい事を言語化するのに苦戦していたのですが、こんな風に伝えたいと相談したら全部汲み取ってくれて言語化して下さいました。<br>そのおかげで伝えたい事はすべて出し切る事ができました。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-badge">年収 +<span class="num">110</span><span class="unit">万円</span></div>
+      <div class="card-body">
+        <p class="card-name">S・Tさん 30歳</p>
+        <p class="card-job">転職前：販売職 → 転職後：事務職</p>
+        <div class="stars">★★★★★</div>
+        <p class="card-text">
+          私が働きたい職種はもちろんのこと、私に合いそうな職種を＋αで提案して下さいました。<br>
+          なぜその求人を紹介したのか、私にどこが合っていると思ったのかというところまで細かく説明して下さったので、自分自身納得した上で求人に応募することが出来ました！
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-badge">年収 +<span class="num">145</span><span class="unit">万円</span></div>
+      <div class="card-body">
+        <p class="card-name">K・Yさん 27歳</p>
+        <p class="card-job">転職前：ITエンジニア → 転職後：接客職</p>
+        <div class="stars">★★★★★</div>
+        <p class="card-text">
+          何度も転職しようかと考えていた中で、今回思い切って転職活動を始めたので不安でしたが、たくさん相談に乗っていただけました。<br>
+          計画通り年内に転職活動を終わらせることができて、今は自分に合った接客の仕事で新しいスタートを切れています。
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-badge">年収 +<span class="num">65</span><span class="unit">万円</span></div>
+      <div class="card-body">
+        <p class="card-name">Y・Mさん 26歳</p>
+        <p class="card-job">転職前：販売職 → 転職後：販売職</p>
+        <div class="stars">★★★★★</div>
+        <p class="card-text">
+          自分に自信が持てない状態からのスタートでした。面接の最中、自信がなくなって挫けてしまいましたが、応援の言葉をかけていただき、自信を持つことができました。<br>
+          いまは新しい職場で、販売の仕事を前よりも前向きな気持ちで続けられています。
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 診断で手に入る3つの具体的データ -->
+<div class="data-section">
+  <p class="section-title">診断で手に入る3つの具体的データ</p>
+  <div class="data-list">
+
+    <div class="data-item">
+      <div class="data-num">1</div>
+      <p class="data-title">あなたの適正年収</p>
+      <p class="data-text">業種・職種・経験年数・資格を元に、建設業界のデータベースからあなたの市場価値を算出します。</p>
+    </div>
+
+    <div class="data-item">
+      <div class="data-num">2</div>
+      <p class="data-title">年収アップ可能性</p>
+      <p class="data-text">現在の年収と適正年収を比較し、転職によって年収がどれくらい上がる可能性があるかを診断します。</p>
+    </div>
+
+    <div class="data-item">
+      <div class="data-num">3</div>
+      <p class="data-title">キャリアアクションプラン</p>
+      <p class="data-text">建設業界での次のキャリアステップと、おすすめの転職先企業をAIが提案します。</p>
+    </div>
+
+  </div>
+
+  <div class="cta-center">
+    <a class="cta-main-btn" href="salary-diagnosis-step.html">無料で年収診断をする！</a>
+  </div>
+</div>
+
+</div> <!-- /.page-wrap -->
+
+</body>
+</html>

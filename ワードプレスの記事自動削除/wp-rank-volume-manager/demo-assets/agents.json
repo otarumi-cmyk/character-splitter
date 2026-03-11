@@ -1,0 +1,38 @@
+{
+  "agents": [
+    {"name": "ナース専科 転職", "url_key": "nurse_senka", "url": "#", "tags": ["nurse", "area_03", "area_11", "area_12", "area_13", "area_14", "area_22", "area_23", "area_26", "area_27", "area_28", "area_30"]},
+    {"name": "レバウェル看護", "url_key": "leverage_kango", "url": "#", "tags": ["nurse", "area_01", "area_02", "area_03", "area_04", "area_07", "area_08", "area_09", "area_10", "area_11", "area_12", "area_13", "area_14", "area_15", "area_18", "area_22", "area_23", "area_26", "area_28", "area_29", "area_33", "area_34", "area_35", "area_37", "area_38", "area_40", "area_46"]},
+    {"name": "看護roo", "url_key": "kangoroo", "url": "#", "tags": ["nurse", "nationwide"]},
+    {"name": "マイナビ介護職", "url_key": "mynavi_kaigo", "url": "#", "tags": ["caregiver", "nationwide"]},
+    {"name": "レバウェル介護×正社員", "url_key": "leverage_kaigo", "url": "#", "tags": ["caregiver", "nationwide"]},
+    {"name": "ウィルオブ介護", "url_key": "willof_kaigo", "url": "#", "tags": ["caregiver", "nationwide"]},
+    {"name": "レバウェル保育士", "url_key": "leverage_hoiku", "url": "#", "tags": ["childcare", "nationwide"]},
+    {"name": "保育士ワーカー", "url_key": "hoikushi_worker", "url": "#", "tags": ["childcare", "nationwide"]},
+    {"name": "ウィルオブ保育士", "url_key": "willof_hoiku", "url": "#", "tags": ["childcare", "nationwide"]},
+    {"name": "レバウェルリハビリ", "url_key": "leverage_rehab", "url": "#", "tags": ["ptot", "nationwide"]},
+    {"name": "マイナビコメディカル", "url_key": "mynavi_comedical", "url": "#", "tags": ["ptot", "area_11", "area_12", "area_13", "area_14", "area_23", "area_26", "area_27", "area_28", "area_40"]},
+    {"name": "PTOTSTワーカー", "url_key": "ptotst_worker", "url": "#", "tags": ["ptot", "nationwide"]},
+    {"name": "医師転職ドットコム", "url_key": "ishi_tenshoku", "url": "#", "tags": ["doctor", "nationwide"]},
+    {"name": "民間医局", "url_key": "minkan_ikyoku", "url": "#", "tags": ["doctor", "nationwide"]},
+    {"name": "レバウェル医師", "url_key": "leverage_ishi", "url": "#", "tags": ["doctor", "nationwide"]},
+    {"name": "レバウェル薬剤師", "url_key": "leverage_yakuzaishi", "url": "#", "tags": ["pharmacist", "nationwide"]},
+    {"name": "ファル・メイト", "url_key": "pharmate", "url": "#", "tags": ["pharmacist", "nationwide"]},
+    {"name": "建設・設備求人データベース", "url_key": "kensetsu_db", "url": "#", "tags": ["architecture", "nationwide"]},
+    {"name": "レバテックキャリア", "url_key": "levtech_career", "url": "#", "tags": ["it", "nationwide"]},
+    {"name": "テックゴー", "url_key": "techgo", "url": "#", "tags": ["it", "nationwide"]},
+    {"name": "レバテックダイレクト", "url_key": "levtech_direct", "url": "#", "tags": ["it", "nationwide"]},
+    {"name": "レバテックフリーランス", "url_key": "levtech_freelance", "url": "#", "tags": ["it", "nationwide"]},
+    {"name": "エンベスト", "url_key": "envest", "url": "#", "tags": ["it", "nationwide"]},
+    {"name": "テックビズ", "url_key": "techbiz", "url": "#", "tags": ["it", "nationwide"]},
+    {"name": "ヒュープロ", "url_key": "hupro", "url": "#", "tags": ["lawyer", "accountant", "tax", "nationwide"]},
+    {"name": "hapeエージェント", "url_key": "hape", "url": "#", "tags": ["other", "second_career", "nationwide"]},
+    {"name": "転職エージェントナビ", "url_key": "tenshoku_agent_navi", "url": "#", "tags": ["other", "second_career", "nationwide"]},
+    {"name": "DYM就職", "url_key": "dym_shushoku", "url": "#", "tags": ["other", "second_career", "nationwide"]},
+    {"name": "エンワールド", "url_key": "enworld", "url": "#", "tags": ["consultant", "finance", "high_class", "nationwide"]},
+    {"name": "ランスタッドエージェント", "url_key": "randstad", "url": "#", "tags": ["consultant", "finance", "high_class", "nationwide"]},
+    {"name": "リクナビNEXT", "url_key": "rikunabi", "url": "#", "tags": ["sales", "retail", "planning", "clerical", "secretary", "marketing", "accounting", "general", "legal", "hr", "pr", "creative", "manufacturing", "design", "civil", "nationwide"]},
+    {"name": "マイナビ転職", "url_key": "mynavi", "url": "#", "tags": ["sales", "retail", "planning", "clerical", "secretary", "marketing", "accounting", "general", "legal", "hr", "pr", "creative", "manufacturing", "design", "civil", "nationwide"]},
+    {"name": "メルセンヌセールス", "url_key": "mersen_sales", "url": "#", "tags": ["sales", "nationwide"]}
+  
+  ]
+}

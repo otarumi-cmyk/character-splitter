@@ -1,0 +1,218 @@
+msgid "Article Performance Management"
+msgstr ""
+
+msgid "Dashboard"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Total Articles"
+msgstr ""
+
+msgid "Automatically Unpublished Articles"
+msgstr ""
+
+msgid "Restored Articles"
+msgstr ""
+
+msgid "Candidates for Unpublishing"
+msgstr ""
+
+msgid "Unpublish"
+msgstr ""
+
+msgid "Restore"
+msgstr ""
+
+msgid "Details"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Published"
+msgstr ""
+
+msgid "Automatically Unpublished"
+msgstr ""
+
+msgid "Restored"
+msgstr ""
+
+msgid "Reason for Unpublishing"
+msgstr ""
+
+msgid "Date of Automatic Unpublishing"
+msgstr ""
+
+msgid "Date of Restoration"
+msgstr ""
+
+msgid "Rank"
+msgstr ""
+
+msgid "Keyword Volume"
+msgstr ""
+
+msgid "Import CSV"
+msgstr ""
+
+msgid "Settings Updated"
+msgstr ""
+
+msgid "Error occurred during import"
+msgstr ""
+
+msgid "No articles to display"
+msgstr ""
+
+msgid "Select Articles"
+msgstr ""
+
+msgid "Bulk Restore"
+msgstr ""
+
+msgid "Are you sure you want to restore the selected articles?"
+msgstr ""
+
+msgid "Restore Successful"
+msgstr ""
+
+msgid "Unpublish Criteria"
+msgstr ""
+
+msgid "Rank Threshold"
+msgstr ""
+
+msgid "Keyword Volume Threshold"
+msgstr ""
+
+msgid "AND"
+msgstr ""
+
+msgid "OR"
+msgstr ""
+
+msgid "Exclude Categories"
+msgstr ""
+
+msgid "Exclude Tags"
+msgstr ""
+
+msgid "Exclude Specific Posts"
+msgstr ""
+
+msgid "Import History"
+msgstr ""
+
+msgid "Log"
+msgstr ""
+
+msgid "Restore History"
+msgstr ""
+
+msgid "No history available"
+msgstr ""
+
+msgid "Restore from History"
+msgstr ""
+
+msgid "Restore to Original Status"
+msgstr ""
+
+msgid "Confirmation"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Plugin Settings"
+msgstr ""
+
+msgid "Import Settings"
+msgstr ""
+
+msgid "Mapping CSV Columns"
+msgstr ""
+
+msgid "Character Encoding"
+msgstr ""
+
+msgid "Delimiter"
+msgstr ""
+
+msgid "UTF-8"
+msgstr ""
+
+msgid "Comma"
+msgstr ""
+
+msgid "Save Changes"
+msgstr ""
+
+msgid "Automatic Management"
+msgstr ""
+
+msgid "Manual Execution"
+msgstr ""
+
+msgid "Scheduled Execution"
+msgstr ""
+
+msgid "Daily"
+msgstr ""
+
+msgid "Plugin Activation"
+msgstr ""
+
+msgid "Plugin Deactivation"
+msgstr ""
+
+msgid "Plugin Uninstallation"
+msgstr ""
+
+msgid "Data Cleanup"
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid "Success"
+msgstr ""
+
+msgid "Warning"
+msgstr ""
+
+msgid "Information"
+msgstr ""
+
+msgid "Notice"
+msgstr ""
+
+msgid "Help"
+msgstr ""
+
+msgid "Documentation"
+msgstr ""
+
+msgid "Support"
+msgstr ""
+
+msgid "Feedback"
+msgstr ""
+
+msgid "Version"
+msgstr ""
+
+msgid "Author"
+msgstr ""
+
+msgid "License"
+msgstr ""
+
+msgid "Contributors"
+msgstr ""
+
+msgid "Thank you for using our plugin!"
+msgstr ""

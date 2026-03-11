@@ -1,0 +1,13 @@
+{
+  "name": "clipimage",
+  "version": "1.0.0",
+  "description": "クリップボードの画像をファイルに保存してパスを出力 - Claude Code で画像を読み込むための CLI ツール",
+  "bin": {
+    "clipimage": "./bin/clipimage.js"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "os": ["darwin"],
+  "license": "MIT"
+}

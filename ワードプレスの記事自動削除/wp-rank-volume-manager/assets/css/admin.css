@@ -1,0 +1,336 @@
+/* =============================================================================
+   WP Rank Volume Manager — Admin CSS
+   ============================================================================= */
+
+/* ---- Layout ---- */
+.wprvm-wrap {
+	max-width: 1280px;
+}
+
+/* ---- Import card ---- */
+.wprvm-card {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 16px 20px;
+	margin: 16px 0;
+}
+.wprvm-import-card h2 {
+	margin-top: 0;
+	font-size: 14px;
+}
+.wprvm-import-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+.wprvm-import-row input[type="file"] {
+	display: none;
+}
+.wprvm-file-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 12px;
+	border: 1px solid #8c8f94;
+	border-radius: 3px;
+	background: #f6f7f7;
+	cursor: pointer;
+	font-size: 13px;
+	line-height: 1.4;
+}
+.wprvm-file-label:hover {
+	background: #dcdcde;
+}
+
+/* ---- Summary stat cards ---- */
+.wprvm-stats-row {
+	display: flex;
+	gap: 16px;
+	margin: 16px 0;
+	flex-wrap: wrap;
+}
+.wprvm-stat-card {
+	flex: 1;
+	min-width: 160px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 16px;
+	text-align: center;
+}
+.wprvm-stat-card--danger { border-top: 4px solid #d63638; }
+.wprvm-stat-card--warn   { border-top: 4px solid #dba617; }
+.wprvm-stat-card--ok     { border-top: 4px solid #00a32a; }
+
+.wprvm-stat-value {
+	font-size: 36px;
+	font-weight: 700;
+	line-height: 1.1;
+	color: #1d2327;
+}
+.wprvm-stat-label {
+	font-size: 12px;
+	color: #646970;
+	margin-top: 4px;
+}
+
+/* ---- Empty state ---- */
+.wprvm-empty-state {
+	text-align: center;
+	padding: 48px;
+	color: #646970;
+}
+
+/* ---- Filter bar ---- */
+.wprvm-filter-bar {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	flex-wrap: wrap;
+	margin: 12px 0;
+	padding: 10px;
+	background: #f6f7f7;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+}
+.wprvm-filter-bar select,
+.wprvm-filter-bar input[type="search"] {
+	min-width: 160px;
+}
+
+/* ---- Bulk action bar ---- */
+.wprvm-bulk-bar {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	margin: 10px 0 6px;
+}
+.wprvm-bulk-notice {
+	font-size: 13px;
+	padding: 4px 8px;
+	border-radius: 3px;
+}
+.wprvm-bulk-notice--success { color: #1e8a30; background: #edfaef; }
+.wprvm-bulk-notice--error   { color: #d63638; background: #fce8e8; }
+.wprvm-bulk-notice--info    { color: #0a4b78; background: #e5f5fa; }
+
+/* ---- Main table ---- */
+.wprvm-table .column-cb       { width: 36px; }
+.wprvm-table .column-rank,
+.wprvm-table .column-volume   { width: 80px; text-align: center; }
+.wprvm-table .column-verdict,
+.wprvm-table .column-status   { width: 110px; }
+.wprvm-table .column-unpublished-at { width: 130px; font-size: 12px; }
+.wprvm-table .column-actions  { width: 100px; }
+
+.wprvm-action-buttons {
+	display: flex;
+	gap: 4px;
+}
+.wprvm-action-buttons .button {
+	padding: 2px 6px;
+	min-height: 0;
+	line-height: 1.6;
+}
+.wprvm-action-buttons .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	vertical-align: middle;
+}
+
+.wprvm-url-nomatch {
+	font-size: 11px;
+	color: #646970;
+	word-break: break-all;
+}
+
+/* ---- Badges ---- */
+.wprvm-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 12px;
+	font-size: 11px;
+	font-weight: 600;
+	white-space: nowrap;
+	cursor: default;
+}
+.wprvm-badge--danger  { background: #fce8e8; color: #d63638; }
+.wprvm-badge--warn    { background: #fef8ee; color: #9e5a00; }
+.wprvm-badge--ok      { background: #edfaef; color: #1e8a30; }
+.wprvm-badge--neutral { background: #f0f0f1; color: #646970; }
+
+/* ---- Pagination ---- */
+.wprvm-pagination {
+	margin: 12px 0;
+	text-align: right;
+}
+
+/* ---- Settings sections ---- */
+.wprvm-settings-section {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 16px 20px;
+	margin-bottom: 20px;
+}
+.wprvm-settings-section h2 {
+	margin-top: 0;
+	padding-bottom: 8px;
+	border-bottom: 1px solid #f0f0f1;
+	font-size: 14px;
+}
+
+.wprvm-check-list {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+	gap: 4px;
+	max-height: 200px;
+	overflow-y: auto;
+	padding: 8px;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	background: #fafafa;
+}
+.wprvm-check-list label {
+	font-size: 13px;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+/* ---- Modal overlay ---- */
+.wprvm-modal-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.55);
+	z-index: 100050;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.wprvm-modal-overlay[hidden] {
+	display: none;
+}
+body.wprvm-modal-open {
+	overflow: hidden;
+}
+
+.wprvm-modal {
+	background: #fff;
+	border-radius: 6px;
+	box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+	width: min(760px, 94vw);
+	max-height: 90vh;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.wprvm-modal-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 14px 20px;
+	border-bottom: 1px solid #dcdcde;
+	flex-shrink: 0;
+}
+.wprvm-modal-header h2 {
+	margin: 0;
+	font-size: 16px;
+}
+.wprvm-modal-close {
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 4px;
+	color: #646970;
+	line-height: 1;
+}
+.wprvm-modal-close:hover { color: #1d2327; }
+.wprvm-modal-close .dashicons { font-size: 20px; width: 20px; height: 20px; }
+
+.wprvm-modal-body {
+	padding: 16px 20px;
+	overflow-y: auto;
+	flex: 1;
+}
+.wprvm-modal-body h3 {
+	font-size: 13px;
+	margin: 16px 0 8px;
+	color: #1d2327;
+}
+.wprvm-modal-footer {
+	padding: 12px 20px;
+	border-top: 1px solid #dcdcde;
+	display: flex;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+/* Detail table */
+.wprvm-detail-table th { width: 120px; }
+.wprvm-detail-import-table { font-size: 12px; }
+.wprvm-detail-empty { color: #646970; font-size: 12px; padding: 8px; }
+
+/* Exclude toggle */
+.wprvm-detail-exclude {
+	margin-top: 16px;
+	padding-top: 12px;
+	border-top: 1px solid #f0f0f1;
+	font-size: 13px;
+}
+
+/* ---- Timeline ---- */
+.wprvm-timeline {
+	position: relative;
+	padding-left: 24px;
+}
+.wprvm-timeline::before {
+	content: '';
+	position: absolute;
+	left: 7px;
+	top: 0;
+	bottom: 0;
+	width: 2px;
+	background: #dcdcde;
+}
+.wprvm-timeline-item {
+	position: relative;
+	margin-bottom: 16px;
+	font-size: 13px;
+}
+.wprvm-timeline-dot {
+	position: absolute;
+	left: -20px;
+	top: 3px;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: #8c8f94;
+	border: 2px solid #fff;
+	box-shadow: 0 0 0 2px #8c8f94;
+}
+.wprvm-timeline-item--unpublish .wprvm-timeline-dot {
+	background: #d63638;
+	box-shadow: 0 0 0 2px #d63638;
+}
+.wprvm-timeline-item--restore .wprvm-timeline-dot {
+	background: #00a32a;
+	box-shadow: 0 0 0 2px #00a32a;
+}
+.wprvm-timeline-content { line-height: 1.6; }
+.wprvm-timeline-date { color: #646970; font-size: 12px; }
+.wprvm-timeline-statuses { color: #646970; }
+.wprvm-timeline-rule {
+	font-size: 11px;
+	color: #646970;
+	background: #f6f7f7;
+	padding: 2px 6px;
+	border-radius: 3px;
+	display: inline-block;
+	margin-top: 2px;
+}

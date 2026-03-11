@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>転職エージェントおすすめデモ</title>
+  <!-- 外部CDNなし：file:// やオフラインでも表示可能（デモ専用ブラッシュアップ） -->
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", Meiryo, sans-serif;
+      background: linear-gradient(165deg, #eef2ff 0%, #f0f4fc 40%, #e8edf5 100%);
+      color: #1e293b;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page-wrap {
+      max-width: 440px;
+      margin: 0 auto;
+      padding: 12px 10px 40px;
+      text-align: center;
+    }
+
+    /* --- ヘッダー：中央・リッチめ --- */
+    .site-header {
+      text-align: center;
+      padding: 14px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+      letter-spacing: 0.02em;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+    }
+    .site-header-badge {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 2px 10px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: #6366f1;
+      background: rgba(99, 102, 241, 0.12);
+      border-radius: 999px;
+    }
+
+    /* --- カード：角丸・影・中央 --- */
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.9) inset,
+        0 8px 32px rgba(15, 23, 42, 0.08),
+        0 2px 8px rgba(15, 23, 42, 0.04);
+      margin: 12px auto;
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
+    }
+    .card-head {
+      background: linear-gradient(180deg, #fafbff 0%, #ffffff 100%);
+      color: #0f4c9e;
+      padding: 16px 16px 12px;
+      font-size: 15px;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: 0.02em;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+    }
+    .card-body {
+      padding: 14px 12px 16px;
+      text-align: center;
+    }
+
+    /* --- デモ説明ブロック：中央揃え --- */
+    .demo-answers {
+      font-size: 12px;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 12px;
+      text-align: center;
+      line-height: 1.65;
+      padding: 12px 14px;
+      background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    .demo-note {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 10px;
+      text-align: center;
+      line-height: 1.75;
+      max-width: 100%;
+    }
+    .demo-note code {
+      font-size: 10px;
+      background: #f1f5f9;
+      padding: 3px 6px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+    }
+    .demo-note-hr {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #e2e8f0;
+      text-align: center;
+    }
+
+    /* --- エージェントセクション：全体中央 --- */
+    .agent-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 10px;
+      text-align: center;
+      letter-spacing: 0.02em;
+    }
+    .agent-caption {
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 10px;
+      text-align: center;
+      line-height: 1.65;
+      max-width: 32em;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .agent-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+    }
+    .agent-item {
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .agent-item:last-child {
+      margin-bottom: 0;
+    }
+
+    /* カード内：縦並び・中央揃え */
+    .agent-card-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
+      border-radius: 12px;
+      padding: 10px 8px 14px;
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.95) inset,
+        0 10px 40px rgba(15, 23, 42, 0.08),
+        0 2px 12px rgba(59, 130, 246, 0.06);
+    }
+
+    /* 実画像ロゴ：カード幅いっぱい＆縦も確保（余白少なめ） */
+    .agent-logo-wrap {
+      width: 100%;
+      max-width: none;
+      margin: 0 0 10px;
+      min-height: 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .agent-logo-img {
+      width: 100%;
+      max-width: none;
+      height: auto;
+      max-height: 320px;
+      object-fit: contain;
+      object-position: top center;
+      display: block;
+      border-radius: 6px;
+    }
+    /* ロゴ枠：メタリックっぽいグロス（画像なし／読込失敗時） */
+    .agent-logo-placeholder {
+      width: 100%;
+      max-width: none;
+      min-height: 64px;
+      margin: 0 0 10px;
+      display: flex; /* logo_url ありで画像OKのときは JS で none */
+      align-items: center;
+      justify-content: center;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.5) 0%, transparent 50%),
+        linear-gradient(135deg, #e2e8f0, #cbd5e1);
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #475569;
+      text-align: center;
+      padding: 12px 14px;
+      line-height: 1.4;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.9) inset,
+        0 4px 12px rgba(15, 23, 42, 0.06);
+    }
+
+    .agent-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 8px;
+      text-align: center;
+      width: 100%;
+    }
+    .agent-desc {
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.65;
+      margin-bottom: 12px;
+      text-align: center;
+      width: 100%;
+    }
+
+    /* --- CTA：ピカピカ（グロス・インセット光・押下） --- */
+    .agent-cta-wrap {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .agent-cta {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 28px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+      text-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 28%, #2563eb 70%, #1d4ed8 100%);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.45) inset,
+        0 -1px 0 rgba(0, 0, 0, 0.08) inset,
+        0 4px 0 #1e40af,
+        0 8px 24px rgba(37, 99, 235, 0.45),
+        0 2px 8px rgba(15, 23, 42, 0.12);
+      transform: translateY(0);
+      transition:
+        transform 0.12s ease-out,
+        box-shadow 0.12s ease-out,
+        filter 0.15s ease-out;
+      overflow: hidden;
+    }
+    /* 上部ハイライト（光沢） */
+    .agent-cta::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 10%;
+      right: 10%;
+      height: 48%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0) 100%);
+      border-radius: 999px 999px 50% 50%;
+      pointer-events: none;
+    }
+    /*  subtle シマー */
+    .agent-cta::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -40%;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      transform: skewX(-20deg);
+      animation: cta-shine 3.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes cta-shine {
+      0%, 70%, 100% { left: -40%; opacity: 0; }
+      75% { opacity: 1; }
+      85% { left: 120%; opacity: 0; }
+    }
+    .agent-cta:hover {
+      filter: brightness(1.08) saturate(1.05);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.5) inset,
+        0 -1px 0 rgba(0, 0, 0, 0.06) inset,
+        0 4px 0 #1e40af,
+        0 12px 32px rgba(37, 99, 235, 0.5),
+        0 2px 8px rgba(15, 23, 42, 0.15);
+    }
+    .agent-cta span {
+      position: relative;
+      z-index: 1;
+    }
+    .agent-cta:active {
+      transform: translateY(3px);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.3) inset,
+        0 1px 0 #1e40af,
+        0 4px 16px rgba(37, 99, 235, 0.35);
+    }
+
+    .agent-empty {
+      font-size: 12px;
+      color: #94a3b8;
+      text-align: center;
+      line-height: 1.65;
+      padding: 8px 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="site-header">
+    転職エージェントおすすめデモ
+    <div class="site-header-badge">DEMO</div>
+  </div>
+
+  <div class="page-wrap">
+
+    <section class="card">
+      <div class="card-head">デモ用の想定条件</div>
+      <div class="card-body">
+        <p class="demo-answers" id="demoAnswers"></p>
+        <p class="demo-note">
+          このページは、年収診断の本番結果画面で表示される「あなたにおすすめの転職エージェント」の
+          イメージを確認するための簡易デモです。<br>
+          条件とエージェント候補はサンプルデータをもとにしています。
+        </p>
+        <p class="demo-note demo-note-hr">
+          <strong>リクナビ／メルセンヌの実ロゴを見る：</strong><br>
+          <code>demo-assets/rikunabi-next.png</code> と <code>demo-assets/mersenne-sales.png</code> を配置し、
+          <code>http://127.0.0.1:8080/...</code> で開いてください（詳細は demo-assets/README.md）。<br><br>
+          <strong>ローカルで見る</strong><br>
+          このHTMLを<strong>ダブルクリック</strong>で開くだけでOK（外部フォント・画像なし）。<br>
+          フォルダで <code>python3 -m http.server 8080</code> 実行後、
+          <code>http://127.0.0.1:8080/salary-agent-recommendation-demo.html</code> でも開けます。
+        </p>
+      </div>
+    </section>
+
+    <!-- 転職エージェント推薦カード（本番とほぼ同じ見た目） -->
+    <section class="card">
+      <div class="card-head">あなたにおすすめの転職エージェント</div>
+      <div class="card-body">
+        <ul class="agent-list" id="agentList"></ul>
+        <p class="agent-empty" id="agentEmpty" hidden>
+          条件にぴったり合うエージェントが見つかりませんでした。条件を少し広げて再度お試しください。
+        </p>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // デモ用の想定ユーザー条件（answers 相当）
+    const demoAnswers = {
+      gender: 'male',
+      age: 'age_25_29',
+      income: 'income_400',
+      occupation: 'sales',      // 営業
+      locations: ['13', '27']   // 東京・大阪
+    };
+
+    // デモ用エージェント定義（job-site-agent-matching-requirements.md 準拠のサンプル）
+    const demoAgents = [
+      {
+        name: 'リクナビNEXT',
+        url: 'https://example.com/rikunabi',
+        // 実ロゴ確認用：demo-assets/rikunabi-next.png を配置（サーバー経由で開くこと）
+        logo_url: 'demo-assets/rikunabi-next.png',
+        description: '20〜30代の営業・販売職に強い総合転職サイト。非公開求人も多数保有しています。',
+        tags: ['nationwide'],
+        occupations: ['sales', 'retail', 'planning'],
+        genders: ['male', 'female'],
+        ages: ['age_24', 'age_25_29', 'age_30_34'],
+        incomes: ['income_300', 'income_400', 'income_500']
+      },
+      {
+        name: '建設・設備求人データベース',
+        url: 'https://example.com/kensetsu-db',
+        description: '建設・設備分野に特化した転職サービス。施工管理や設備管理の求人に強みがあります。',
+        tags: ['architecture', 'nationwide'],
+        occupations: ['architecture'],
+        genders: ['any'],
+        ages: ['any'],
+        incomes: ['income_400', 'income_500', 'income_600']
+      },
+      {
+        name: 'メルセンヌセールス',
+        url: 'https://example.com/mersen-sales',
+        logo_url: 'demo-assets/mersenne-sales.png',
+        description: '営業職に特化した転職エージェント。首都圏の法人営業求人が中心です。',
+        tags: ['sales', 'area_13'], // 営業 × 東京
+        occupations: ['sales'],
+        genders: ['male'],
+        ages: ['age_24', 'age_25_29'],
+        incomes: ['income_300', 'income_400']
+      },
+      {
+        name: 'DYM就職',
+        url: 'https://example.com/dym',
+        description: '第二新卒や既卒向けの求人を多く扱うエージェント。ポテンシャル採用に強みがあります。',
+        tags: ['other', 'second_career', 'nationwide'],
+        occupations: ['other'],
+        genders: ['any'],
+        ages: ['age_24', 'age_25_29'],
+        incomes: ['income_100', 'income_200', 'income_300']
+      }
+    ];
+
+    function answersToAreaTags(locations) {
+      return (locations || []).map(function (code) {
+        return 'area_' + String(code).padStart(2, '0');
+      });
+    }
+
+    function matchAgentsLocal(answers, agents) {
+      if (!answers || !answers.occupation || !agents || !agents.length) return [];
+
+      const areaTags = answersToAreaTags(answers.locations || []);
+
+      return agents.filter(function (agent) {
+        const tags = agent.tags || [];
+
+        // 職種マッチ
+        let occupationOk = true;
+        if (Array.isArray(agent.occupations) && agent.occupations.length > 0) {
+          occupationOk = agent.occupations.indexOf(answers.occupation) !== -1;
+        } else {
+          occupationOk = tags.indexOf(answers.occupation) !== -1;
+        }
+
+        // 地域マッチ
+        const hasNationwide = tags.indexOf('nationwide') !== -1;
+        const hasMatchingArea = areaTags.some(function (at) {
+          return tags.indexOf(at) !== -1;
+        });
+        const regionOk = hasNationwide || hasMatchingArea;
+
+        // 性別・年齢・年収（複数 or any）
+        const genders = Array.isArray(agent.genders)
+          ? agent.genders
+          : agent.gender
+            ? [agent.gender]
+            : [];
+        const ages = Array.isArray(agent.ages)
+          ? agent.ages
+          : agent.age
+            ? [agent.age]
+            : [];
+        const incomes = Array.isArray(agent.incomes)
+          ? agent.incomes
+          : agent.income
+            ? [agent.income]
+            : [];
+
+        const genderOk =
+          genders.length === 0 ||
+          genders.indexOf('any') !== -1 ||
+          (answers.gender && genders.indexOf(answers.gender) !== -1);
+
+        const ageOk =
+          ages.length === 0 ||
+          ages.indexOf('any') !== -1 ||
+          (answers.age && ages.indexOf(answers.age) !== -1);
+
+        const incomeOk =
+          incomes.length === 0 ||
+          incomes.indexOf('any') !== -1 ||
+          (answers.income && incomes.indexOf(answers.income) !== -1);
+
+        return occupationOk && regionOk && genderOk && ageOk && incomeOk;
+      });
+    }
+
+    function escapeHtml(s) {
+      if (s == null) return '';
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function renderAgents(matched) {
+      const listEl = document.getElementById('agentList');
+      const emptyEl = document.getElementById('agentEmpty');
+      if (!listEl || !emptyEl) return;
+
+      listEl.innerHTML = '';
+
+      if (!matched || matched.length === 0) {
+        emptyEl.hidden = false;
+        emptyEl.style.display = 'block';
+        return;
+      }
+
+      emptyEl.hidden = true;
+      emptyEl.style.display = 'none';
+
+      matched.slice(0, 5).forEach(function (agent) {
+        const li = document.createElement('li');
+        li.className = 'agent-item';
+
+        const url = agent.url || '#';
+        const name = agent.name || agent.url_key || '';
+        const desc = agent.description || 'このエージェントはあなたの条件に近い求人を多く保有しています。';
+        const logoUrl = agent.logo_url ? String(agent.logo_url).trim() : '';
+
+        const inner = document.createElement('div');
+        inner.className = 'agent-card-inner';
+
+        const wrap = document.createElement('div');
+        wrap.className = 'agent-logo-wrap';
+
+        const placeholder = document.createElement('div');
+        placeholder.className = 'agent-logo-placeholder';
+        placeholder.textContent = name;
+        placeholder.style.display = 'flex';
+
+        if (logoUrl) {
+          const img = document.createElement('img');
+          img.className = 'agent-logo-img';
+          img.alt = name;
+          img.src = logoUrl;
+          img.addEventListener('error', function () {
+            img.remove();
+            placeholder.style.display = 'flex';
+          });
+          wrap.appendChild(img);
+          placeholder.style.display = 'none';
+        }
+
+        wrap.appendChild(placeholder);
+        inner.appendChild(wrap);
+
+        const nameP = document.createElement('p');
+        nameP.className = 'agent-name';
+        nameP.textContent = name;
+        inner.appendChild(nameP);
+
+        const descP = document.createElement('p');
+        descP.className = 'agent-desc';
+        descP.textContent = desc;
+        inner.appendChild(descP);
+
+        const ctaWrap = document.createElement('div');
+        ctaWrap.className = 'agent-cta-wrap';
+        const a = document.createElement('a');
+        a.href = url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.className = 'agent-cta';
+        const span = document.createElement('span');
+        span.textContent = '公式サイトで詳細を見る';
+        a.appendChild(span);
+        ctaWrap.appendChild(a);
+        inner.appendChild(ctaWrap);
+
+        li.appendChild(inner);
+        listEl.appendChild(li);
+      });
+    }
+
+    (function initDemo() {
+      // 想定条件の表示
+      var demoText =
+        '性別：男性 / 年齢：25〜29歳 / 年収：400万円台 / 希望職種：営業 / 希望勤務地：東京・大阪';
+      var demoEl = document.getElementById('demoAnswers');
+      if (demoEl) demoEl.textContent = demoText;
+
+      // マッチング実行
+      const matched = matchAgentsLocal(demoAnswers, demoAgents);
+      renderAgents(matched);
+    })();
+  </script>
+</body>
+</html>
+
