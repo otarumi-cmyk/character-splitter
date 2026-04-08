@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Post {
+  id              Int         @id @default(autoincrement())
+  title           String
+  caption         String      @default("")
+  hashtags        String      @default("")
+  status          String      @default("draft") // draft, scheduled, published, error
+  scheduledAt     DateTime?
+  publishedAt     DateTime?
+  instagramPostId String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  slides          PostSlide[]
+}
+
+model PostSlide {
+  id           Int    @id @default(autoincrement())
+  postId       Int
+  slideOrder   Int
+  templateType String @default("cover")
+  content      String @default("{}") // JSON stored as string
+  imageUrl     String?
+  post         Post   @relation(fields: [postId], references: [id])
+
+  @@unique([postId, slideOrder])
+}
+
+model Template {
+  id             Int      @id @default(autoincrement())
+  name           String
+  type           String   // cover, content, cta
+  html           String
+  css            String   @default("")
+  defaultContent String   @default("{}")
+  thumbnail      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model HashtagSet {
+  id        Int      @id @default(autoincrement())
+  name      String
+  hashtags  String   @default("[]")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Setting {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model CanvasTemplate {
+  id         Int      @id @default(autoincrement())
+  name       String
+  category   String   @default("general")
+  thumbnail  String?
+  canvasData String   // JSON string of SlideCanvasData (elements + background)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
