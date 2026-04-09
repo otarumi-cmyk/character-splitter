@@ -49,7 +49,7 @@ export async function POST(request: Request) {
 
 ## レスポンスルール:
 - JSON形式で返す（マークダウンのコードブロックなし）
-- slidesは2〜10枚
+- slidesは5〜9枚（内容が全て収まるように枚数を調整）
 - 必ず1枚目はcover、最後はcta
 - 各スライドにslideType, title, content, descriptionを含める
 - contentはスライドタイプに合わせた形式:
@@ -95,8 +95,8 @@ JSON形式のみで返答してください。`;
 
     const openai = await getOpenAIClient();
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      max_tokens: 4096,
+      model: "gpt-5.4-mini",
+      max_completion_tokens: 4096,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },

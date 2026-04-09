@@ -17,7 +17,7 @@ const TEMPLATE_HTML: Record<string, string> = {
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    width: 1080px; height: 1080px; overflow: hidden;
+    width: 1080px; height: 1350px; overflow: hidden;
     font-family: 'Noto Sans JP', -apple-system, sans-serif;
     background: var(--bg-color); color: var(--text-color);
     position: relative;
@@ -132,7 +132,7 @@ const TEMPLATE_HTML: Record<string, string> = {
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    width: 1080px; height: 1080px; overflow: hidden;
+    width: 1080px; height: 1350px; overflow: hidden;
     font-family: 'Noto Sans JP', -apple-system, sans-serif;
     background: var(--bg-color); color: var(--text-color);
     position: relative;
@@ -238,7 +238,7 @@ const TEMPLATE_HTML: Record<string, string> = {
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    width: 1080px; height: 1080px; overflow: hidden;
+    width: 1080px; height: 1350px; overflow: hidden;
     font-family: 'Noto Sans JP', -apple-system, sans-serif;
     background: var(--bg-color); color: var(--text-color);
     position: relative;
@@ -433,11 +433,12 @@ export default function SlidePreview({
   );
 
   const scale = size / 1080;
+  const displayH = size * (1350 / 1080);
 
   return (
     <div
       className="relative overflow-hidden rounded-lg border border-border bg-black"
-      style={{ width: size, height: size }}
+      style={{ width: size, height: displayH }}
     >
       <iframe
         srcDoc={srcdoc}
@@ -446,7 +447,7 @@ export default function SlidePreview({
         className="pointer-events-none origin-top-left border-0"
         style={{
           width: 1080,
-          height: 1080,
+          height: 1350,
           transform: `scale(${scale})`,
           transformOrigin: "top left",
         }}

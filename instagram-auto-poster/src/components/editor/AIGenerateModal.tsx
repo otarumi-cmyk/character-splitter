@@ -36,7 +36,7 @@ const slideTypes = [
 ] as const;
 
 const colorSchemes = [
-  { value: "ababa", label: "ABABA風", color: "#2BBFAB" },
+  { value: "ababa", label: "ABABA風", color: "#38BDF8" },
   { value: "purple", label: "パープル", color: "#6C5CE7" },
   { value: "blue", label: "ブルー", color: "#0984E3" },
   { value: "orange", label: "オレンジ", color: "#E17055" },

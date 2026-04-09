@@ -21,7 +21,7 @@ interface GenerateRequest {
 }
 
 const COLOR_SCHEMES: Record<string, { primary: string; secondary: string; bg: string; accent: string; textLight: string; textDark: string; cardBg: string }> = {
-  ababa: { primary: "#2BBFAB", secondary: "#239E8E", bg: "#2BBFAB", accent: "#CC2B2B", textLight: "#FFFFFF", textDark: "#1A1A1A", cardBg: "#FFFFFF" },
+  ababa: { primary: "#38BDF8", secondary: "#0EA5E9", bg: "linear-gradient(135deg, #38BDF8 0%, #0EA5E9 40%, #06B6D4 70%, #22D3EE 100%)", accent: "#CC2B2B", textLight: "#FFFFFF", textDark: "#1A1A1A", cardBg: "#FFFFFF" },
   purple: { primary: "#6C5CE7", secondary: "#A855F7", bg: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", accent: "#FD79A8", textLight: "#FFFFFF", textDark: "#2D3436", cardBg: "#FFFFFF" },
   blue: { primary: "#0984E3", secondary: "#74B9FF", bg: "linear-gradient(135deg, #0093E9 0%, #80D0C7 100%)", accent: "#00CEC9", textLight: "#FFFFFF", textDark: "#2D3436", cardBg: "#FFFFFF" },
   orange: { primary: "#E17055", secondary: "#FDCB6E", bg: "linear-gradient(135deg, #F2994A 0%, #F2C94C 100%)", accent: "#FF7675", textLight: "#FFFFFF", textDark: "#2D3436", cardBg: "#FFFFFF" },
@@ -37,15 +37,15 @@ You MUST follow this exact layout system based on real @ababa_official posts:
 ${LAYOUT_RULES_PROMPT}
 
 ### UNIVERSAL LAYOUT RULES:
-- Canvas: 1080x1080px
-- Background: solid teal/turquoise (#2BBFAB)
-- White rounded-rect card: x=40, y=60, w=1000, h=850, borderRadius=24 (main content area)
-- Card inner padding: 40px — content area starts at x=80, y=100, max width=920
-- Brand name (or user brand): top center, x=340, y=15, w=400, fontSize=30, bold, white
-- Bottom area (y=920~1080):
-  - Speech bubble: rounded-rect, x=80, y=930, w=660, h=100, bg=#239E8E, border=2px white, borderRadius=20
-  - Bubble text: x=100, y=955, w=620, fontSize=20, bold, white, centered
-  - Mascot circle: x=820, y=910, w=140, h=140, opacity=0.3
+- Canvas: 1080x1350px (4:5 aspect ratio)
+- Background: solid teal/turquoise (#38BDF8)
+- White rounded-rect card: x=40, y=110, w=1000, h=1000, borderRadius=24 (main content area)
+- Card inner padding: 40px — content area starts at x=80, y=150, max width=920
+- Brand name (or user brand): top center, x=240, y=34, w=600, fontSize=36, bold, white
+- Bottom area (y=1120~1350):
+  - Speech bubble: rounded-rect, x=56, y=1160, w=660, h=100, bg=#0EA5E9, border=2px white, borderRadius=20
+  - Bubble text: x=76, y=1184, w=620, fontSize=20, bold, white, centered
+  - Mascot image: x=700, y=878, w=470, h=470
 
 ### COVER SLIDE (表紙):
 Layout from top to bottom inside white card:
@@ -63,7 +63,7 @@ Layout from top to bottom inside white card:
 1. Teal header bar: x=80, y=100, w=920, h=64, borderRadius=12
    - Title: x=112, y=110, fontSize=28, bold, white, left-aligned
    - Page badge: x=904, y=112, w=48, h=40, white pill, fontSize=14 teal text
-2. List items (start y=192, spacing=72px per item):
+2. List items (start y=258, spacing=72px per item):
    - Number: x=96, fontSize=36, bold, teal, left-aligned
    - Text: x=168, fontSize=24, bold, black, left-aligned
    - Divider: x=80, w=920, h=1, opacity=0.2
@@ -145,10 +145,11 @@ Layout from top to bottom inside white card:
 export async function POST(request: Request) {
   try {
     const body: GenerateRequest = await request.json();
-    const { slideType, title, content, brandName, colorScheme } = body;
+    const { slideType, content, brandName, colorScheme } = body;
+    const title = body.title || "";
 
-    if (!title) {
-      return NextResponse.json({ error: "title is required" }, { status: 400 });
+    if (!title && !slideType) {
+      return NextResponse.json({ error: "title or slideType is required" }, { status: 400 });
     }
 
     const scheme = colorScheme && colorScheme !== "auto" ? COLOR_SCHEMES[colorScheme] : COLOR_SCHEMES.ababa;
@@ -158,7 +159,7 @@ export async function POST(request: Request) {
 
 ${ABABA_STYLE_GUIDE}
 
-You generate canvas element layouts for 1080x1080px Instagram posts.
+You generate canvas element layouts for 1080x1350px Instagram posts (4:5 aspect ratio).
 
 You MUST return ONLY a valid JSON array of canvas elements. No explanation, no markdown, no code fences. Just the raw JSON array.
 
@@ -167,7 +168,7 @@ Each element must have these fields:
   "id": string (unique, like "el_1", "el_2"),
   "type": "text" | "shape",
   "x": number (0-1080),
-  "y": number (0-1080),
+  "y": number (0-1350),
   "width": number,
   "height": number,
   "rotation": 0,
@@ -209,7 +210,7 @@ ${content ? `Subtitle/Description: "${content}"` : ""}
 Brand: "${brand}"
 
 Follow the COVER SLIDE rules from the style guide exactly:
-1. Teal background (#2BBFAB) with brand name at top
+1. Teal background (#38BDF8) with brand name at top
 2. Large white rounded card as main area
 3. Red banner with keyword
 4. HUGE bold black title text (key numbers in RED, extremely large)
@@ -233,7 +234,7 @@ Follow the LIST SLIDE rules from the style guide exactly:
 4. Mark 1-2 items as "重要" with a small red badge
 5. Bottom mascot speech bubble area
 
-Numbers should be teal (#2BBFAB), fontSize=40, bold. Item text black, 22-26px.
+Numbers should be teal (#38BDF8), fontSize=40, bold. Item text black, 22-26px.
 Return ONLY the JSON array.`;
     } else if (slideType === "comparison") {
       const sides = content ? content.split("\n").filter(Boolean) : [];
@@ -404,10 +405,19 @@ Layout:
 Return ONLY the JSON array.`;
     }
 
+    // slideTypeにマッチしなかった場合のフォールバック
+    if (!userPrompt) {
+      userPrompt = `Create a ${slideType || "list"} slide in ABABA style.
+Title: "${title}"
+${content ? `Content: "${content}"` : ""}
+Brand: "${brand}"
+Follow the style guide rules. Return ONLY the JSON array.`;
+    }
+
     const openai = await getOpenAIClient();
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      max_tokens: 4096,
+      model: "gpt-5.4-mini",
+      max_completion_tokens: 4096,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
@@ -431,10 +441,12 @@ Return ONLY the JSON array.`;
     // ★ normalizeLayout: 枠内テキスト自動中央配置 + サイズ調整 + グリッドスナップ
     const elements = normalizeLayout(rawElements);
 
-    // For ababa style, use solid teal background instead of gradient
-    const background = scheme === COLOR_SCHEMES.ababa
-      ? { type: "solid" as const, color: scheme.bg }
-      : { type: "gradient" as const, gradient: scheme.bg };
+    // All schemes use gradient background
+    const background = {
+      type: "gradient" as const,
+      color: "#38BDF8",
+      gradient: scheme.bg,
+    };
 
     return NextResponse.json({
       elements,

@@ -68,6 +68,7 @@ export default function CanvasElementView({
   onResizeStart,
 }: CanvasElementViewProps) {
   const textRef = useRef<HTMLDivElement>(null);
+  const isComposingRef = useRef(false);
 
   useEffect(() => {
     if (isEditing && textRef.current) {
@@ -83,6 +84,17 @@ export default function CanvasElementView({
   }, [isEditing]);
 
   const handleInput = useCallback(() => {
+    if (textRef.current && !isComposingRef.current) {
+      onTextChange(textRef.current.innerText);
+    }
+  }, [onTextChange]);
+
+  const handleCompositionStart = useCallback(() => {
+    isComposingRef.current = true;
+  }, []);
+
+  const handleCompositionEnd = useCallback(() => {
+    isComposingRef.current = false;
     if (textRef.current) {
       onTextChange(textRef.current.innerText);
     }
@@ -126,6 +138,8 @@ export default function CanvasElementView({
             contentEditable={isEditing}
             suppressContentEditableWarning
             onInput={handleInput}
+            onCompositionStart={handleCompositionStart}
+            onCompositionEnd={handleCompositionEnd}
             onKeyDown={handleKeyDown}
             style={{
               width: "100%",
@@ -208,21 +222,29 @@ export default function CanvasElementView({
 
     if (element.type === "image" && element.imageUrl) {
       return (
-        <img
-          src={element.imageUrl}
-          alt=""
-          draggable={false}
+        <div
           style={{
             width: "100%",
             height: "100%",
-            objectFit: element.objectFit ?? "cover",
             borderRadius: element.borderRadius ? `${element.borderRadius}px` : undefined,
-            opacity: element.opacity ?? 1,
-            display: "block",
-            pointerEvents: "none",
-            userSelect: "none",
+            border: element.borderWidth ? `${element.borderWidth}px solid ${element.borderColor || "transparent"}` : undefined,
+            overflow: "hidden",
           }}
-        />
+        >
+          <img
+            src={element.imageUrl}
+            alt=""
+            draggable={false}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: element.objectFit ?? "cover",
+              display: "block",
+              pointerEvents: "none",
+              userSelect: "none",
+            }}
+          />
+        </div>
       );
     }
 

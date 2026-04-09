@@ -37,12 +37,12 @@ export async function generateSlideImage(slide: SlideData): Promise<Buffer> {
 
   try {
     const page = await browser.newPage();
-    await page.setViewport({ width: 1080, height: 1080 });
+    await page.setViewport({ width: 1080, height: 1350 });
     await page.setContent(html, { waitUntil: "networkidle0" });
 
     const screenshot = await page.screenshot({
       type: "png",
-      clip: { x: 0, y: 0, width: 1080, height: 1080 },
+      clip: { x: 0, y: 0, width: 1080, height: 1350 },
     });
 
     return Buffer.from(screenshot);

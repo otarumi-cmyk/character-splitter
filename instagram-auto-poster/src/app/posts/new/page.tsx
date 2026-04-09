@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import CanvasEditor, {
@@ -12,6 +12,7 @@ import AIGenerateModal from "@/components/editor/AIGenerateModal";
 import ScriptToPostModal from "@/components/editor/ScriptToPostModal";
 import TemplatePicker from "@/components/editor/TemplatePicker";
 import QuickPostModal from "@/components/editor/QuickPostModal";
+import IdeaPickerModal from "@/components/editor/IdeaPickerModal";
 import ElementPanel from "@/components/editor/ElementPanel";
 import LayersPanel from "@/components/editor/LayersPanel";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,8 @@ import {
   ChevronRight,
   Trash2,
   Layers,
+  Undo2,
+  Redo2,
 } from "lucide-react";
 
 interface SlideData {
@@ -61,6 +64,46 @@ export default function NewPostPage() {
   const [selectedElementIds, setSelectedElementIds] = useState<string[]>([]);
   const [showMetaPanel, setShowMetaPanel] = useState(false);
   const [showLayers, setShowLayers] = useState(true);
+
+  // Undo/Redo履歴
+  const undoStack = useRef<SlideCanvasData[]>([]);
+  const redoStack = useRef<SlideCanvasData[]>([]);
+  const isUndoRedoing = useRef(false);
+  const MAX_HISTORY = 50;
+
+  const handleUndo = useCallback(() => {
+    if (undoStack.current.length === 0) return;
+    const prev = undoStack.current.pop()!;
+    redoStack.current.push(JSON.parse(JSON.stringify(slides[currentSlideIndex].canvas)));
+    isUndoRedoing.current = true;
+    setSlides((s) => s.map((sl, i) => (i === currentSlideIndex ? { ...sl, canvas: prev } : sl)));
+    isUndoRedoing.current = false;
+  }, [currentSlideIndex, slides]);
+
+  const handleRedo = useCallback(() => {
+    if (redoStack.current.length === 0) return;
+    const next = redoStack.current.pop()!;
+    undoStack.current.push(JSON.parse(JSON.stringify(slides[currentSlideIndex].canvas)));
+    isUndoRedoing.current = true;
+    setSlides((s) => s.map((sl, i) => (i === currentSlideIndex ? { ...sl, canvas: next } : sl)));
+    isUndoRedoing.current = false;
+  }, [currentSlideIndex, slides]);
+
+  // Cmd+Z / Cmd+Shift+Z キーボードショートカット
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey)) return;
+      if (e.key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        handleUndo();
+      } else if ((e.key === "z" && e.shiftKey) || e.key === "y") {
+        e.preventDefault();
+        handleRedo();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [handleUndo, handleRedo]);
 
   // テストシナリオからの読み込み
   useEffect(() => {
@@ -101,9 +144,22 @@ export default function NewPostPage() {
 
   const handleCanvasChange = useCallback(
     (data: SlideCanvasData) => {
-      setSlides((prev) =>
-        prev.map((s, i) => (i === currentSlideIndex ? { ...s, canvas: data } : s))
-      );
+      if (!isUndoRedoing.current) {
+        // 現在の状態をundo履歴に保存
+        setSlides((prev) => {
+          const current = prev[currentSlideIndex]?.canvas;
+          if (current) {
+            undoStack.current.push(JSON.parse(JSON.stringify(current)));
+            if (undoStack.current.length > MAX_HISTORY) undoStack.current.shift();
+            redoStack.current = []; // 新しい変更でredo履歴をクリア
+          }
+          return prev.map((s, i) => (i === currentSlideIndex ? { ...s, canvas: data } : s));
+        });
+      } else {
+        setSlides((prev) =>
+          prev.map((s, i) => (i === currentSlideIndex ? { ...s, canvas: data } : s))
+        );
+      }
     },
     [currentSlideIndex]
   );
@@ -396,6 +452,29 @@ export default function NewPostPage() {
     []
   );
 
+  // ネタ収集からテーマ選択 → theme-to-slidesで自動生成
+  const handleIdeaSelect = useCallback(async (theme: string) => {
+    toast.info(`「${theme}」でスライド生成中...`);
+    try {
+      const res = await fetch("/api/theme-to-slides", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ theme, brandName: "よりそい就活" }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "生成失敗");
+      if (data.slides && data.slides.length > 0) {
+        handleScriptGenerateWithResults(
+          data.slides,
+          data.suggestedHashtags || [],
+          data.suggestedCaption || "",
+        );
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "生成に失敗しました");
+    }
+  }, [handleScriptGenerateWithResults]);
+
   const selectedElement = selectedElementId
     ? currentSlide.canvas.elements.find((e) => e.id === selectedElementId) || null
     : null;
@@ -521,6 +600,28 @@ export default function NewPostPage() {
             <ChevronLeft className="size-4" />
             戻る
           </Button>
+          <div className="flex items-center gap-0.5 border rounded-md">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleUndo}
+              disabled={undoStack.current.length === 0}
+              title="元に戻す (⌘Z)"
+              className="px-2"
+            >
+              <Undo2 className="size-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRedo}
+              disabled={redoStack.current.length === 0}
+              title="やり直し (⌘⇧Z)"
+              className="px-2"
+            >
+              <Redo2 className="size-4" />
+            </Button>
+          </div>
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -529,6 +630,7 @@ export default function NewPostPage() {
           />
         </div>
         <div className="flex items-center gap-2">
+          <IdeaPickerModal onSelectTheme={handleIdeaSelect} />
           <ScriptToPostModal onGenerateAll={handleScriptGenerate} onGenerateAllWithResults={handleScriptGenerateWithResults} />
           <QuickPostModal onGenerate={handleQuickGenerate} />
           <AIGenerateModal onGenerate={handleAIGenerate} />
@@ -645,92 +747,93 @@ export default function NewPostPage() {
             </>
           )}
 
-          {/* Slide Strip */}
-          <div className="border-t bg-white p-3 shrink-0">
-            <div className="flex items-center gap-2 overflow-x-auto">
-              {slides.map((slide, index) => (
-                <button
-                  key={slide.id}
-                  onClick={() => {
-                    setCurrentSlideIndex(index);
-                    setSelectedElementId(null);
-                  }}
-                  className={`relative shrink-0 w-[80px] h-[80px] rounded border-2 transition-all ${
-                    index === currentSlideIndex
-                      ? "border-blue-500 shadow-md"
-                      : "border-gray-200 hover:border-gray-400"
-                  }`}
-                >
-                  {/* Mini preview */}
-                  <div
-                    className="w-full h-full rounded overflow-hidden"
-                    style={{
-                      background:
-                        slide.canvas.background.type === "gradient"
-                          ? slide.canvas.background.gradient
-                          : slide.canvas.background.type === "image"
-                          ? `url(${slide.canvas.background.imageUrl}) center/cover`
-                          : slide.canvas.background.color || "#ffffff",
-                    }}
-                  >
-                    <div className="flex items-center justify-center h-full">
-                      <span className="text-[10px] font-bold text-white drop-shadow-md">
-                        {index + 1}
-                      </span>
-                    </div>
-                  </div>
-                  {slides.length > 1 && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeSlide(index);
-                      }}
-                      className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[8px] hover:bg-red-600"
-                    >
-                      <Trash2 className="size-2.5" />
-                    </button>
-                  )}
-                </button>
-              ))}
-              <button
-                onClick={addSlide}
-                className="shrink-0 w-[80px] h-[80px] rounded border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-gray-400 hover:bg-gray-50 transition-all"
+        </div>
+      </div>
+
+      {/* Slide Strip — 画面下部に固定 */}
+      <div className="border-t bg-white px-3 py-2 shrink-0">
+        <div className="flex items-center gap-2 overflow-x-auto">
+          {slides.map((slide, index) => (
+            <div
+              key={slide.id}
+              onClick={() => {
+                setCurrentSlideIndex(index);
+                setSelectedElementId(null);
+              }}
+              className={`relative shrink-0 w-[80px] h-[100px] rounded border-2 transition-all cursor-pointer ${
+                index === currentSlideIndex
+                  ? "border-blue-500 shadow-md"
+                  : "border-gray-200 hover:border-gray-400"
+              }`}
+            >
+              {/* Mini preview */}
+              <div
+                className="w-full h-full rounded overflow-hidden"
+                style={{
+                  background:
+                    slide.canvas.background.type === "gradient"
+                      ? slide.canvas.background.gradient
+                      : slide.canvas.background.type === "image"
+                      ? `url(${slide.canvas.background.imageUrl}) center/cover`
+                      : slide.canvas.background.color || "#ffffff",
+                }}
               >
-                <Plus className="size-5 text-gray-400" />
-              </button>
-              {slides.length > 1 && (
-                <div className="flex items-center gap-1 ml-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() =>
-                      setCurrentSlideIndex(Math.max(0, currentSlideIndex - 1))
-                    }
-                    disabled={currentSlideIndex === 0}
-                    className="h-8 w-8"
-                  >
-                    <ChevronLeft className="size-4" />
-                  </Button>
-                  <span className="text-xs text-muted-foreground min-w-[40px] text-center">
-                    {currentSlideIndex + 1}/{slides.length}
+                <div className="flex items-center justify-center h-full">
+                  <span className="text-[10px] font-bold text-white drop-shadow-md">
+                    {index + 1}
                   </span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() =>
-                      setCurrentSlideIndex(
-                        Math.min(slides.length - 1, currentSlideIndex + 1)
-                      )
-                    }
-                    disabled={currentSlideIndex === slides.length - 1}
-                    className="h-8 w-8"
-                  >
-                    <ChevronRight className="size-4" />
-                  </Button>
                 </div>
+              </div>
+              {slides.length > 1 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeSlide(index);
+                  }}
+                  className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[8px] hover:bg-red-600"
+                >
+                  <Trash2 className="size-2.5" />
+                </button>
               )}
             </div>
-          </div>
+          ))}
+          <button
+            onClick={addSlide}
+            className="shrink-0 w-[80px] h-[100px] rounded border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-gray-400 hover:bg-gray-50 transition-all"
+          >
+            <Plus className="size-5 text-gray-400" />
+          </button>
+          {slides.length > 1 && (
+            <div className="flex items-center gap-1 ml-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() =>
+                  setCurrentSlideIndex(Math.max(0, currentSlideIndex - 1))
+                }
+                disabled={currentSlideIndex === 0}
+                className="h-8 w-8"
+              >
+                <ChevronLeft className="size-4" />
+              </Button>
+              <span className="text-xs text-muted-foreground min-w-[40px] text-center">
+                {currentSlideIndex + 1}/{slides.length}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() =>
+                  setCurrentSlideIndex(
+                    Math.min(slides.length - 1, currentSlideIndex + 1)
+                  )
+                }
+                disabled={currentSlideIndex === slides.length - 1}
+                className="h-8 w-8"
+              >
+                <ChevronRight className="size-4" />
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>

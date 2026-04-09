@@ -179,7 +179,7 @@ export default function SlideEditor({ slide, onChange }: SlideEditorProps) {
             size={480}
           />
           <div className="text-xs text-muted-foreground">
-            1080 x 1080px
+            1080 x 1350px
           </div>
         </div>
       </div>

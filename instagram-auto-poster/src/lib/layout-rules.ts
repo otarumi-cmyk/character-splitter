@@ -16,7 +16,8 @@ type El = any;
 // Canvas & Grid
 // ===========================================
 export const CANVAS = {
-  size: 1080,
+  width: 1080,
+  height: 1350,
   padding: 40,
 } as const;
 
@@ -25,9 +26,9 @@ export const CANVAS = {
 // ===========================================
 export const CARD = {
   x: 40,
-  y: 60,
+  y: 111,
   width: 1000,
-  height: 850,
+  height: 1002,
   borderRadius: 24,
   padding: 40,
   get contentX() { return this.x + this.padding; },
@@ -41,17 +42,17 @@ export const CARD = {
 // Bottom Area (マスコット＋吹き出し)
 // ===========================================
 export const BOTTOM = {
-  y: 920,
-  height: 160,
-  bubble: { x: 80, y: 930, width: 660, height: 100, borderRadius: 20 },
-  mascot: { x: 820, y: 910, size: 140 },
+  y: 1120,
+  height: 230,
+  bubble: { x: 56, y: 1160, width: 660, height: 100, borderRadius: 20 },
+  mascot: { x: 700, y: 878, size: 470 },
 } as const;
 
 // ===========================================
 // Brand Header
 // ===========================================
 export const BRAND = {
-  x: 240, y: 15, width: 600, height: 48, fontSize: 36,
+  x: 240, y: 34, width: 600, height: 48, fontSize: 36,
 } as const;
 
 // ===========================================
@@ -228,7 +229,7 @@ export function normalizeLayout(elements: El[]): El[] {
   const shapes = result.filter(
     (e: El) =>
       e.type === "shape" &&
-      e.width * e.height < 1080 * 1080 * 0.5, // カード全体をスキップ
+      e.width * e.height < CANVAS.width * CANVAS.height * 0.5, // カード全体をスキップ
   );
 
   // Step 2: 各textについて、所属するshapeを特定
@@ -320,8 +321,8 @@ export function normalizeLayout(elements: El[]): El[] {
     // はみ出し防止
     if (el.x < 0) el.x = 0;
     if (el.y < 0) el.y = 0;
-    if (el.x + el.width > 1080) el.width = 1080 - el.x;
-    if (el.y + el.height > 1080) el.height = 1080 - el.y;
+    if (el.x + el.width > CANVAS.width) el.width = CANVAS.width - el.x;
+    if (el.y + el.height > CANVAS.height) el.height = CANVAS.height - el.y;
 
     // デフォルト値
     if (!el.rotation) el.rotation = 0;
@@ -361,11 +362,11 @@ Example: shape at {x:80, y:100, w:920, h:64}
 → text at {x:136, y:108, w:808, h:48} with fontSize ≤ floor(48/1.3) = 36
 
 ### 1. GRID & MARGINS
-- Canvas: 1080x1080px
+- Canvas: 1080x1350px (4:5 aspect ratio)
 - ALL coordinates: multiples of 8
-- White card: x=40, y=60, w=1000, h=850, borderRadius=24
-- Card inner padding: 40px → content at x=80, y=100, w=920
-- Content never below y=870
+- White card: x=40, y=111, w=1000, h=1002, borderRadius=24
+- Card inner padding: 40px → content at x=80, y=151, w=920
+- Content never below y=1113
 
 ### 2. CENTERING
 - Full-width centered: x=80, w=920, textAlign="center"
@@ -392,10 +393,11 @@ Example: shape at {x:80, y:100, w:920, h:64}
 - fontWeight: ONLY "bold" or "normal"
 - fontFamily: always "Noto Sans JP"
 
-### 5. BOTTOM AREA
-- Bubble: x=80, y=930, w=660, h=100
+### 5. BRAND & BOTTOM AREA
+- Brand text: x=240, y=34, w=600, h=48, centered, white, bold
+- Bubble: x=56, y=1160, w=660, h=100
 - Bubble text: centered within bubble
-- Mascot: x=820, y=910, w=140, h=140, opacity=0.3
+- Mascot image: x=700, y=878, w=470, h=470
 
 ### 6. Z-INDEX
 - z=1: card bg, z=2: shapes, z=3: text, z=4: overlay text, z=5: emphasis, z=10: brand
@@ -444,15 +446,11 @@ export function makeBubble(text: string, idPrefix = "bbl") {
       { h: 20, v: 24 },
     ),
     {
-      id: `${idPrefix}_mascot`, type: "shape",
+      id: `${idPrefix}_mascot`, type: "image",
       x: BOTTOM.mascot.x, y: BOTTOM.mascot.y,
       width: BOTTOM.mascot.size, height: BOTTOM.mascot.size,
-      rotation: 0, zIndex: 2, opacity: 0.3,
-      shapeType: "circle",
-      backgroundColor: COLOR.white,
-      borderColor: COLOR.teal,
-      borderWidth: 3,
-      borderRadius: BOTTOM.mascot.size / 2,
+      rotation: 0, zIndex: 2, opacity: 1,
+      imageUrl: "/uploads/mascot.png",
     },
   ];
 }
@@ -469,8 +467,9 @@ export function makeBanner(text: string, y: number, id = "banner") {
 
 /** ティールヘッダー — textInBoxで中央配置保証 */
 export function makeHeader(title: string, pageLabel?: string, id = "hdr") {
+  const hdrY = CARD.contentY;
   const elements: El[] = textInBox(
-    { x: 80, y: 100, width: 920, height: 84, bg: COLOR.teal, borderRadius: 12 },
+    { x: 80, y: hdrY, width: 920, height: 84, bg: COLOR.teal, borderRadius: 12 },
     { text: title, fontSize: 40, fontWeight: "bold", color: COLOR.white, textAlign: "left", lineHeight: 1.3 },
     { box: `${id}_bg`, text: `${id}_txt` },
     { top: 10, right: 80, bottom: 10, left: 32 },
@@ -479,7 +478,7 @@ export function makeHeader(title: string, pageLabel?: string, id = "hdr") {
   if (pageLabel) {
     elements.push(
       ...textInBox(
-        { x: 900, y: 116, width: 56, height: 48, bg: COLOR.white, borderRadius: 24, zIndex: 3 },
+        { x: 900, y: hdrY + 16, width: 56, height: 48, bg: COLOR.white, borderRadius: 24, zIndex: 3 },
         { text: pageLabel, fontSize: 18, fontWeight: "bold", color: COLOR.teal, textAlign: "center", lineHeight: 1.2 },
         { box: `${id}_badge_bg`, text: `${id}_badge_txt` },
         4,

@@ -27,7 +27,8 @@ interface CanvasEditorProps {
   onSelectElements?: (ids: string[]) => void;
 }
 
-const CANVAS_SIZE = 1080;
+const CANVAS_W = 1080;
+const CANVAS_H = 1350;
 const SNAP_THRESHOLD = 6; // px in canvas coords
 
 interface SnapGuide {
@@ -39,7 +40,8 @@ interface SnapGuide {
 function computeSnap(
   movingRect: { x: number; y: number; width: number; height: number },
   otherElements: CanvasElement[],
-  canvasSize: number,
+  canvasW: number,
+  canvasH: number = canvasW,
 ): { snappedX: number; snappedY: number; guides: SnapGuide[] } {
   const mx = movingRect.x;
   const my = movingRect.y;
@@ -51,8 +53,8 @@ function computeSnap(
   const mB = my + mh;
 
   // Collect all snap targets: [position, label]
-  const vTargets: number[] = [0, canvasSize / 2, canvasSize]; // canvas left, center, right
-  const hTargets: number[] = [0, canvasSize / 2, canvasSize]; // canvas top, center, bottom
+  const vTargets: number[] = [0, canvasW / 2, canvasW]; // canvas left, center, right
+  const hTargets: number[] = [0, canvasH / 2, canvasH]; // canvas top, center, bottom
 
   for (const el of otherElements) {
     vTargets.push(el.x, el.x + el.width / 2, el.x + el.width);
@@ -126,15 +128,19 @@ export default function CanvasEditor({
       const rect = wrapperRef.current.getBoundingClientRect();
       const maxW = rect.width - 48;
       const maxH = rect.height - 48;
-      const size = Math.min(maxW, maxH, 800);
-      setDisplaySize(Math.max(300, size));
+      // Fit by width, but also check height constraint
+      const fitW = Math.min(maxW, 800);
+      const fitH = maxH / (CANVAS_H / CANVAS_W);
+      const size = Math.max(300, Math.min(fitW, fitH));
+      setDisplaySize(size);
     };
     updateSize();
     window.addEventListener("resize", updateSize);
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
-  const scale = displaySize / CANVAS_SIZE;
+  const scale = displaySize / CANVAS_W;
+  const displayHeight = displaySize * (CANVAS_H / CANVAS_W);
 
   const dragStateRef = useRef<{
     type: "move" | "resize";
@@ -269,7 +275,7 @@ export default function CanvasEditor({
         const otherEls = currentData.elements.filter((e) => !state.multiOrig!.some((o) => o.id === e.id));
         const { snappedX, snappedY, guides } = computeSnap(
           { x: rawX, y: rawY, width: primaryEl.width, height: primaryEl.height },
-          otherEls, CANVAS_SIZE,
+          otherEls, CANVAS_W, CANVAS_H,
         );
         setSnapGuides(guides);
         const snapDx = snappedX - primaryOrig.x;
@@ -292,7 +298,7 @@ export default function CanvasEditor({
           const otherEls = currentData.elements.filter((e) => e.id !== el.id);
           const { snappedX, snappedY, guides } = computeSnap(
             { x: rawX, y: rawY, width: el.width, height: el.height },
-            otherEls, CANVAS_SIZE,
+            otherEls, CANVAS_W, CANVAS_H,
           );
           setSnapGuides(guides);
           return { ...el, x: snappedX, y: snappedY };
@@ -522,7 +528,7 @@ export default function CanvasEditor({
       <div
         style={{
           width: `${displaySize}px`,
-          height: `${displaySize}px`,
+          height: `${displayHeight}px`,
           overflow: "hidden",
           borderRadius: "8px",
           boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
@@ -534,8 +540,8 @@ export default function CanvasEditor({
         <div
           ref={canvasRef}
           style={{
-            width: `${CANVAS_SIZE}px`,
-            height: `${CANVAS_SIZE}px`,
+            width: `${CANVAS_W}px`,
+            height: `${CANVAS_H}px`,
             transform: `scale(${scale})`,
             transformOrigin: "top left",
             position: "relative",
@@ -569,7 +575,7 @@ export default function CanvasEditor({
                   left: `${g.pos}px`,
                   top: 0,
                   width: "1px",
-                  height: `${CANVAS_SIZE}px`,
+                  height: `${CANVAS_H}px`,
                   backgroundColor: "#f43f5e",
                   opacity: 0.7,
                   pointerEvents: "none",
@@ -584,7 +590,7 @@ export default function CanvasEditor({
                   top: `${g.pos}px`,
                   left: 0,
                   height: "1px",
-                  width: `${CANVAS_SIZE}px`,
+                  width: `${CANVAS_W}px`,
                   backgroundColor: "#f43f5e",
                   opacity: 0.7,
                   pointerEvents: "none",

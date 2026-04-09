@@ -35,6 +35,14 @@ export default function TestAbabaPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  // 起動時に壊れたlocalStorageデータを全クリア
+  useEffect(() => {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith("test-ababa-")) localStorage.removeItem(k);
+    }
+  }, []);
+
   const loadScenario = useCallback(async (id: number) => {
     setLoading(true);
     try {
@@ -44,6 +52,9 @@ export default function TestAbabaPage() {
         body: JSON.stringify({ scenarioId: id }),
       });
       const result = await res.json();
+      if (result.scenarios) setScenarios(result.scenarios);
+      if (result.scenario) setCurrentScenario(result.scenario);
+
       setData({
         elements: result.elements.map((el: Record<string, unknown>, i: number) => ({
           ...el,
@@ -58,8 +69,6 @@ export default function TestAbabaPage() {
           gradient: result.background.gradient,
         },
       });
-      if (result.scenarios) setScenarios(result.scenarios);
-      if (result.scenario) setCurrentScenario(result.scenario);
     } finally {
       setLoading(false);
     }
@@ -177,13 +186,48 @@ export default function TestAbabaPage() {
             >
               テンプレ保存
             </button>
+            <button
+              onClick={async () => {
+                if (!confirm("全21テンプレートをDBに一括登録しますか？")) return;
+                const res = await fetch("/api/seed-templates", { method: "POST" });
+                if (res.ok) {
+                  const d = await res.json();
+                  alert(`${d.count}件のテンプレートを登録しました！\n台本入力で自動生成が可能になりました。`);
+                } else {
+                  const d = await res.json().catch(() => ({}));
+                  alert("一括保存に失敗: " + (d.error || "不明なエラー"));
+                }
+              }}
+              className="px-3 py-1.5 rounded bg-orange-500 text-white text-sm font-bold hover:bg-orange-600"
+            >
+              全テンプレ一括DB登録
+            </button>
+          </div>
+          {/* 座標コピーボタン */}
+          <div className="ml-4">
+            <button
+              onClick={() => {
+                if (!data) return;
+                const coords = data.elements.map(el => ({
+                  id: el.id,
+                  x: el.x, y: el.y, width: el.width, height: el.height,
+                  text: el.type === "text" ? (el as unknown as Record<string, unknown>).text : undefined,
+                }));
+                const json = JSON.stringify(coords, null, 2);
+                navigator.clipboard.writeText(json);
+                alert("全要素の座標をクリップボードにコピーしました！");
+              }}
+              className="px-3 py-1.5 rounded bg-violet-500 text-white text-sm font-bold hover:bg-violet-600"
+            >
+              座標コピー
+            </button>
           </div>
         </div>
 
         {/* Canvas */}
         {data ? (
           <div className="flex gap-6">
-            <div style={{ width: 540, height: 540 }} className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div style={{ width: 540, height: 675 }} className="bg-white rounded-xl shadow-lg overflow-hidden">
               <CanvasEditor
                 data={data}
                 onChange={setData}
