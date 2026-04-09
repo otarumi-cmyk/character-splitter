@@ -43,10 +43,10 @@ async function searchAndScrape(theme: string): Promise<string> {
     const allSnippets: string[] = [];
     const allLinks: string[] = [];
 
-    // Bing JP検索（1回のみ、連続アクセスでCAPTCHA出るため）
+    // Yahoo! Japan検索（常に日本語結果、bot検知されにくい）
     try {
       const searchPage = await context.newPage();
-      await searchPage.goto(`https://www.bing.com/search?q=${encodeURIComponent(query)}&setlang=ja&cc=JP&mkt=ja-JP`, {
+      await searchPage.goto(`https://search.yahoo.co.jp/search?p=${encodeURIComponent(query)}`, {
         waitUntil: "domcontentloaded",
         timeout: 15000,
       });
@@ -54,14 +54,16 @@ async function searchAndScrape(theme: string): Promise<string> {
 
       const results = await searchPage.evaluate(() => {
         const items: { title: string; snippet: string; url: string }[] = [];
-        document.querySelectorAll(".b_algo").forEach((el) => {
-          const h2 = el.querySelector("h2");
-          const title = h2?.textContent?.trim() || "";
-          const link = (h2?.querySelector("a") as HTMLAnchorElement)?.href || "";
-          const snippet = el.querySelector(".b_caption p")?.textContent?.trim()
-            || el.querySelector("p")?.textContent?.trim() || "";
-          if (title && snippet) {
-            items.push({ title, snippet, url: link });
+        // Yahoo検索結果のカード要素
+        document.querySelectorAll(".sw-CardBase").forEach((el) => {
+          const titleEl = el.querySelector("h3") || el.querySelector("a");
+          const title = titleEl?.textContent?.trim() || "";
+          const snippet = el.querySelector(".sw-CardBase__description, p")?.textContent?.trim() || "";
+          const anchor = el.querySelector("a") as HTMLAnchorElement | null;
+          const url = anchor?.href || "";
+          // ガイドラインやAI回答などのノイズを除外
+          if (title.length > 8 && snippet.length > 20 && !title.includes("ガイドライン")) {
+            items.push({ title, snippet, url });
           }
         });
         return items.slice(0, 10);
@@ -69,12 +71,13 @@ async function searchAndScrape(theme: string): Promise<string> {
 
       for (const r of results) {
         allSnippets.push(`【${r.title}】\n${r.snippet}`);
+        // Yahoo検索のURLはリダイレクト経由なのでそのまま追加
         if (r.url && r.url.startsWith("http")) allLinks.push(r.url);
       }
       await searchPage.close();
-      console.log(`[search] Bing: ${results.length}件のスニペット取得`);
+      console.log(`[search] Yahoo: ${results.length}件のスニペット取得`);
     } catch (e) {
-      console.error("[search] Bing検索失敗:", e);
+      console.error("[search] Yahoo検索失敗:", e);
     }
 
     // 重複URLを除去して上位5件のページ本文を取得
@@ -126,7 +129,7 @@ async function searchAndScrape(theme: string): Promise<string> {
 
     const allContent = [
       `=== 検索クエリ: ${query} ===`,
-      `=== Bing検索結果 (${uniqueSnippets.length}件) ===`,
+      `=== Yahoo検索結果 (${uniqueSnippets.length}件) ===`,
       ...uniqueSnippets,
       `=== 詳細ページ内容 (${pageTexts.length}件) ===`,
       ...pageTexts,
