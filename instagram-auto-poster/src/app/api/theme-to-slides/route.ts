@@ -11,9 +11,8 @@ async function getOpenAIClient(): Promise<OpenAI> {
   return new OpenAI({ apiKey });
 }
 
-// Playwrightでテーマに関する情報を複数クエリ・複数ページから収集
+// DuckDuckGoでテーマに関する情報を複数クエリ・複数ページから収集
 async function searchAndScrape(theme: string): Promise<string> {
-  // テーマからコアキーワードを抽出（長すぎると検索結果0件になる）
   const coreTheme = theme.replace(/[0-9０-９]+つの(こと|秘訣|ポイント|方法|理由)/g, "").trim();
   const shortTheme = coreTheme.length > 20 ? coreTheme.slice(0, 20) : coreTheme;
   const queries = [
@@ -26,61 +25,42 @@ async function searchAndScrape(theme: string): Promise<string> {
     browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({
       userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      locale: "ja-JP",
+      extraHTTPHeaders: { "Accept-Language": "ja,ja-JP;q=0.9" },
     });
 
     const allSnippets: string[] = [];
     const allLinks: string[] = [];
 
-    // 複数クエリで検索
+    // Bing JP検索（Google/DuckDuckGoはbot検知されるため）
     for (const query of queries) {
       try {
         const page = await context.newPage();
-        await page.goto(`https://www.google.com/search?q=${encodeURIComponent(query)}&hl=ja&num=10`, {
+        await page.goto(`https://www.bing.com/search?q=${encodeURIComponent(query)}&setlang=ja&cc=JP&mkt=ja-JP`, {
           waitUntil: "domcontentloaded",
           timeout: 15000,
         });
+        await page.waitForTimeout(1500);
 
-        // 検索結果のスニペットを取得（複数セレクタで網羅的に）
-        const snippets = await page.evaluate(() => {
-          const results: string[] = [];
-          // 標準の検索結果
-          document.querySelectorAll("div.g, div[data-sokoban-container], div[data-hveid]").forEach((el) => {
-            const title = el.querySelector("h3")?.textContent?.trim() || "";
-            const snippet = el.querySelector("div[data-sncf], span[style*='line-clamp'], div.VwiC3b, div[style*='-webkit-line-clamp']")?.textContent?.trim()
-              || el.querySelector("span.aCOpRe, span.st, div.IsZvec")?.textContent?.trim()
-              || "";
+        const results = await page.evaluate(() => {
+          const items: { title: string; snippet: string; url: string }[] = [];
+          document.querySelectorAll(".b_algo").forEach((el) => {
+            const h2 = el.querySelector("h2");
+            const title = h2?.textContent?.trim() || "";
+            const link = (h2?.querySelector("a") as HTMLAnchorElement)?.href || "";
+            const snippet = el.querySelector(".b_caption p")?.textContent?.trim()
+              || el.querySelector("p")?.textContent?.trim() || "";
             if (title && snippet) {
-              results.push(`【${title}】\n${snippet}`);
+              items.push({ title, snippet, url: link });
             }
           });
-          // フィーチャードスニペット
-          const featured = document.querySelector("div.xpdopen, div[data-attrid], div.IZ6rdc");
-          if (featured) {
-            const text = featured.textContent?.trim();
-            if (text && text.length > 50) {
-              results.unshift(`【ハイライト】\n${text.slice(0, 800)}`);
-            }
-          }
-          // フォールバック: h3があるブロックから直接取得
-          if (results.length === 0) {
-            document.querySelectorAll("h3").forEach((h3) => {
-              const parent = h3.closest("div");
-              if (parent) {
-                const text = parent.textContent?.trim() || "";
-                if (text.length > 30) results.push(text.slice(0, 500));
-              }
-            });
-          }
-          return results.slice(0, 8);
+          return items.slice(0, 8);
         });
-        allSnippets.push(...snippets);
 
-        // リンク収集
-        const links = await page.evaluate(() => {
-          const anchors = document.querySelectorAll("div.g a[href^='http']");
-          return Array.from(anchors).slice(0, 4).map((a) => (a as HTMLAnchorElement).href);
-        });
-        allLinks.push(...links);
+        for (const r of results) {
+          allSnippets.push(`【${r.title}】\n${r.snippet}`);
+          if (r.url && r.url.startsWith("http")) allLinks.push(r.url);
+        }
         await page.close();
       } catch {
         // クエリ失敗はスキップ
@@ -100,7 +80,6 @@ async function searchAndScrape(theme: string): Promise<string> {
           const target = article || document.body;
           const clone = target.cloneNode(true) as Element;
           clone.querySelectorAll("script, style, nav, header, footer, aside, .ad, .sidebar, .related").forEach((el) => el.remove());
-          // テーブルデータも構造的に取得
           const tables: string[] = [];
           clone.querySelectorAll("table").forEach((table) => {
             const rows: string[] = [];
@@ -110,7 +89,6 @@ async function searchAndScrape(theme: string): Promise<string> {
             });
             if (rows.length > 1) tables.push(rows.join("\n"));
           });
-          // リストデータも取得
           const lists: string[] = [];
           clone.querySelectorAll("ol, ul").forEach((list) => {
             const items = Array.from(list.querySelectorAll("li")).map((li) => li.textContent?.trim() || "");
@@ -134,12 +112,11 @@ async function searchAndScrape(theme: string): Promise<string> {
 
     await browser.close();
 
-    // 重複スニペット除去
     const uniqueSnippets = [...new Set(allSnippets)];
 
     const allContent = [
       `=== 検索クエリ: ${queries.join(" / ")} ===`,
-      `=== Google検索スニペット (${uniqueSnippets.length}件) ===`,
+      `=== Bing検索結果 (${uniqueSnippets.length}件) ===`,
       ...uniqueSnippets,
       `=== 詳細ページ内容 (${pageTexts.length}件) ===`,
       ...pageTexts,
