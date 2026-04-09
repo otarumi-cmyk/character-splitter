@@ -35,13 +35,13 @@ const MOCK_COVER_ELEMENTS: El[] = [
   makeBrand("よりそい就活"),
   makeCard(),
 
-  // Red banner — textInBox で自動中央配置
-  ...makeBanner("就活生必見！プロが教える", 104),
+  // Red banner — textInBox で自動中央配置（ユーザー手動調整確定座標）
+  ...makeBanner("就活生必見！プロが教える", 208),
 
   // Hero title
   {
     id: "cv_title1", type: "text",
-    x: 80, y: 232, width: 920, height: 120,
+    x: 80, y: 359, width: 920, height: 120,
     rotation: 0, zIndex: 4, opacity: 1,
     text: "転職成功の",
     fontSize: TYPO.hero.fontSize, fontFamily: "Noto Sans JP", fontWeight: TYPO.hero.fontWeight,
@@ -51,7 +51,7 @@ const MOCK_COVER_ELEMENTS: El[] = [
   // Impact number "5"
   {
     id: "cv_num", type: "text",
-    x: centerX(640), y: 360, width: 280, height: 200,
+    x: 170, y: 487, width: 280, height: 200,
     rotation: 0, zIndex: 5, opacity: 1,
     text: "5",
     fontSize: TYPO.heroNumber.fontSize, fontFamily: "Noto Sans JP", fontWeight: TYPO.heroNumber.fontWeight,
@@ -61,7 +61,7 @@ const MOCK_COVER_ELEMENTS: El[] = [
   // "つの秘訣"
   {
     id: "cv_title2", type: "text",
-    x: centerX(640) + 280, y: 400, width: 500, height: 160,
+    x: 395, y: 527, width: 500, height: 160,
     rotation: 0, zIndex: 5, opacity: 1,
     text: "つの秘訣",
     fontSize: TYPO.hero.fontSize, fontFamily: "Noto Sans JP", fontWeight: TYPO.hero.fontWeight,
@@ -71,7 +71,7 @@ const MOCK_COVER_ELEMENTS: El[] = [
   // 装飾線
   {
     id: "cv_line", type: "shape",
-    x: centerX(600), y: 568, width: 600, height: 4,
+    x: centerX(600), y: 698, width: 600, height: 4,
     rotation: 0, zIndex: 3, opacity: 0.3,
     shapeType: "rect", backgroundColor: COLOR.teal,
     borderColor: "transparent", borderWidth: 0, borderRadius: 2,
@@ -80,7 +80,7 @@ const MOCK_COVER_ELEMENTS: El[] = [
   // "〜 選 〜"
   {
     id: "cv_sen", type: "text",
-    x: 80, y: 588, width: 920, height: 80,
+    x: 80, y: 739, width: 920, height: 80,
     rotation: 0, zIndex: 4, opacity: 1,
     text: "〜 選 〜",
     fontSize: 62, fontFamily: "Noto Sans JP", fontWeight: "bold",
@@ -90,7 +90,7 @@ const MOCK_COVER_ELEMENTS: El[] = [
   // サブキャッチ
   {
     id: "cv_sub", type: "text",
-    x: 80, y: 680, width: 920, height: 56,
+    x: 80, y: 850, width: 920, height: 56,
     rotation: 0, zIndex: 4, opacity: 1,
     text: "これを読めば転職活動が変わる！",
     fontSize: 40, fontFamily: "Noto Sans JP", fontWeight: "bold",
@@ -98,7 +98,7 @@ const MOCK_COVER_ELEMENTS: El[] = [
   },
 
   // サブタイトルバー
-  ...makeSubtitleBar("知らないと損する転職テクニック完全ガイド", 784),
+  ...makeSubtitleBar("知らないと損する転職テクニック完全ガイド", 955),
 
   // 下部吹き出し
   ...makeBubble("保存して何度も見返してね！📌"),
@@ -142,11 +142,11 @@ const MOCK_LIST_ELEMENTS: El[] = [
   makeBrand("よりそい就活"),
   makeCard(),
   ...makeHeader("面接で聞かれるTOP5", "1/3"),
-  ...makeListItem(0, "01", "自己紹介をお願いします", 208, 128, false, "li1"),
-  ...makeListItem(1, "02", "志望動機を教えてください", 208, 128, true, "li2"),
-  ...makeListItem(2, "03", "長所と短所を教えてください", 208, 128, false, "li3"),
-  ...makeListItem(3, "04", "学生時代に力を入れたことは？", 208, 128, true, "li4"),
-  ...makeListItem(4, "05", "逆質問はありますか？", 208, 128, false, "li5"),
+  ...makeListItem(0, "01", "自己紹介をお願いします", 248, 128, false, "li1"),
+  ...makeListItem(1, "02", "志望動機を教えてください", 248, 128, true, "li2"),
+  ...makeListItem(2, "03", "長所と短所を教えてください", 248, 128, false, "li3"),
+  ...makeListItem(3, "04", "学生時代に力を入れたことは？", 248, 128, true, "li4"),
+  ...makeListItem(4, "05", "逆質問はありますか？", 248, 128, false, "li5"),
   ...makeBubble("面接対策はこれでバッチリ！💪"),
 ];
 
@@ -249,14 +249,14 @@ const MOCK_CHECKLIST_ELEMENTS: El[] = [
   makeBrand("よりそい就活"),
   makeCard(),
   ...makeHeader("転職前チェックリスト"),
-  ...makeCheckItem(0, "自己分析シートを作成した", true, 208, 80, "ck1"),
-  ...makeCheckItem(1, "希望条件を明確にした", true, 208, 80, "ck2"),
-  ...makeCheckItem(2, "職務経歴書を更新した", true, 208, 80, "ck3"),
-  ...makeCheckItem(3, "面接の想定Q&Aを準備した", true, 208, 80, "ck4"),
-  ...makeCheckItem(4, "転職エージェントに登録した", true, 208, 80, "ck5"),
-  ...makeCheckItem(5, "退職のタイミングを検討した", true, 208, 80, "ck6"),
-  ...makeCheckItem(6, "内定後の引き継ぎ計画を立てた", true, 208, 80, "ck7"),
-  ...makeCheckItem(7, "入社前に必要な書類を確認した", true, 208, 80, "ck8"),
+  ...makeCheckItem(0, "自己分析シートを作成した", true, 248, 80, "ck1"),
+  ...makeCheckItem(1, "希望条件を明確にした", true, 248, 80, "ck2"),
+  ...makeCheckItem(2, "職務経歴書を更新した", true, 248, 80, "ck3"),
+  ...makeCheckItem(3, "面接の想定Q&Aを準備した", true, 248, 80, "ck4"),
+  ...makeCheckItem(4, "転職エージェントに登録した", true, 248, 80, "ck5"),
+  ...makeCheckItem(5, "退職のタイミングを検討した", true, 248, 80, "ck6"),
+  ...makeCheckItem(6, "内定後の引き継ぎ計画を立てた", true, 248, 80, "ck7"),
+  ...makeCheckItem(7, "入社前に必要な書類を確認した", true, 248, 80, "ck8"),
   ...makeBubble("全部チェックできた？✅"),
 ];
 
@@ -543,12 +543,12 @@ const MOCK_RANKING_ELEMENTS: El[] = [
 
   ...makeHeader("受かりやすい大手企業30選", "1/5"),
 
-  ...makeRankItem(1, "楽天グループ", "EC・フィンテック — 平均年収780万円", 208, "rk1"),
-  ...makeRankItem(2, "サイバーエージェント", "広告・ゲーム・メディア — 平均年収800万円", 312, "rk2"),
-  ...makeRankItem(3, "DeNA", "ゲーム・ヘルスケア — 平均年収750万円", 416, "rk3"),
-  ...makeRankItem(4, "LINE（LINEヤフー）", "メッセンジャー・AI — 平均年収750万円", 520, "rk4"),
-  ...makeRankItem(5, "メルカリ", "フリマアプリ・フィンテック — 平均年収820万円", 624, "rk5"),
-  ...makeRankItem(6, "リクルート", "人材・メディア — 平均年収950万円", 728, "rk6"),
+  ...makeRankItem(1, "楽天グループ", "EC・フィンテック — 平均年収780万円", 248, "rk1"),
+  ...makeRankItem(2, "サイバーエージェント", "広告・ゲーム・メディア — 平均年収800万円", 352, "rk2"),
+  ...makeRankItem(3, "DeNA", "ゲーム・ヘルスケア — 平均年収750万円", 456, "rk3"),
+  ...makeRankItem(4, "LINE（LINEヤフー）", "メッセンジャー・AI — 平均年収750万円", 560, "rk4"),
+  ...makeRankItem(5, "メルカリ", "フリマアプリ・フィンテック — 平均年収820万円", 664, "rk5"),
+  ...makeRankItem(6, "リクルート", "人材・メディア — 平均年収950万円", 768, "rk6"),
 
   ...makeBubble("この企業リスト保存しておくワン！📌"),
 ];
@@ -576,12 +576,12 @@ const MOCK_LIST_GD: El[] = [
   makeBrand("よりそい就活"),
   makeCard(),
   ...makeHeader("GDで評価されるポイント6選", "1/2"),
-  ...makeListItem(0, "01", "論理的に意見を述べる", 208, 104, true, "gd1"),
-  ...makeListItem(1, "02", "他のメンバーの意見を引き出す", 208, 104, false, "gd2"),
-  ...makeListItem(2, "03", "時間配分を意識する", 208, 104, false, "gd3"),
-  ...makeListItem(3, "04", "反対意見も建設的に伝える", 208, 104, true, "gd4"),
-  ...makeListItem(4, "05", "最後に結論をまとめる", 208, 104, false, "gd5"),
-  ...makeListItem(5, "06", "全員が発言できる場を作る", 208, 104, false, "gd6"),
+  ...makeListItem(0, "01", "論理的に意見を述べる", 248, 104, true, "gd1"),
+  ...makeListItem(1, "02", "他のメンバーの意見を引き出す", 248, 104, false, "gd2"),
+  ...makeListItem(2, "03", "時間配分を意識する", 248, 104, false, "gd3"),
+  ...makeListItem(3, "04", "反対意見も建設的に伝える", 248, 104, true, "gd4"),
+  ...makeListItem(4, "05", "最後に結論をまとめる", 248, 104, false, "gd5"),
+  ...makeListItem(5, "06", "全員が発言できる場を作る", 248, 104, false, "gd6"),
   ...makeBubble("GDは協調性が一番大事だワン！🤝"),
 ];
 
@@ -608,14 +608,14 @@ const MOCK_CHECK_NAITEI: El[] = [
   makeBrand("よりそい就活"),
   makeCard(),
   ...makeHeader("内定承諾前チェックリスト"),
-  ...makeCheckItem(0, "年収・賞与・昇給制度を確認した", true, 208, 80, "nc1"),
-  ...makeCheckItem(1, "残業時間・休日数を調べた", true, 208, 80, "nc2"),
-  ...makeCheckItem(2, "配属先・勤務地を確認した", true, 208, 80, "nc3"),
-  ...makeCheckItem(3, "口コミサイトで社員の声を見た", true, 208, 80, "nc4"),
-  ...makeCheckItem(4, "OB/OG訪問で実態を聞いた", true, 208, 80, "nc5"),
-  ...makeCheckItem(5, "他社の内定と比較検討した", true, 208, 80, "nc6"),
-  ...makeCheckItem(6, "家族に相談した", true, 208, 80, "nc7"),
-  ...makeCheckItem(7, "入社後のキャリアパスを確認した", true, 208, 80, "nc8"),
+  ...makeCheckItem(0, "年収・賞与・昇給制度を確認した", true, 248, 80, "nc1"),
+  ...makeCheckItem(1, "残業時間・休日数を調べた", true, 248, 80, "nc2"),
+  ...makeCheckItem(2, "配属先・勤務地を確認した", true, 248, 80, "nc3"),
+  ...makeCheckItem(3, "口コミサイトで社員の声を見た", true, 248, 80, "nc4"),
+  ...makeCheckItem(4, "OB/OG訪問で実態を聞いた", true, 248, 80, "nc5"),
+  ...makeCheckItem(5, "他社の内定と比較検討した", true, 248, 80, "nc6"),
+  ...makeCheckItem(6, "家族に相談した", true, 248, 80, "nc7"),
+  ...makeCheckItem(7, "入社後のキャリアパスを確認した", true, 248, 80, "nc8"),
   ...makeBubble("承諾は慎重に！後悔しない選択をワン🐕"),
 ];
 
@@ -709,12 +709,12 @@ const MOCK_RANK_TOKYO: El[] = [
   makeBrand("よりそい就活"),
   makeCard(),
   ...makeHeader("東京勤務 高年収企業28選", "2/5"),
-  ...makeRankItem(1, "キーエンス", "精密機器 — 平均年収2,183万円", 208, "rt1"),
-  ...makeRankItem(2, "三菱商事", "総合商社 — 平均年収1,939万円", 312, "rt2"),
-  ...makeRankItem(3, "伊藤忠商事", "総合商社 — 平均年収1,730万円", 416, "rt3"),
-  ...makeRankItem(4, "三井物産", "総合商社 — 平均年収1,783万円", 520, "rt4"),
-  ...makeRankItem(5, "ゴールドマン・サックス", "外資金融 — 平均年収1,500万円", 624, "rt5"),
-  ...makeRankItem(6, "野村総合研究所", "ITコンサル — 平均年収1,271万円", 728, "rt6"),
+  ...makeRankItem(1, "キーエンス", "精密機器 — 平均年収2,183万円", 248, "rt1"),
+  ...makeRankItem(2, "三菱商事", "総合商社 — 平均年収1,939万円", 352, "rt2"),
+  ...makeRankItem(3, "伊藤忠商事", "総合商社 — 平均年収1,730万円", 456, "rt3"),
+  ...makeRankItem(4, "三井物産", "総合商社 — 平均年収1,783万円", 560, "rt4"),
+  ...makeRankItem(5, "ゴールドマン・サックス", "外資金融 — 平均年収1,500万円", 664, "rt5"),
+  ...makeRankItem(6, "野村総合研究所", "ITコンサル — 平均年収1,271万円", 768, "rt6"),
   ...makeBubble("高年収を目指すなら要チェックだワン！💰"),
 ];
 
@@ -774,6 +774,43 @@ const SCENARIOS: Scenario[] = [
 const SCENARIO_TC_NIJI: Scenario = { id: 21, name: "タブ型 — 二次面接のポイント", slideType: "tab-checklist", elements: MOCK_TC_NIJI };
 
 // =============================================
+// コンテンツを白カード内で適切に配置（間隔を広げて上寄り）
+// =============================================
+const STRUCTURAL_IDS = new Set(["brand", "card", "bbl_bg", "bbl_txt", "bbl_mascot"]);
+
+function spreadAndPosition(elements: El[]): El[] {
+  const contentEls = elements.filter((el: El) => !STRUCTURAL_IDS.has(el.id));
+  if (contentEls.length === 0) return elements;
+
+  const minY = Math.min(...contentEls.map((el: El) => Number(el.y)));
+  const maxY = Math.max(...contentEls.map((el: El) => Number(el.y) + Number(el.height || 0)));
+  const contentHeight = maxY - minY;
+
+  if (contentHeight < 1) return elements;
+
+  // CARD: y=111, h=1002, padding=40 → content area: y=151, h=922
+  const cardContentTop = 151;
+  const cardContentH = 922;
+
+  // カードの88%を使い切るように間隔を拡大（最大1.4倍）
+  const targetHeight = cardContentH * 0.88;
+  const scale = Math.max(1.0, Math.min(targetHeight / contentHeight, 1.4));
+
+  // 拡大後の実寸から上寄り配置（黄金比: 上38% / 下62%）
+  const scaledHeight = contentHeight * scale;
+  const remainingSpace = cardContentH - scaledHeight;
+  const topMargin = remainingSpace * 0.38;
+  const targetTop = cardContentTop + Math.max(topMargin, 8);
+
+  return elements.map((el: El) => {
+    if (STRUCTURAL_IDS.has(el.id)) return el;
+    const relY = Number(el.y) - minY;
+    const newY = Math.round(targetTop + relY * scale);
+    return { ...el, y: newY };
+  });
+}
+
+// =============================================
 // API Route
 // =============================================
 export async function POST(request: Request) {
@@ -786,8 +823,12 @@ export async function POST(request: Request) {
     if (scenarioId !== undefined) {
       const allScenarios = [...SCENARIOS, SCENARIO_TC_NIJI];
       const scenario = allScenarios.find((s) => s.id === scenarioId) || SCENARIOS[0];
+      // cover#1はユーザー手動調整済み、他は間隔拡大＋上寄り配置
+      const elements = scenario.id === 1
+        ? scenario.elements
+        : spreadAndPosition(scenario.elements);
       return NextResponse.json({
-        elements: scenario.elements,
+        elements,
         scenario: { id: scenario.id, name: scenario.name, slideType: scenario.slideType },
         scenarios: allScenarios.map((s) => ({ id: s.id, name: s.name, slideType: s.slideType })),
         background: { type: "gradient", color: "#38BDF8", gradient: "linear-gradient(135deg, #38BDF8 0%, #0EA5E9 40%, #06B6D4 70%, #22D3EE 100%)" },
@@ -798,20 +839,21 @@ export async function POST(request: Request) {
       });
     }
 
-    let elements;
+    let rawElements;
     switch (slideType) {
-      case "list": elements = MOCK_LIST_ELEMENTS; break;
-      case "comparison": elements = MOCK_COMPARISON_ELEMENTS; break;
-      case "checklist": elements = MOCK_CHECKLIST_ELEMENTS; break;
-      case "cta": elements = MOCK_CTA_ELEMENTS; break;
-      case "point-card": elements = MOCK_POINT_CARD_ELEMENTS; break;
-      case "company-card": elements = MOCK_COMPANY_CARD_ELEMENTS; break;
-      case "deadline": elements = MOCK_DEADLINE_ELEMENTS; break;
-      case "tab-checklist": elements = MOCK_TAB_CHECKLIST_ELEMENTS; break;
-      case "qa": elements = MOCK_QA_ELEMENTS; break;
-      case "ranking": elements = MOCK_RANKING_ELEMENTS; break;
-      default: elements = MOCK_COVER_ELEMENTS;
+      case "list": rawElements = MOCK_LIST_ELEMENTS; break;
+      case "comparison": rawElements = MOCK_COMPARISON_ELEMENTS; break;
+      case "checklist": rawElements = MOCK_CHECKLIST_ELEMENTS; break;
+      case "cta": rawElements = MOCK_CTA_ELEMENTS; break;
+      case "point-card": rawElements = MOCK_POINT_CARD_ELEMENTS; break;
+      case "company-card": rawElements = MOCK_COMPANY_CARD_ELEMENTS; break;
+      case "deadline": rawElements = MOCK_DEADLINE_ELEMENTS; break;
+      case "tab-checklist": rawElements = MOCK_TAB_CHECKLIST_ELEMENTS; break;
+      case "qa": rawElements = MOCK_QA_ELEMENTS; break;
+      case "ranking": rawElements = MOCK_RANKING_ELEMENTS; break;
+      default: rawElements = MOCK_COVER_ELEMENTS;
     }
+    const elements = spreadAndPosition(rawElements);
 
     return NextResponse.json({
       elements,

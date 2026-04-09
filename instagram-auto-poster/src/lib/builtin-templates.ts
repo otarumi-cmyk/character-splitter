@@ -702,14 +702,55 @@ const builders: Record<string, () => { elements: El[]; slotMap: Record<string, s
  * 指定slideTypeのビルトインテンプレートを返す。
  * エレメントはディープコピーされるので安全に変更可能。
  */
+// コンテンツを白カード内で適切に配置（間隔を広げて上寄り）
+const STRUCTURAL_IDS = new Set(["brand", "card", "bbl_bg", "bbl_txt", "bbl_mascot"]);
+
+function spreadAndPosition(elements: El[]): El[] {
+  const contentEls = elements.filter((el: El) => !STRUCTURAL_IDS.has(el.id));
+  if (contentEls.length === 0) return elements;
+
+  const minY = Math.min(...contentEls.map((el: El) => Number(el.y)));
+  const maxY = Math.max(...contentEls.map((el: El) => Number(el.y) + Number(el.height || 0)));
+  const contentHeight = maxY - minY;
+
+  if (contentHeight < 1) return elements;
+
+  // CARD: y=111, h=1002, padding=40 → content area: y=151, h=922
+  const cardContentTop = 151;
+  const cardContentH = 922;
+
+  // カードの88%を使い切るように間隔を拡大（最大1.4倍）
+  const targetHeight = cardContentH * 0.88;
+  const scale = Math.max(1.0, Math.min(targetHeight / contentHeight, 1.4));
+
+  // 拡大後の実寸から上寄り配置（黄金比: 上38% / 下62%）
+  const scaledHeight = contentHeight * scale;
+  const remainingSpace = cardContentH - scaledHeight;
+  const topMargin = remainingSpace * 0.38;
+  const targetTop = cardContentTop + Math.max(topMargin, 8);
+
+  return elements.map((el: El) => {
+    if (STRUCTURAL_IDS.has(el.id)) return el;
+    const relY = Number(el.y) - minY;
+    const newY = Math.round(targetTop + relY * scale);
+    return { ...el, y: newY };
+  });
+}
+
+/**
+ * 指定slideTypeのビルトインテンプレートを返す。
+ * エレメントはディープコピーされるので安全に変更可能。
+ */
 export function getBuiltinTemplate(slideType: string): BuiltinTemplate | null {
   const builder = builders[slideType];
   if (!builder) return null;
 
   const { elements, slotMap } = builder();
+  // 白カード内で間隔を広げて上寄り配置
+  const adjusted = spreadAndPosition(elements);
   // ディープコピーして返す（元テンプレを汚さない）
   return {
-    elements: JSON.parse(JSON.stringify(elements)),
+    elements: JSON.parse(JSON.stringify(adjusted)),
     background: { ...BG },
     slotMap,
   };

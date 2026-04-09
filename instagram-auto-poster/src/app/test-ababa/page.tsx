@@ -33,19 +33,23 @@ export default function TestAbabaPage() {
   const [scenarioId, setScenarioId] = useState(1);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isFromSaved, setIsFromSaved] = useState(false);
   const router = useRouter();
 
-  // 起動時に壊れたlocalStorageデータを全クリア
+  // 起動時に古い壊れたデータだけクリア（v2は残す）
   useEffect(() => {
     for (let i = localStorage.length - 1; i >= 0; i--) {
       const k = localStorage.key(i);
-      if (k && k.startsWith("test-ababa-")) localStorage.removeItem(k);
+      if (k && k.startsWith("test-ababa-coords-")) localStorage.removeItem(k);
     }
   }, []);
+
+  const savedKey = (id: number) => `test-ababa-v2-${id}`;
 
   const loadScenario = useCallback(async (id: number) => {
     setLoading(true);
     try {
+      // APIからシナリオ一覧を常に取得
       const res = await fetch("/api/ai-generate-test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -54,6 +58,16 @@ export default function TestAbabaPage() {
       const result = await res.json();
       if (result.scenarios) setScenarios(result.scenarios);
       if (result.scenario) setCurrentScenario(result.scenario);
+
+      // 手動保存があればそちらを使う
+      const saved = localStorage.getItem(savedKey(id));
+      if (saved) {
+        try {
+          setData(JSON.parse(saved) as SlideCanvasData);
+          setIsFromSaved(true);
+          return;
+        } catch { /* 無効データは無視 */ }
+      }
 
       setData({
         elements: result.elements.map((el: Record<string, unknown>, i: number) => ({
@@ -69,6 +83,7 @@ export default function TestAbabaPage() {
           gradient: result.background.gradient,
         },
       });
+      setIsFromSaved(false);
     } finally {
       setLoading(false);
     }
@@ -203,8 +218,29 @@ export default function TestAbabaPage() {
               全テンプレ一括DB登録
             </button>
           </div>
-          {/* 座標コピーボタン */}
-          <div className="ml-4">
+          {/* 座標操作ボタン */}
+          <div className="ml-4 flex gap-2 items-center">
+            <button
+              onClick={() => {
+                if (!data) return;
+                localStorage.setItem(savedKey(scenarioId), JSON.stringify(data));
+                setIsFromSaved(true);
+                alert(`#${scenarioId} の座標を保存しました！`);
+              }}
+              className="px-3 py-1.5 rounded bg-green-600 text-white text-sm font-bold hover:bg-green-700"
+            >
+              💾 座標保存
+            </button>
+            <button
+              onClick={() => {
+                localStorage.removeItem(savedKey(scenarioId));
+                setIsFromSaved(false);
+                loadScenario(scenarioId);
+              }}
+              className="px-3 py-1.5 rounded bg-gray-500 text-white text-sm font-bold hover:bg-gray-600"
+            >
+              リセット
+            </button>
             <button
               onClick={() => {
                 if (!data) return;
@@ -213,14 +249,16 @@ export default function TestAbabaPage() {
                   x: el.x, y: el.y, width: el.width, height: el.height,
                   text: el.type === "text" ? (el as unknown as Record<string, unknown>).text : undefined,
                 }));
-                const json = JSON.stringify(coords, null, 2);
-                navigator.clipboard.writeText(json);
-                alert("全要素の座標をクリップボードにコピーしました！");
+                navigator.clipboard.writeText(JSON.stringify(coords, null, 2));
+                alert("座標をクリップボードにコピーしました！");
               }}
               className="px-3 py-1.5 rounded bg-violet-500 text-white text-sm font-bold hover:bg-violet-600"
             >
               座標コピー
             </button>
+            {isFromSaved && (
+              <span className="text-xs text-green-700 font-bold bg-green-100 px-2 py-1 rounded">📌 保存済み座標</span>
+            )}
           </div>
         </div>
 
