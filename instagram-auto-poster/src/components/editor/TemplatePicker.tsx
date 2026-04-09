@@ -25,6 +25,8 @@ interface CanvasTemplate {
   id: number;
   name: string;
   category: string;
+  slideType: string | null;
+  slotMap: string | null;
   thumbnail: string | null;
   canvasData: string;
   createdAt: string;
@@ -48,6 +50,21 @@ const CATEGORIES = [
   { value: "list", label: "リスト" },
   { value: "cta", label: "CTA" },
   { value: "general", label: "汎用" },
+];
+
+const SLIDE_TYPES = [
+  { value: "", label: "なし（手動選択）" },
+  { value: "cover", label: "表紙" },
+  { value: "list", label: "リスト" },
+  { value: "comparison", label: "比較" },
+  { value: "checklist", label: "チェックリスト" },
+  { value: "cta", label: "CTA" },
+  { value: "point-card", label: "ポイントカード" },
+  { value: "company-card", label: "企業カード" },
+  { value: "deadline", label: "締切一覧" },
+  { value: "tab-checklist", label: "タブ型チェック" },
+  { value: "qa", label: "Q&A" },
+  { value: "ranking", label: "ランキング" },
 ];
 
 function getCategoryLabel(value: string): string {
@@ -86,6 +103,7 @@ export default function TemplatePicker({
   const [showSaveForm, setShowSaveForm] = useState(false);
   const [saveName, setSaveName] = useState("");
   const [saveCategory, setSaveCategory] = useState("general");
+  const [saveSlideType, setSaveSlideType] = useState("");
   const [saving, setSaving] = useState(false);
 
   const fetchTemplates = useCallback(async () => {
@@ -149,6 +167,7 @@ export default function TemplatePicker({
         body: JSON.stringify({
           name: saveName.trim(),
           category: saveCategory,
+          slideType: saveSlideType || undefined,
           canvasData: JSON.stringify(currentCanvasData),
         }),
       });
@@ -157,6 +176,7 @@ export default function TemplatePicker({
       setShowSaveForm(false);
       setSaveName("");
       setSaveCategory("general");
+      setSaveSlideType("");
       await fetchTemplates();
     } catch (error) {
       console.error("Failed to save template:", error);
@@ -224,6 +244,26 @@ export default function TemplatePicker({
                   ))}
                 </SelectContent>
               </Select>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">
+                  スライドタイプ（台本自動生成で使用）
+                </label>
+                <Select
+                  value={saveSlideType}
+                  onValueChange={(val: string | null) => setSaveSlideType(val ?? "")}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="スライドタイプを選択" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SLIDE_TYPES.map((st) => (
+                      <SelectItem key={st.value || "_none"} value={st.value || "_none"}>
+                        {st.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="flex gap-2 justify-end">
                 <Button
                   variant="ghost"
@@ -274,10 +314,17 @@ export default function TemplatePicker({
                     <p className="text-xs font-medium truncate">
                       {template.name}
                     </p>
-                    <div className="flex items-center justify-between">
-                      <Badge variant="secondary" className="text-[10px]">
-                        {getCategoryLabel(template.category)}
-                      </Badge>
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="flex gap-1 flex-wrap">
+                        <Badge variant="secondary" className="text-[10px]">
+                          {getCategoryLabel(template.category)}
+                        </Badge>
+                        {template.slideType && (
+                          <Badge className="text-[10px] bg-teal-500">
+                            {template.slideType}
+                          </Badge>
+                        )}
+                      </div>
                       <Button
                         size="xs"
                         onClick={() => handleApply(template)}

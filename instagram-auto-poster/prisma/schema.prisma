@@ -69,6 +69,8 @@ model CanvasTemplate {
   id         Int      @id @default(autoincrement())
   name       String
   category   String   @default("general")
+  slideType  String?  // cover, list, comparison, checklist, cta, point-card, company-card, deadline, tab-checklist, qa, ranking
+  slotMap    String?  // JSON: maps slot names to element IDs for content injection
   thumbnail  String?
   canvasData String   // JSON string of SlideCanvasData (elements + background)
   createdAt  DateTime @default(now())

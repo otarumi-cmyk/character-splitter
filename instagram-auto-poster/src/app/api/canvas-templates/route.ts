@@ -19,7 +19,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, category, canvasData } = body;
+    const { name, category, canvasData, slideType, slotMap } = body;
 
     if (!name || !canvasData) {
       return NextResponse.json(
@@ -32,6 +32,8 @@ export async function POST(request: Request) {
       data: {
         name,
         category: category || "general",
+        slideType: slideType || null,
+        slotMap: slotMap ? (typeof slotMap === "string" ? slotMap : JSON.stringify(slotMap)) : null,
         canvasData:
           typeof canvasData === "string"
             ? canvasData

@@ -24,10 +24,19 @@ interface AIGenerateModalProps {
 const slideTypes = [
   { value: "cover", label: "表紙", desc: "タイトルとキャッチコピー" },
   { value: "list", label: "リスト", desc: "番号付きリスト形式" },
+  { value: "comparison", label: "比較", desc: "2カラム比較型" },
+  { value: "checklist", label: "チェック", desc: "チェックリスト型" },
   { value: "cta", label: "CTA", desc: "フォロー誘導スライド" },
+  { value: "point-card", label: "ポイント", desc: "ポイント解説型" },
+  { value: "company-card", label: "企業カード", desc: "企業情報カード型" },
+  { value: "deadline", label: "締切一覧", desc: "締切日別企業リスト" },
+  { value: "tab-checklist", label: "タブ型", desc: "タブ+チェックリスト" },
+  { value: "qa", label: "Q&A", desc: "質問と対策一覧" },
+  { value: "ranking", label: "ランキング", desc: "企業ランキング型" },
 ] as const;
 
 const colorSchemes = [
+  { value: "ababa", label: "ABABA風", color: "#2BBFAB" },
   { value: "purple", label: "パープル", color: "#6C5CE7" },
   { value: "blue", label: "ブルー", color: "#0984E3" },
   { value: "orange", label: "オレンジ", color: "#E17055" },
@@ -41,7 +50,7 @@ export default function AIGenerateModal({ onGenerate }: AIGenerateModalProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [brandName, setBrandName] = useState("@your_account");
-  const [colorScheme, setColorScheme] = useState<string>("purple");
+  const [colorScheme, setColorScheme] = useState<string>("ababa");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 

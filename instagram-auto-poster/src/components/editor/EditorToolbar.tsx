@@ -44,16 +44,35 @@ interface EditorToolbarProps {
   onSendBackward: () => void;
 }
 
-const FONT_FAMILIES = [
-  { value: "Noto Sans JP", label: "Noto Sans JP" },
-  { value: "Noto Serif JP", label: "Noto Serif JP" },
-  { value: "M PLUS Rounded 1c", label: "M PLUS Rounded 1c" },
-  { value: "Zen Maru Gothic", label: "Zen Maru Gothic" },
-  { value: "Kosugi Maru", label: "Kosugi Maru" },
-  { value: "Sawarabi Gothic", label: "Sawarabi Gothic" },
-  { value: "Inter", label: "Inter" },
-  { value: "Poppins", label: "Poppins" },
-  { value: "Montserrat", label: "Montserrat" },
+export const FONT_FAMILIES = [
+  // ── ゴシック系（読みやすい・ベーシック）──
+  { value: "Noto Sans JP", label: "Noto Sans JP", category: "ゴシック" },
+  { value: "Zen Kaku Gothic New", label: "Zen角ゴシック", category: "ゴシック" },
+  { value: "Sawarabi Gothic", label: "さわらびゴシック", category: "ゴシック" },
+  // ── 丸ゴシック系（やわらかい・親しみやすい）──
+  { value: "M PLUS Rounded 1c", label: "M PLUS 丸ゴ", category: "丸ゴシック" },
+  { value: "Zen Maru Gothic", label: "Zen丸ゴシック", category: "丸ゴシック" },
+  { value: "Kosugi Maru", label: "小杉丸ゴシック", category: "丸ゴシック" },
+  // ── 明朝系（上品・フォーマル）──
+  { value: "Noto Serif JP", label: "Noto Serif JP", category: "明朝" },
+  { value: "Shippori Mincho", label: "しっぽり明朝", category: "明朝" },
+  // ── 手書き・かわいい系 ──
+  { value: "Klee One", label: "クレー One", category: "手書き" },
+  { value: "Hachi Maru Pop", label: "はちまるポップ", category: "手書き" },
+  { value: "Yusei Magic", label: "油性マジック", category: "手書き" },
+  { value: "Zen Antique", label: "Zenアンティーク", category: "手書き" },
+  // ── インパクト・装飾系 ──
+  { value: "Dela Gothic One", label: "デラゴシック", category: "インパクト" },
+  { value: "Reggae One", label: "レゲエ One", category: "インパクト" },
+  { value: "RocknRoll One", label: "ロックンロール", category: "インパクト" },
+  { value: "Train One", label: "トレイン One", category: "インパクト" },
+  { value: "DotGothic16", label: "ドットゴシック16", category: "インパクト" },
+  // ── 欧文フォント ──
+  { value: "Inter", label: "Inter", category: "欧文" },
+  { value: "Poppins", label: "Poppins", category: "欧文" },
+  { value: "Montserrat", label: "Montserrat", category: "欧文" },
+  { value: "Oswald", label: "Oswald", category: "欧文" },
+  { value: "Bebas Neue", label: "Bebas Neue", category: "欧文" },
 ];
 
 export default function EditorToolbar({
@@ -103,15 +122,23 @@ export default function EditorToolbar({
             value={selectedElement.fontFamily ?? "Noto Sans JP"}
             onValueChange={(val) => onUpdateElement({ fontFamily: val })}
           >
-            <SelectTrigger size="sm" className="w-[150px] text-xs">
+            <SelectTrigger size="sm" className="w-[160px] text-xs">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
-              {FONT_FAMILIES.map((font) => (
-                <SelectItem key={font.value} value={font.value}>
-                  <span style={{ fontFamily: font.value }}>{font.label}</span>
-                </SelectItem>
-              ))}
+            <SelectContent className="max-h-[400px]">
+              {(() => {
+                const categories = [...new Set(FONT_FAMILIES.map(f => f.category))];
+                return categories.map(cat => (
+                  <div key={cat}>
+                    <div className="px-2 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{cat}</div>
+                    {FONT_FAMILIES.filter(f => f.category === cat).map(font => (
+                      <SelectItem key={font.value} value={font.value}>
+                        <span style={{ fontFamily: font.value }} className="text-sm">{font.label}</span>
+                      </SelectItem>
+                    ))}
+                  </div>
+                ));
+              })()}
             </SelectContent>
           </Select>
 

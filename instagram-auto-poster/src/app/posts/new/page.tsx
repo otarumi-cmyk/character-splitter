@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useCallback, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import CanvasEditor, {
   type SlideCanvasData,
@@ -9,9 +9,11 @@ import CanvasEditor, {
 } from "@/components/editor/CanvasEditor";
 import EditorToolbar from "@/components/editor/EditorToolbar";
 import AIGenerateModal from "@/components/editor/AIGenerateModal";
+import ScriptToPostModal from "@/components/editor/ScriptToPostModal";
 import TemplatePicker from "@/components/editor/TemplatePicker";
 import QuickPostModal from "@/components/editor/QuickPostModal";
 import ElementPanel from "@/components/editor/ElementPanel";
+import LayersPanel from "@/components/editor/LayersPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,6 +25,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Trash2,
+  Layers,
 } from "lucide-react";
 
 interface SlideData {
@@ -45,6 +48,7 @@ function createDefaultSlide(): SlideData {
 
 export default function NewPostPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [saving, setSaving] = useState(false);
   const [title, setTitle] = useState("");
   const [caption, setCaption] = useState("");
@@ -54,7 +58,44 @@ export default function NewPostPage() {
   const [selectedElementId, setSelectedElementId] = useState<string | null>(
     null
   );
+  const [selectedElementIds, setSelectedElementIds] = useState<string[]>([]);
   const [showMetaPanel, setShowMetaPanel] = useState(false);
+  const [showLayers, setShowLayers] = useState(true);
+
+  // テストシナリオからの読み込み
+  useEffect(() => {
+    const fromTest = searchParams.get("fromTest");
+    if (!fromTest) return;
+    (async () => {
+      try {
+        const res = await fetch("/api/ai-generate-test", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ scenarioId: Number(fromTest) }),
+        });
+        if (!res.ok) return;
+        const result = await res.json();
+        const canvasData: SlideCanvasData = {
+          elements: (result.elements as CanvasElement[]).map((el, i) => ({
+            ...el,
+            id: el.id || crypto.randomUUID(),
+            rotation: el.rotation || 0,
+            zIndex: el.zIndex || i + 1,
+            opacity: el.opacity ?? 1,
+          })),
+          background: {
+            type: (result.background.type as "solid") || "solid",
+            color: result.background.color,
+          },
+        };
+        setSlides([{ id: crypto.randomUUID(), canvas: canvasData }]);
+        setCurrentSlideIndex(0);
+        if (result.scenario?.name) setTitle(result.scenario.name);
+      } catch (err) {
+        console.error("Failed to load test scenario:", err);
+      }
+    })();
+  }, [searchParams]);
 
   const currentSlide = slides[currentSlideIndex];
 
@@ -147,6 +188,34 @@ export default function NewPostPage() {
     handleUpdateElement({ zIndex: Math.max(0, minZ - 1) });
   }, [selectedElementId, currentSlide, handleUpdateElement]);
 
+  // レイヤーパネル用: ID指定で要素を更新
+  const handleUpdateElementById = useCallback(
+    (id: string, updates: Partial<CanvasElement>) => {
+      const newElements = currentSlide.canvas.elements.map((el) =>
+        el.id === id ? { ...el, ...updates } : el
+      );
+      handleCanvasChange({ ...currentSlide.canvas, elements: newElements });
+    },
+    [currentSlide, handleCanvasChange]
+  );
+
+  // レイヤーパネル用: z-index並べ替え
+  const handleReorderElement = useCallback(
+    (id: string, direction: "up" | "down" | "top" | "bottom") => {
+      const elements = [...currentSlide.canvas.elements];
+      const el = elements.find((e) => e.id === id);
+      if (!el) return;
+      const maxZ = Math.max(...elements.map((e) => e.zIndex));
+      const minZ = Math.min(...elements.map((e) => e.zIndex));
+      if (direction === "up") el.zIndex = maxZ + 1;
+      else if (direction === "down") el.zIndex = Math.max(0, minZ - 1);
+      else if (direction === "top") el.zIndex = maxZ + 1;
+      else el.zIndex = Math.max(0, minZ - 1);
+      handleCanvasChange({ ...currentSlide.canvas, elements });
+    },
+    [currentSlide, handleCanvasChange]
+  );
+
   const handleBackgroundChange = useCallback(
     (bg: SlideCanvasData["background"]) => {
       handleCanvasChange({ ...currentSlide.canvas, background: bg });
@@ -221,6 +290,107 @@ export default function NewPostPage() {
         setSlides(newSlides);
         setCurrentSlideIndex(0);
         setSelectedElementId(null);
+      }
+    },
+    []
+  );
+
+  const handleScriptGenerate = useCallback(
+    async (
+      slideSpecs: Array<{ slideNumber: number; slideType: string; title: string; content: string }>,
+      suggestedHashtags: string[],
+      suggestedCaption: string
+    ) => {
+      // Generate each slide via AI
+      const newSlides: SlideData[] = [];
+      for (const spec of slideSpecs) {
+        try {
+          const res = await fetch("/api/ai-generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              slideType: spec.slideType,
+              title: spec.title,
+              content: spec.content || undefined,
+              brandName: "@your_account",
+              colorScheme: "ababa",
+            }),
+          });
+
+          if (res.ok) {
+            const result = await res.json();
+            newSlides.push({
+              id: crypto.randomUUID(),
+              canvas: {
+                elements: (result.elements as CanvasElement[]).map((el, j) => ({
+                  ...el,
+                  id: el.id || crypto.randomUUID(),
+                  rotation: el.rotation || 0,
+                  zIndex: el.zIndex || j + 1,
+                  opacity: el.opacity ?? 1,
+                })),
+                background: {
+                  type: (result.background.type as "solid" | "gradient" | "image") || "solid",
+                  color: result.background.color,
+                  gradient: result.background.gradient,
+                },
+              },
+            });
+          }
+        } catch (err) {
+          console.error(`Failed to generate slide ${spec.slideNumber}:`, err);
+        }
+      }
+
+      if (newSlides.length > 0) {
+        setSlides(newSlides);
+        setCurrentSlideIndex(0);
+        setSelectedElementId(null);
+        if (suggestedCaption) setCaption(suggestedCaption);
+        if (suggestedHashtags.length > 0) setHashtags(suggestedHashtags.join(" "));
+        toast.success(`${newSlides.length}枚のスライドを自動生成しました`);
+      }
+    },
+    []
+  );
+
+  // テンプレ注入済みの結果を直接受け取るハンドラー
+  const handleScriptGenerateWithResults = useCallback(
+    (
+      generatedSlides: Array<{ elements: unknown[]; background: { type: string; gradient?: string; color?: string }; fromTemplate?: boolean; templateName?: string }>,
+      suggestedHashtags: string[],
+      suggestedCaption: string
+    ) => {
+      const newSlides: SlideData[] = generatedSlides.map((s) => ({
+        id: crypto.randomUUID(),
+        canvas: {
+          elements: (s.elements as CanvasElement[]).map((el, j) => ({
+            ...el,
+            id: el.id || crypto.randomUUID(),
+            rotation: el.rotation || 0,
+            zIndex: el.zIndex || j + 1,
+            opacity: el.opacity ?? 1,
+          })),
+          background: {
+            type: (s.background.type as "solid" | "gradient" | "image") || "solid",
+            color: s.background.color,
+            gradient: s.background.gradient,
+          },
+        },
+      }));
+
+      if (newSlides.length > 0) {
+        setSlides(newSlides);
+        setCurrentSlideIndex(0);
+        setSelectedElementId(null);
+        if (suggestedCaption) setCaption(suggestedCaption);
+        if (suggestedHashtags.length > 0) setHashtags(suggestedHashtags.join(" "));
+        const tplCount = generatedSlides.filter((s) => s.fromTemplate).length;
+        const aiCount = generatedSlides.length - tplCount;
+        const msg = tplCount > 0
+          ? `${newSlides.length}枚生成（テンプレ${tplCount}枚 + AI${aiCount}枚）`
+          : `${newSlides.length}枚のスライドを自動生成しました`;
+        toast.success(msg);
       }
     },
     []
@@ -359,6 +529,7 @@ export default function NewPostPage() {
           />
         </div>
         <div className="flex items-center gap-2">
+          <ScriptToPostModal onGenerateAll={handleScriptGenerate} onGenerateAllWithResults={handleScriptGenerateWithResults} />
           <QuickPostModal onGenerate={handleQuickGenerate} />
           <AIGenerateModal onGenerate={handleAIGenerate} />
           <TemplatePicker
@@ -366,6 +537,13 @@ export default function NewPostPage() {
             onSaveAsTemplate={handleSaveAsTemplate}
             currentCanvasData={currentSlide.canvas}
           />
+          <Button
+            variant={showLayers ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setShowLayers(!showLayers)}
+          >
+            <Layers className="size-4" />
+          </Button>
           <Button
             variant="ghost"
             size="sm"
@@ -439,14 +617,32 @@ export default function NewPostPage() {
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center p-4">
-              <CanvasEditor
-                data={currentSlide.canvas}
-                onChange={handleCanvasChange}
-                selectedElementId={selectedElementId}
-                onSelectElement={setSelectedElementId}
-              />
-            </div>
+            <>
+              <div className="flex-1 flex items-center justify-center p-4">
+                <CanvasEditor
+                  data={currentSlide.canvas}
+                  onChange={handleCanvasChange}
+                  selectedElementId={selectedElementId}
+                  onSelectElement={setSelectedElementId}
+                  selectedElementIds={selectedElementIds}
+                  onSelectElements={setSelectedElementIds}
+                />
+              </div>
+              {/* レイヤーパネル */}
+              {showLayers && (
+                <div className="w-56 border-l bg-white shrink-0 overflow-hidden flex flex-col">
+                  <LayersPanel
+                    elements={currentSlide.canvas.elements}
+                    selectedElementId={selectedElementId}
+                    selectedElementIds={selectedElementIds}
+                    onSelectElement={setSelectedElementId}
+                    onSelectElements={setSelectedElementIds}
+                    onUpdateElement={handleUpdateElementById}
+                    onReorderElement={handleReorderElement}
+                  />
+                </div>
+              )}
+            </>
           )}
 
           {/* Slide Strip */}

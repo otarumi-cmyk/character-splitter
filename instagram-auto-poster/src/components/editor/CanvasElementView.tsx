@@ -26,6 +26,8 @@ export interface CanvasElement {
   borderWidth?: number;
   borderRadius?: number;
   opacity?: number;
+  locked?: boolean;
+  hidden?: boolean;
   // Image properties
   imageUrl?: string;
   objectFit?: "cover" | "contain" | "fill";
@@ -106,31 +108,42 @@ export default function CanvasElementView({
 
   const renderContent = () => {
     if (element.type === "text") {
+      const align = element.textAlign ?? "left";
+      const justifyMap = { left: "flex-start", center: "center", right: "flex-end" } as const;
       return (
         <div
-          ref={textRef}
-          contentEditable={isEditing}
-          suppressContentEditableWarning
-          onInput={handleInput}
-          onKeyDown={handleKeyDown}
           style={{
             width: "100%",
             height: "100%",
-            fontSize: `${element.fontSize ?? 24}px`,
-            fontFamily: element.fontFamily ?? "sans-serif",
-            fontWeight: element.fontWeight ?? "normal",
-            color: element.color ?? "#000000",
-            textAlign: element.textAlign ?? "left",
-            lineHeight: element.lineHeight ?? 1.4,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: justifyMap[align] || "flex-start",
             overflow: "hidden",
-            outline: "none",
-            cursor: isEditing ? "text" : "move",
-            wordBreak: "break-word",
-            whiteSpace: "pre-wrap",
-            userSelect: isEditing ? "text" : "none",
           }}
         >
-          {element.text ?? ""}
+          <div
+            ref={textRef}
+            contentEditable={isEditing}
+            suppressContentEditableWarning
+            onInput={handleInput}
+            onKeyDown={handleKeyDown}
+            style={{
+              width: "100%",
+              fontSize: `${element.fontSize ?? 24}px`,
+              fontFamily: element.fontFamily ?? "sans-serif",
+              fontWeight: element.fontWeight === "bold" ? 900 : 400,
+              color: element.color ?? "#000000",
+              textAlign: align,
+              lineHeight: element.lineHeight ?? 1.4,
+              outline: "none",
+              cursor: isEditing ? "text" : "move",
+              wordBreak: "break-word",
+              whiteSpace: "pre-wrap",
+              userSelect: isEditing ? "text" : "none",
+            }}
+          >
+            {element.text ?? ""}
+          </div>
         </div>
       );
     }
@@ -229,7 +242,8 @@ export default function CanvasElementView({
           : undefined,
         zIndex: element.zIndex,
         opacity: element.opacity ?? 1,
-        cursor: isEditing ? "text" : "move",
+        cursor: element.locked ? "default" : isEditing ? "text" : "move",
+        display: element.hidden ? "none" : undefined,
       }}
       onMouseDown={(e) => {
         if (!isEditing) {
@@ -238,11 +252,30 @@ export default function CanvasElementView({
         }
       }}
       onDoubleClick={(e) => {
+        if (element.locked) return;
         e.stopPropagation();
         onDoubleClick();
       }}
     >
       {renderContent()}
+
+      {/* Lock overlay */}
+      {element.locked && isSelected && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "rgba(0,0,0,0.04)",
+            pointerEvents: "none",
+            zIndex: 9998,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <span style={{ fontSize: `${20 / scale}px`, opacity: 0.5 }}>🔒</span>
+        </div>
+      )}
 
       {/* Selection border */}
       {isSelected && (
@@ -250,16 +283,17 @@ export default function CanvasElementView({
           style={{
             position: "absolute",
             inset: -1,
-            border: "2px dashed #3b82f6",
+            border: element.locked ? "2px dashed #f59e0b" : "2px dashed #3b82f6",
             pointerEvents: "none",
             zIndex: 9999,
           }}
         />
       )}
 
-      {/* Resize handles */}
+      {/* Resize handles — only if not locked */}
       {isSelected &&
         !isEditing &&
+        !element.locked &&
         HANDLES.map((handle) => (
           <div
             key={handle.id}
