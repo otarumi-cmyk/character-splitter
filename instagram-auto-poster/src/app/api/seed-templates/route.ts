@@ -23,7 +23,7 @@ function buildSlotMap(slideType: string, elements: Record<string, unknown>[], sc
   switch (slideType) {
     case "cover": {
       // scenario 1: cv_ prefix, scenario 12: ar_ prefix
-      const isAruaru = scenarioId === 12;
+      const isAruaru = scenarioId === 11;
       const p = isAruaru ? "ar" : "cv";
       if (find(`${p}_title1`)) map.title_line1 = `${p}_title1`;
       if (find(`${p}_num`)) map.impact_number = `${p}_num`;
@@ -79,7 +79,7 @@ function buildSlotMap(slideType: string, elements: Record<string, unknown>[], sc
       for (let i = 1; i <= 10; i++) {
         const ckEl = elements.find((e) => {
           const id = e.id as string;
-          return id && id.endsWith(`${i}_txt`) && id.startsWith("ck");
+          return id && id.endsWith(`${i}_txt`) && (id.startsWith("ck") || id.startsWith("nc"));
         });
         if (ckEl) map[`item_${i}`] = ckEl.id as string;
       }
@@ -93,18 +93,6 @@ function buildSlotMap(slideType: string, elements: Record<string, unknown>[], sc
       if (find("cta_desc")) map.account_desc = "cta_desc";
       if (find("cta_btn_txt")) map.button = "cta_btn_txt";
       if (find("cta_benefits")) map.benefits = "cta_benefits";
-      break;
-    }
-
-    case "point-card": {
-      if (find("shdr_txt")) map.series_header = "shdr_txt";
-      const ptNum = find("pt_num") || find("gk_num");
-      if (ptNum) map.point_number = ptNum.id as string;
-      const ptTitle = find("pt_title") || find("gk_title");
-      if (ptTitle) map.point_title = ptTitle.id as string;
-      if (find("prio_sub")) map.priority_subtitle = "prio_sub";
-      const expTxt = find("pc_exp_txt") || find("gk_exp_txt");
-      if (expTxt) map.explanation = expTxt.id as string;
       break;
     }
 
@@ -126,7 +114,7 @@ function buildSlotMap(slideType: string, elements: Record<string, unknown>[], sc
 
     case "deadline": {
       // date headers & items
-      const dlPrefixes = scenarioId === 18 ? "dm" : "dl";
+      const dlPrefixes = scenarioId === 16 ? "dm" : "dl";
       // Find all _txt headers
       for (let i = 1; i <= 3; i++) {
         const hdrId = `${dlPrefixes}_hdr${i === 1 ? "" : String(i)}_txt`;
@@ -179,9 +167,9 @@ function buildSlotMap(slideType: string, elements: Record<string, unknown>[], sc
       if (find("hdr_title_txt")) map.header_title = "hdr_title_txt";
       if (find("hdr_page_txt")) map.header_page = "hdr_page_txt";
       for (let i = 1; i <= 10; i++) {
-        const nameEl = find(`rk${i}_name`);
+        const nameEl = find(`rk${i}_name`) || find(`rt${i}_name`);
         if (nameEl) map[`rank_${i}_name`] = nameEl.id as string;
-        const descEl = find(`rk${i}_desc`);
+        const descEl = find(`rk${i}_desc`) || find(`rt${i}_desc`);
         if (descEl) map[`rank_${i}_desc`] = descEl.id as string;
       }
       break;
@@ -198,7 +186,7 @@ export async function POST() {
       ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3000";
 
-    const scenarioIds = Array.from({ length: 21 }, (_, i) => i + 1);
+    const scenarioIds = Array.from({ length: 19 }, (_, i) => i + 1);
     let savedCount = 0;
 
     // 既存のシードテンプレートを削除 (category = "seed")

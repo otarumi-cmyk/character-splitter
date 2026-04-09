@@ -539,6 +539,7 @@ export default function CanvasEditor({
       >
         <div
           ref={canvasRef}
+          data-canvas-root="true"
           style={{
             width: `${CANVAS_W}px`,
             height: `${CANVAS_H}px`,

@@ -263,73 +263,13 @@ const MOCK_CHECKLIST_ELEMENTS: El[] = [
 // =============================================
 // CTA SLIDE (最終ページ) — コンテンツを中央寄せ
 // =============================================
-const MOCK_CTA_ELEMENTS: El[] = [
-  makeBrand("よりそい就活"),
-  makeCard(),
+// CTA: 静的画像スライド（よりそい就活ブランディング）
+const MOCK_CTA1_ELEMENTS: El[] = [];
+const CTA1_BG = { type: "image" as const, color: "#ffffff", imageUrl: "/cta/cta1.png" };
 
-  {
-    id: "cta_h1", type: "text",
-    x: 80, y: 120, width: 920, height: 128,
-    rotation: 0, zIndex: 3, opacity: 1,
-    text: "フォローして\n最新情報をゲット！",
-    fontSize: 56, fontFamily: "Noto Sans JP", fontWeight: "bold",
-    color: COLOR.black, textAlign: "center", lineHeight: 1.3,
-  },
-
-  {
-    id: "cta_sub", type: "text",
-    x: 80, y: 264, width: 920, height: 48,
-    rotation: 0, zIndex: 3, opacity: 1,
-    text: "転職・就活に役立つ情報を毎日発信中📮",
-    fontSize: TYPO.body.fontSize, fontFamily: "Noto Sans JP", fontWeight: TYPO.body.fontWeight,
-    color: TYPO.body.color, textAlign: "center", lineHeight: TYPO.body.lineHeight,
-  },
-
-  ...textInBox(
-    { x: centerX(720), y: 336, width: 720, height: 176, bg: COLOR.gray[50], borderRadius: 16, borderColor: COLOR.gray[100], borderWidth: 1 },
-    { text: "", fontSize: 1, color: "transparent" },
-    { box: "cta_prof_bg", text: "cta_prof_dummy" },
-    0,
-  ),
-
-  {
-    id: "cta_icon", type: "shape",
-    x: centerX(720) + 40, y: 368, width: 104, height: 104,
-    rotation: 0, zIndex: 3, opacity: 0.4,
-    shapeType: "circle", backgroundColor: COLOR.teal,
-    borderColor: "transparent", borderWidth: 0, borderRadius: 52,
-  },
-
-  {
-    id: "cta_name", type: "text",
-    x: centerX(720) + 176, y: 376, width: 480, height: 40,
-    rotation: 0, zIndex: 3, opacity: 1,
-    text: "@your_account", fontSize: 34, fontFamily: "Noto Sans JP", fontWeight: "bold",
-    color: COLOR.black, textAlign: "left", lineHeight: 1.2,
-  },
-
-  {
-    id: "cta_desc", type: "text",
-    x: centerX(720) + 176, y: 420, width: 480, height: 36,
-    rotation: 0, zIndex: 3, opacity: 1,
-    text: "就活・転職の最新情報を発信🔥",
-    fontSize: TYPO.caption.fontSize, fontFamily: "Noto Sans JP", fontWeight: TYPO.caption.fontWeight,
-    color: COLOR.gray[400], textAlign: "left", lineHeight: TYPO.caption.lineHeight,
-  },
-
-  ...makeButton(centerX(520), 536, 520, 64, "今すぐフォロー →", COLOR.red, COLOR.white, "cta_btn"),
-
-  {
-    id: "cta_benefits", type: "text",
-    x: 80, y: 632, width: 920, height: 180,
-    rotation: 0, zIndex: 3, opacity: 1,
-    text: "📌 保存して見返せる転職ノウハウ\n💼 毎日更新の最新求人情報\n🎯 プロ直伝の面接テクニック",
-    fontSize: TYPO.body.fontSize, fontFamily: "Noto Sans JP", fontWeight: TYPO.body.fontWeight,
-    color: COLOR.gray[600], textAlign: "center", lineHeight: 1.8,
-  },
-
-  ...makeBubble("いいね❤️とフォローお願いします！"),
-];
+// CTA: 静的画像スライド（LINE追加訴求）
+const MOCK_CTA2_ELEMENTS: El[] = [];
+const CTA2_BG = { type: "image" as const, color: "#ffffff", imageUrl: "/cta/cta2.png" };
 
 // =============================================
 // POINT-CARD SLIDE (ポイント解説型) — 上下均等配分
@@ -347,7 +287,7 @@ const MOCK_POINT_CARD_ELEMENTS: El[] = [
     528, 300, "pc_exp",
   ),
 
-  ...makeBubble("自己分析が内定への第一歩だワン！🐕"),
+  ...makeBubble("自己分析が内定への第一歩だよっ！🌟"),
 ];
 
 // =============================================
@@ -376,7 +316,7 @@ const MOCK_COMPANY_CARD_ELEMENTS: El[] = [
     636, "cc3",
   ),
 
-  ...makeBubble("IT企業は成長率が高いワン！💻"),
+  ...makeBubble("IT企業は成長率が高いんだよっ！💻"),
 ];
 
 // =============================================
@@ -425,7 +365,7 @@ const MOCK_DEADLINE_ELEMENTS: El[] = [
   ...makeDeadlineItem("インフラ", INDUSTRY_COLORS["インフラ"], "JR西日本", COLOR.teal, 752, "dl9"),
   ...makeDeadlineItem("物流", INDUSTRY_COLORS["物流"], "日本郵政グループ", COLOR.black, 812, "dl10"),
 
-  ...makeBubble("締切を見逃さないでワン！📅"),
+  ...makeBubble("締切、見逃さないでねっ！📅"),
 ];
 
 // =============================================
@@ -454,7 +394,7 @@ const MOCK_TAB_CHECKLIST_ELEMENTS: El[] = [
   ...makeCheckItem(2, "企業理念や事業内容への理解", true, 304, 136, "tc_ck3"),
   ...makeCheckItem(3, "書類と面接の発言に矛盾がないか", true, 304, 136, "tc_ck4"),
 
-  ...makeBubble("一次面接は第一印象が大事だワン！✨"),
+  ...makeBubble("一次面接は第一印象が大事だよっ！✨"),
 ];
 
 // =============================================
@@ -495,7 +435,7 @@ const MOCK_QA_ELEMENTS: El[] = [
     696, "qa4",
   ),
 
-  ...makeBubble("質問を事前に準備しておくワン！📝"),
+  ...makeBubble("質問は事前に準備しておこうねっ！📝"),
 ];
 
 // =============================================
@@ -505,18 +445,15 @@ function makeRankItem(
   rank: number, company: string, description: string,
   y: number, id: string,
 ): El[] {
-  const medal = rank <= 3
-    ? ["🥇", "🥈", "🥉"][rank - 1]
-    : String(rank).padStart(2, "0");
-  const medalColor = rank <= 3 ? COLOR.red : COLOR.teal;
+  const num = String(rank).padStart(2, "0");
   return [
     {
       id: `${id}_rank`, type: "text",
       x: 96, y, width: 64, height: 56,
       rotation: 0, zIndex: 3, opacity: 1,
-      text: medal, fontSize: rank <= 3 ? 36 : 44,
+      text: num, fontSize: 44,
       fontFamily: "Noto Sans JP", fontWeight: "bold" as const,
-      color: medalColor, textAlign: "center" as const, lineHeight: 1.0,
+      color: COLOR.teal, textAlign: "center" as const, lineHeight: 1.0,
     },
     {
       id: `${id}_name`, type: "text",
@@ -550,7 +487,7 @@ const MOCK_RANKING_ELEMENTS: El[] = [
   ...makeRankItem(5, "メルカリ", "フリマアプリ・フィンテック — 平均年収820万円", 664, "rk5"),
   ...makeRankItem(6, "リクルート", "人材・メディア — 平均年収950万円", 768, "rk6"),
 
-  ...makeBubble("この企業リスト保存しておくワン！📌"),
+  ...makeBubble("この企業リスト保存しておいてねっ！📌"),
 ];
 
 // =============================================
@@ -568,7 +505,7 @@ const MOCK_COVER_ARUARU: El[] = [
     text: "あるある", fontSize: 112, fontFamily: "Noto Sans JP", fontWeight: "bold", color: COLOR.red, textAlign: "center", lineHeight: 1.1 },
   makeIllustrationPlaceholder(360, 520, 280, 180, "cv2_ill"),
   ...makeSubtitleBar("何個共感した？スワイプして確かめるワン！", 784),
-  ...makeBubble("何個共感した？スワイプして確かめるワン！"),
+  ...makeBubble("何個共感した？スワイプしてみてっ！😆"),
 ];
 
 // 13: list — 「GDで評価されるポイント6選」— 6 items spacing=96
@@ -582,7 +519,7 @@ const MOCK_LIST_GD: El[] = [
   ...makeListItem(3, "04", "反対意見も建設的に伝える", 248, 104, true, "gd4"),
   ...makeListItem(4, "05", "最後に結論をまとめる", 248, 104, false, "gd5"),
   ...makeListItem(5, "06", "全員が発言できる場を作る", 248, 104, false, "gd6"),
-  ...makeBubble("GDは協調性が一番大事だワン！🤝"),
+  ...makeBubble("GDは協調性が一番大事だよっ！🤝"),
 ];
 
 // 14: comparison — 「内定者 vs 不合格者の違い」
@@ -600,7 +537,7 @@ const MOCK_COMP_NAITEI: El[] = [
   ...makeCompRow(2, "逆質問を3つ以上準備", "逆質問「特にないです」", 256, 120, "cn3"),
   ...makeCompRow(3, "入社後のビジョン明確", "「とりあえず安定」", 256, 120, "cn4"),
   ...makeCompRow(4, "PREP法で回答", "結論が最後にくる", 256, 120, "cn5"),
-  ...makeBubble("内定者のマネをしてみるワン！🎯"),
+  ...makeBubble("内定者のマネしてみよっ！🎯"),
 ];
 
 // 15: checklist — 「内定承諾前チェックリスト」— 8 items spacing=80
@@ -616,7 +553,7 @@ const MOCK_CHECK_NAITEI: El[] = [
   ...makeCheckItem(5, "他社の内定と比較検討した", true, 248, 80, "nc6"),
   ...makeCheckItem(6, "家族に相談した", true, 248, 80, "nc7"),
   ...makeCheckItem(7, "入社後のキャリアパスを確認した", true, 248, 80, "nc8"),
-  ...makeBubble("承諾は慎重に！後悔しない選択をワン🐕"),
+  ...makeBubble("承諾は慎重にねっ！後悔しない選択を💭"),
 ];
 
 // 16: point-card — 「ガクチカの書き方」
@@ -631,7 +568,7 @@ const MOCK_PC_GAKUCHIKA: El[] = [
     "Situation（状況）→ Task（課題）\n→ Action（行動）→ Result（結果）\nの順に書くことで、論理的で\n伝わりやすいガクチカが完成！",
     520, 310, "gk_exp",
   ),
-  ...makeBubble("STAR法は万能テンプレだワン！✍️"),
+  ...makeBubble("STAR法は万能テンプレだよっ！✍️"),
 ];
 
 // 17: company-card — 「食品業界 隠れ優良企業」— spacing拡大
@@ -654,7 +591,7 @@ const MOCK_CC_FOOD: El[] = [
     "トマト製品でトップシェア。健康志向の高まりで成長中。残業少なく働きやすい環境",
     636, "fd3",
   ),
-  ...makeBubble("食品業界は安定性バツグンだワン！🍅"),
+  ...makeBubble("食品業界は安定性バツグンだよっ！🍅"),
 ];
 
 // 18: deadline — 「3/15-21 本選考 締切38選」— spacing拡大
@@ -684,7 +621,7 @@ const MOCK_DL_MAR: El[] = [
   ),
   ...makeDeadlineItem("金融", INDUSTRY_COLORS["金融"], "野村證券", COLOR.black, 744, "dm7"),
   ...makeDeadlineItem("IT", INDUSTRY_COLORS["IT"], "富士通", COLOR.teal, 804, "dm8"),
-  ...makeBubble("3月の締切ラッシュに注意だワン！⚡"),
+  ...makeBubble("3月の締切ラッシュに注意してねっ！⚡"),
 ];
 
 // 19: qa — 「最終面接の頻出質問」— spacing=160で均等配分
@@ -701,7 +638,7 @@ const MOCK_QA_FINAL: El[] = [
   ...makeQAItem("「他社の選考状況を教えて」", "正直に答えつつ、御社が第一志望で\nある理由を明確に伝えよう！", 376, "qf2"),
   ...makeQAItem("「当社でなければならない理由は？」", "企業研究で見つけた独自の強みと\n自分の価値観を結びつけよう！", 536, "qf3"),
   ...makeQAItem("「最後に伝えたいことは？」", "入社への熱意と、自分が貢献できる\n具体的なポイントをアピール！", 696, "qf4"),
-  ...makeBubble("最終面接は熱意が最重要だワン！🔥"),
+  ...makeBubble("最終面接は熱意が最重要だよっ！🔥"),
 ];
 
 // 20: ranking — 「東京勤務 高年収企業」— spacing=104で均等
@@ -715,7 +652,7 @@ const MOCK_RANK_TOKYO: El[] = [
   ...makeRankItem(4, "三井物産", "総合商社 — 平均年収1,783万円", 560, "rt4"),
   ...makeRankItem(5, "ゴールドマン・サックス", "外資金融 — 平均年収1,500万円", 664, "rt5"),
   ...makeRankItem(6, "野村総合研究所", "ITコンサル — 平均年収1,271万円", 768, "rt6"),
-  ...makeBubble("高年収を目指すなら要チェックだワン！💰"),
+  ...makeBubble("高年収を目指すなら要チェックだよっ！💰"),
 ];
 
 // 21: tab-checklist — 「二次面接のポイント」— spacing拡大
@@ -735,7 +672,7 @@ const MOCK_TC_NIJI: El[] = [
   ...makeCheckItem(2, "チームでの役割を語れるか", true, 304, 112, "tc2_c3"),
   ...makeCheckItem(3, "困難を乗り越えた経験を準備したか", true, 304, 112, "tc2_c4"),
   ...makeCheckItem(4, "深掘り質問への想定回答があるか", true, 304, 112, "tc2_c5"),
-  ...makeBubble("二次はスキルの深掘りが来るワン！💡"),
+  ...makeBubble("二次はスキルの深掘りが来るよっ！💡"),
 ];
 
 // =============================================
@@ -746,6 +683,7 @@ interface Scenario {
   name: string;
   slideType: string;
   elements: El[];
+  background?: { type: string; color: string; imageUrl?: string; gradient?: string };
 }
 
 const SCENARIOS: Scenario[] = [
@@ -753,8 +691,8 @@ const SCENARIOS: Scenario[] = [
   { id: 2,  name: "リスト — 面接で聞かれるTOP5",       slideType: "list",           elements: MOCK_LIST_ELEMENTS },
   { id: 3,  name: "比較 — 転職活動 成功vs失敗",        slideType: "comparison",      elements: MOCK_COMPARISON_ELEMENTS },
   { id: 4,  name: "チェック — 転職前チェックリスト",    slideType: "checklist",       elements: MOCK_CHECKLIST_ELEMENTS },
-  { id: 5,  name: "CTA — フォローして最新情報をゲット", slideType: "cta",            elements: MOCK_CTA_ELEMENTS },
-  { id: 6,  name: "ポイント — 自己分析のやり方",       slideType: "point-card",      elements: MOCK_POINT_CARD_ELEMENTS },
+  { id: 5,  name: "CTA① — よりそい就活",               slideType: "cta",            elements: MOCK_CTA1_ELEMENTS, background: CTA1_BG },
+  { id: 6,  name: "CTA② — LINE追加訴求",               slideType: "cta",            elements: MOCK_CTA2_ELEMENTS, background: CTA2_BG },
   { id: 7,  name: "企業カード — IT企業20選",           slideType: "company-card",    elements: MOCK_COMPANY_CARD_ELEMENTS },
   { id: 8,  name: "締切一覧 — 4/1-7 本選考締切",      slideType: "deadline",        elements: MOCK_DEADLINE_ELEMENTS },
   { id: 9,  name: "タブ型 — 一次面接のポイント",       slideType: "tab-checklist",   elements: MOCK_TAB_CHECKLIST_ELEMENTS },
@@ -764,14 +702,13 @@ const SCENARIOS: Scenario[] = [
   { id: 13, name: "リスト — GD評価ポイント6選",        slideType: "list",           elements: MOCK_LIST_GD },
   { id: 14, name: "比較 — 内定者vs不合格者の違い",     slideType: "comparison",      elements: MOCK_COMP_NAITEI },
   { id: 15, name: "チェック — 内定承諾前チェックリスト", slideType: "checklist",       elements: MOCK_CHECK_NAITEI },
-  { id: 16, name: "ポイント — ガクチカの書き方",       slideType: "point-card",      elements: MOCK_PC_GAKUCHIKA },
-  { id: 17, name: "企業カード — 食品業界 隠れ優良",    slideType: "company-card",    elements: MOCK_CC_FOOD },
-  { id: 18, name: "締切一覧 — 3/15-21 本選考締切",    slideType: "deadline",        elements: MOCK_DL_MAR },
-  { id: 19, name: "Q&A — 最終面接の頻出質問",         slideType: "qa",             elements: MOCK_QA_FINAL },
-  { id: 20, name: "ランキング — 東京勤務 高年収企業",   slideType: "ranking",         elements: MOCK_RANK_TOKYO },
+  { id: 16, name: "企業カード — 食品業界 隠れ優良",    slideType: "company-card",    elements: MOCK_CC_FOOD },
+  { id: 17, name: "締切一覧 — 3/15-21 本選考締切",    slideType: "deadline",        elements: MOCK_DL_MAR },
+  { id: 18, name: "Q&A — 最終面接の頻出質問",         slideType: "qa",             elements: MOCK_QA_FINAL },
+  { id: 19, name: "ランキング — 東京勤務 高年収企業",   slideType: "ranking",         elements: MOCK_RANK_TOKYO },
 ];
 
-const SCENARIO_TC_NIJI: Scenario = { id: 21, name: "タブ型 — 二次面接のポイント", slideType: "tab-checklist", elements: MOCK_TC_NIJI };
+const SCENARIO_TC_NIJI: Scenario = { id: 20, name: "タブ型 — 二次面接のポイント", slideType: "tab-checklist", elements: MOCK_TC_NIJI };
 
 // =============================================
 // コンテンツを白カード内で適切に配置（間隔を広げて上寄り）
@@ -823,15 +760,17 @@ export async function POST(request: Request) {
     if (scenarioId !== undefined) {
       const allScenarios = [...SCENARIOS, SCENARIO_TC_NIJI];
       const scenario = allScenarios.find((s) => s.id === scenarioId) || SCENARIOS[0];
-      // cover#1はユーザー手動調整済み、他は間隔拡大＋上寄り配置
-      const elements = scenario.id === 1
+      // cover#1はユーザー手動調整済み、CTA画像は要素なしなのでスキップ
+      const isCta = scenario.slideType === "cta" && scenario.elements.length === 0;
+      const elements = (scenario.id === 1 || isCta)
         ? scenario.elements
         : spreadAndPosition(scenario.elements);
+      const defaultBg = { type: "gradient", color: "#38BDF8", gradient: "linear-gradient(135deg, #38BDF8 0%, #0EA5E9 40%, #06B6D4 70%, #22D3EE 100%)" };
       return NextResponse.json({
         elements,
         scenario: { id: scenario.id, name: scenario.name, slideType: scenario.slideType },
         scenarios: allScenarios.map((s) => ({ id: s.id, name: s.name, slideType: s.slideType })),
-        background: { type: "gradient", color: "#38BDF8", gradient: "linear-gradient(135deg, #38BDF8 0%, #0EA5E9 40%, #06B6D4 70%, #22D3EE 100%)" },
+        background: scenario.background || defaultBg,
         colorScheme: {
           primary: "#38BDF8", secondary: "#0EA5E9", bg: "#38BDF8", accent: "#CC2B2B",
           textLight: "#FFFFFF", textDark: "#1A1A1A", cardBg: "#FFFFFF",
@@ -845,7 +784,7 @@ export async function POST(request: Request) {
       case "comparison": rawElements = MOCK_COMPARISON_ELEMENTS; break;
       case "checklist": rawElements = MOCK_CHECKLIST_ELEMENTS; break;
       case "cta": rawElements = MOCK_CTA_ELEMENTS; break;
-      case "point-card": rawElements = MOCK_POINT_CARD_ELEMENTS; break;
+      case "cta": rawElements = []; break;  // CTA画像は要素なし
       case "company-card": rawElements = MOCK_COMPANY_CARD_ELEMENTS; break;
       case "deadline": rawElements = MOCK_DEADLINE_ELEMENTS; break;
       case "tab-checklist": rawElements = MOCK_TAB_CHECKLIST_ELEMENTS; break;

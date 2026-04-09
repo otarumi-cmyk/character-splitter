@@ -497,7 +497,7 @@ function buildCompanyCard(): { elements: El[]; slotMap: Record<string, string> }
       "[企業名3]", "---万円", "---名",
       "[企業の概要説明テキスト]", 706, "cc3",
     ),
-    ...makeBubble("企業研究は大事だワン！💼"),
+    ...makeBubble("企業研究は大事だよっ！💼"),
   ];
   const slotMap: Record<string, string> = {
     brand: "brand",

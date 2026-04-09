@@ -13,11 +13,13 @@ async function getOpenAIClient(): Promise<OpenAI> {
 
 // Playwrightでテーマに関する情報を複数クエリ・複数ページから収集
 async function searchAndScrape(theme: string): Promise<string> {
-  // 複数の検索クエリで網羅的に情報収集
+  // テーマからコアキーワードを抽出（長すぎると検索結果0件になる）
+  const coreTheme = theme.replace(/[0-9０-９]+つの(こと|秘訣|ポイント|方法|理由)/g, "").trim();
+  const shortTheme = coreTheme.length > 20 ? coreTheme.slice(0, 20) : coreTheme;
   const queries = [
-    `${theme} 就活 転職 具体例 ランキング`,
-    `${theme} 企業 年収 データ 一覧`,
-    `${theme} ポイント まとめ コツ`,
+    `${shortTheme} 就活 転職`,
+    `${shortTheme} まとめ コツ`,
+    `${shortTheme} 具体例 対策`,
   ];
   let browser;
   try {
@@ -38,23 +40,36 @@ async function searchAndScrape(theme: string): Promise<string> {
           timeout: 15000,
         });
 
-        // 検索結果のスニペットを取得
+        // 検索結果のスニペットを取得（複数セレクタで網羅的に）
         const snippets = await page.evaluate(() => {
           const results: string[] = [];
-          document.querySelectorAll("div.g, div[data-sokoban-container]").forEach((el) => {
+          // 標準の検索結果
+          document.querySelectorAll("div.g, div[data-sokoban-container], div[data-hveid]").forEach((el) => {
             const title = el.querySelector("h3")?.textContent?.trim() || "";
-            const snippet = el.querySelector("div[data-sncf], span[style*='line-clamp'], div.VwiC3b")?.textContent?.trim() || "";
+            const snippet = el.querySelector("div[data-sncf], span[style*='line-clamp'], div.VwiC3b, div[style*='-webkit-line-clamp']")?.textContent?.trim()
+              || el.querySelector("span.aCOpRe, span.st, div.IsZvec")?.textContent?.trim()
+              || "";
             if (title && snippet) {
               results.push(`【${title}】\n${snippet}`);
             }
           });
           // フィーチャードスニペット
-          const featured = document.querySelector("div.xpdopen, div[data-attrid]");
+          const featured = document.querySelector("div.xpdopen, div[data-attrid], div.IZ6rdc");
           if (featured) {
             const text = featured.textContent?.trim();
             if (text && text.length > 50) {
               results.unshift(`【ハイライト】\n${text.slice(0, 800)}`);
             }
+          }
+          // フォールバック: h3があるブロックから直接取得
+          if (results.length === 0) {
+            document.querySelectorAll("h3").forEach((h3) => {
+              const parent = h3.closest("div");
+              if (parent) {
+                const text = parent.textContent?.trim() || "";
+                if (text.length > 30) results.push(text.slice(0, 500));
+              }
+            });
           }
           return results.slice(0, 8);
         });

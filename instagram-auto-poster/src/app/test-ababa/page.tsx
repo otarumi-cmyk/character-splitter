@@ -1,7 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
+import html2canvas from "html2canvas-pro";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 import CanvasEditor, {
   type SlideCanvasData,
 } from "@/components/editor/CanvasEditor";
@@ -34,6 +37,7 @@ export default function TestAbabaPage() {
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isFromSaved, setIsFromSaved] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const router = useRouter();
 
   // 起動時に古い壊れたデータだけクリア（v2は残す）
@@ -78,9 +82,10 @@ export default function TestAbabaPage() {
           opacity: (el.opacity as number) ?? 1,
         })),
         background: {
-          type: result.background.type as "solid" | "gradient",
+          type: result.background.type as "solid" | "gradient" | "image",
           color: result.background.color,
           gradient: result.background.gradient,
+          imageUrl: result.background.imageUrl,
         },
       });
       setIsFromSaved(false);
@@ -93,12 +98,89 @@ export default function TestAbabaPage() {
     loadScenario(scenarioId);
   }, [scenarioId, loadScenario]);
 
+  // キャンバスをPNG画像としてキャプチャ
+  const captureCanvas = async (): Promise<Blob | null> => {
+    const el = document.querySelector("[data-canvas-root]") as HTMLElement;
+    if (!el) return null;
+    const canvas = await html2canvas(el, {
+      width: 1080,
+      height: 1350,
+      scale: 1,
+      useCORS: true,
+      onclone: (_doc, cloned) => {
+        cloned.style.transform = "none";
+      },
+    });
+    return new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/png"));
+  };
+
+  // 現在のスライドをPNG保存
+  const downloadCurrent = async () => {
+    setExporting(true);
+    try {
+      const blob = await captureCanvas();
+      if (!blob) return;
+      const name = currentScenario
+        ? `${String(scenarioId).padStart(2, "0")}_${currentScenario.slideType}.png`
+        : `slide_${scenarioId}.png`;
+      saveAs(blob, name);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  // 全テンプレートを一括ZIP保存
+  const downloadAll = async () => {
+    if (!confirm("全テンプレートを画像として一括保存しますか？\n（少し時間がかかります）")) return;
+    setExporting(true);
+    try {
+      const zip = new JSZip();
+      const allScenarios = [...scenarios];
+      for (const sc of allScenarios) {
+        // シナリオを読み込み
+        const res = await fetch("/api/ai-generate-test", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ scenarioId: sc.id }),
+        });
+        const result = await res.json();
+        setData({
+          elements: result.elements.map((el: Record<string, unknown>, i: number) => ({
+            ...el,
+            id: el.id || `el_${i}`,
+            zIndex: el.zIndex ?? i + 1,
+          })),
+          background: {
+            type: result.background?.type || "gradient",
+            color: result.background?.color || "#38BDF8",
+            gradient: result.background?.gradient,
+            imageUrl: result.background?.imageUrl,
+          },
+        });
+        setCurrentScenario(sc);
+        // レンダリング待ち
+        await new Promise((r) => setTimeout(r, 600));
+        const blob = await captureCanvas();
+        if (blob) {
+          const fname = `${String(sc.id).padStart(2, "0")}_${sc.slideType}.png`;
+          zip.file(fname, blob);
+        }
+      }
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      saveAs(zipBlob, "instagram_creatives.zip");
+    } finally {
+      setExporting(false);
+      // 元のシナリオに戻す
+      loadScenario(scenarioId);
+    }
+  };
+
   return (
     <div className="flex h-screen">
       {/* 左サイドバー: シナリオ一覧 */}
       <div className="w-72 bg-gray-50 border-r overflow-y-auto flex-shrink-0">
         <div className="p-3 border-b bg-white sticky top-0 z-10">
-          <h2 className="font-bold text-sm text-gray-700">20 テストシナリオ</h2>
+          <h2 className="font-bold text-sm text-gray-700">{scenarios.length || 19} テストシナリオ</h2>
           <p className="text-xs text-gray-400 mt-1">クリックで切り替え</p>
         </div>
         <div className="p-2 space-y-1">
@@ -203,7 +285,7 @@ export default function TestAbabaPage() {
             </button>
             <button
               onClick={async () => {
-                if (!confirm("全21テンプレートをDBに一括登録しますか？")) return;
+                if (!confirm("全19テンプレートをDBに一括登録しますか？")) return;
                 const res = await fetch("/api/seed-templates", { method: "POST" });
                 if (res.ok) {
                   const d = await res.json();
@@ -216,6 +298,20 @@ export default function TestAbabaPage() {
               className="px-3 py-1.5 rounded bg-orange-500 text-white text-sm font-bold hover:bg-orange-600"
             >
               全テンプレ一括DB登録
+            </button>
+            <button
+              onClick={downloadCurrent}
+              disabled={exporting || !data}
+              className="px-3 py-1.5 rounded bg-indigo-500 text-white text-sm font-bold hover:bg-indigo-600 disabled:opacity-50"
+            >
+              📷 画像保存
+            </button>
+            <button
+              onClick={downloadAll}
+              disabled={exporting}
+              className="px-3 py-1.5 rounded bg-pink-500 text-white text-sm font-bold hover:bg-pink-600 disabled:opacity-50"
+            >
+              {exporting ? "⏳ 書き出し中..." : "📦 全テンプレ一括画像保存"}
             </button>
           </div>
           {/* 座標操作ボタン */}
