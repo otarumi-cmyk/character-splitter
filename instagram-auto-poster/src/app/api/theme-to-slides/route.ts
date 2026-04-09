@@ -11,20 +11,31 @@ async function getOpenAIClient(): Promise<OpenAI> {
   return new OpenAI({ apiKey });
 }
 
-// DuckDuckGoでテーマに関する情報を複数クエリ・複数ページから収集
+// テーマから検索キーワードを抽出（短く自然なクエリにする）
+function extractKeywords(theme: string): string[] {
+  // 数字+パターン系の接尾辞を削除
+  const stripped = theme
+    .replace(/[0-9０-９]+[つのパターン個選秘訣ポイント方法理由こと条件ステップ]+/g, "")
+    .replace(/(やるべき|もらった|するべき|してはいけない|してみた)(こと|直後|方法)?/g, "")
+    .replace(/(する|した|ない|ある|できる|落ちる|受かる|通る)(人|時|場合)?/g, "")
+    .replace(/[のでをにがはもとやかへ、。！？…「」]/g, " ")
+    .trim();
+  // 2文字以上の単語を抽出、最大3語
+  return stripped.split(/\s+/).filter(w => w.length >= 2).slice(0, 3);
+}
+
+// Bing JPでテーマに関する情報を複数クエリ・複数ページから収集
 async function searchAndScrape(theme: string): Promise<string> {
-  const coreTheme = theme.replace(/[0-9０-９]+つの(こと|秘訣|ポイント|方法|理由)/g, "").trim();
-  const shortTheme = coreTheme.length > 20 ? coreTheme.slice(0, 20) : coreTheme;
-  const queries = [
-    `${shortTheme} 就活 転職`,
-    `${shortTheme} まとめ コツ`,
-    `${shortTheme} 具体例 対策`,
-  ];
+  const keywords = extractKeywords(theme);
+  const kw = keywords.join(" ");
+  // 1クエリのみ（連続アクセスでCAPTCHA出るため）
+  const query = `${kw} 就活 コツ まとめ`;
+  console.log(`[search] theme="${theme}" → keywords="${kw}" → query: "${query}"`);
   let browser;
   try {
     browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({
-      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
       locale: "ja-JP",
       extraHTTPHeaders: { "Accept-Language": "ja,ja-JP;q=0.9" },
     });
@@ -32,39 +43,38 @@ async function searchAndScrape(theme: string): Promise<string> {
     const allSnippets: string[] = [];
     const allLinks: string[] = [];
 
-    // Bing JP検索（Google/DuckDuckGoはbot検知されるため）
-    for (const query of queries) {
-      try {
-        const page = await context.newPage();
-        await page.goto(`https://www.bing.com/search?q=${encodeURIComponent(query)}&setlang=ja&cc=JP&mkt=ja-JP`, {
-          waitUntil: "domcontentloaded",
-          timeout: 15000,
-        });
-        await page.waitForTimeout(1500);
+    // Bing JP検索（1回のみ、連続アクセスでCAPTCHA出るため）
+    try {
+      const searchPage = await context.newPage();
+      await searchPage.goto(`https://www.bing.com/search?q=${encodeURIComponent(query)}&setlang=ja&cc=JP&mkt=ja-JP`, {
+        waitUntil: "domcontentloaded",
+        timeout: 15000,
+      });
+      await searchPage.waitForTimeout(2000);
 
-        const results = await page.evaluate(() => {
-          const items: { title: string; snippet: string; url: string }[] = [];
-          document.querySelectorAll(".b_algo").forEach((el) => {
-            const h2 = el.querySelector("h2");
-            const title = h2?.textContent?.trim() || "";
-            const link = (h2?.querySelector("a") as HTMLAnchorElement)?.href || "";
-            const snippet = el.querySelector(".b_caption p")?.textContent?.trim()
-              || el.querySelector("p")?.textContent?.trim() || "";
-            if (title && snippet) {
-              items.push({ title, snippet, url: link });
-            }
-          });
-          return items.slice(0, 8);
+      const results = await searchPage.evaluate(() => {
+        const items: { title: string; snippet: string; url: string }[] = [];
+        document.querySelectorAll(".b_algo").forEach((el) => {
+          const h2 = el.querySelector("h2");
+          const title = h2?.textContent?.trim() || "";
+          const link = (h2?.querySelector("a") as HTMLAnchorElement)?.href || "";
+          const snippet = el.querySelector(".b_caption p")?.textContent?.trim()
+            || el.querySelector("p")?.textContent?.trim() || "";
+          if (title && snippet) {
+            items.push({ title, snippet, url: link });
+          }
         });
+        return items.slice(0, 10);
+      });
 
-        for (const r of results) {
-          allSnippets.push(`【${r.title}】\n${r.snippet}`);
-          if (r.url && r.url.startsWith("http")) allLinks.push(r.url);
-        }
-        await page.close();
-      } catch {
-        // クエリ失敗はスキップ
+      for (const r of results) {
+        allSnippets.push(`【${r.title}】\n${r.snippet}`);
+        if (r.url && r.url.startsWith("http")) allLinks.push(r.url);
       }
+      await searchPage.close();
+      console.log(`[search] Bing: ${results.length}件のスニペット取得`);
+    } catch (e) {
+      console.error("[search] Bing検索失敗:", e);
     }
 
     // 重複URLを除去して上位5件のページ本文を取得
@@ -115,7 +125,7 @@ async function searchAndScrape(theme: string): Promise<string> {
     const uniqueSnippets = [...new Set(allSnippets)];
 
     const allContent = [
-      `=== 検索クエリ: ${queries.join(" / ")} ===`,
+      `=== 検索クエリ: ${query} ===`,
       `=== Bing検索結果 (${uniqueSnippets.length}件) ===`,
       ...uniqueSnippets,
       `=== 詳細ページ内容 (${pageTexts.length}件) ===`,
