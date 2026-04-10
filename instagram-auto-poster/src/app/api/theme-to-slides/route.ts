@@ -171,6 +171,12 @@ async function generateSlideSpec(
 10. **qa** (Q&A): 質問+回答4セット。面接対策に最適。
 11. **ranking** (ランキング): 6社のランキング。
 
+## 【超重要】スライドタイプ選択ルール:
+- **company-card / ranking / deadline** は「特定企業の紹介」「企業ランキング」「エントリー締切」がテーマの場合のみ使用すること
+- テーマが「コツ」「方法」「特徴」「あるある」「向いている人」「やるべきこと」等の場合 → list, comparison, qa, point-card, checklist, tab-checklist を使う
+- テーマと無関係な企業情報・年収データを絶対に入れないこと。全スライドがテーマに直結する内容であること
+- 各スライドの内容がテーマから論理的に繋がっているか必ず確認すること
+
 ## content形式ルール（重要）:
 - **list**: 改行区切り5-6項目（例: "自己分析を徹底する\\n業界研究をする\\n..."）
 - **comparison**: パイプ区切り（例: "計画的に準備|ギリギリで焦る\\n企業研究する|何も調べない"）
@@ -206,9 +212,9 @@ ${scrapedContent.slice(0, 12000)}
 注意:
 - 必ず1枚目はcover、最後はcta
 - 5〜9枚の範囲で、伝えたい内容が全て収まるように枚数を調整すること。情報が多いテーマは7-9枚、シンプルなテーマは5-6枚
-- 【最重要】収集情報から具体的な企業名・数値・年収・データを必ず引用すること。「1位」「2位」のような抽象的な表現は絶対NG。実在の企業名・具体的な数字を入れること
-- ランキングには実在の企業名と具体的な年収・特徴を必ず入れる
-- company-cardには実在の企業名・年収・採用人数を入れる
+- 【最重要】全スライドの内容がテーマに直結していること。テーマと無関係な企業・年収・データを絶対に混ぜないこと
+- company-card / ranking / deadline は企業紹介・ランキング・締切がテーマの場合のみ使用。それ以外のテーマでは使わないこと
+- 収集情報に具体的なデータがある場合は引用してよいが、テーマと関係ないデータは使わないこと
 - contentは各slideTypeの形式ルールに厳密に従ってください
 - JSON形式のみで返答`;
 
@@ -258,9 +264,10 @@ export async function POST(request: Request) {
 
     for (const slide of contentSlides) {
       // テンプレートをDBから検索
+      // 標準テンプレート（ID小=最初に登録されたもの）を優先
       const template = await prisma.canvasTemplate.findFirst({
         where: { slideType: slide.slideType },
-        orderBy: [{ category: "asc" }, { updatedAt: "desc" }],
+        orderBy: [{ id: "asc" }],
       });
 
       let tplElements: Record<string, unknown>[];
