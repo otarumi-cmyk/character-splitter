@@ -189,9 +189,12 @@ async function generateSlideSpec(
 | 「比較」「違い」 | cover + comparison×複数 + cta | 5-7枚 |
 
 ## 【重要】スライド構成ルール:
-- **同じスライドタイプを3枚以上連続で使わないこと**（飽きる。途中にcomparison, qa, checklist等を挟んで変化をつける）
+- **同じスライドタイプを3枚以上連続で使わないこと**（飽きる。途中に別タイプを挟んで変化をつける）
   - 良い例: list → comparison → list → qa → checklist
+  - 良い例: comparison → list → comparison → qa（比較テーマでも間にlistを挟む）
   - 悪い例: list → list → list → list → list
+  - 悪い例: comparison → comparison → comparison → comparison
+- **比較テーマでもcomparisonは最大2枚連続**。3枚目の前にlist/qa/checklistを必ず挟むこと
 - 例外: ranking×複数枚は「XX選」テーマでは連続OK（同じデータを分割表示しているだけなので）
 - 例外: deadline×複数枚は「締切一覧」テーマでは連続OK
 - 「締切」「エントリー」テーマでは**deadlineスライド**を使うこと（rankingではない）
