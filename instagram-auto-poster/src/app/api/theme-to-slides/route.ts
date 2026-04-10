@@ -188,16 +188,40 @@ async function generateSlideSpec(
 | 「あるある」「特徴」 | cover + list/comparison/checklist + cta | 5-7枚 |
 | 「比較」「違い」 | cover + comparison×複数 + cta | 5-7枚 |
 
-## 【重要】スライド構成ルール:
-- **同じスライドタイプを3枚以上連続で使わないこと**（飽きる。途中に別タイプを挟んで変化をつける）
-  - 良い例: list → comparison → list → qa → checklist
-  - 良い例: comparison → list → comparison → qa（比較テーマでも間にlistを挟む）
-  - 悪い例: list → list → list → list → list
-  - 悪い例: comparison → comparison → comparison → comparison
-- **比較テーマでもcomparisonは最大2枚連続**。3枚目の前にlist/qa/checklistを必ず挟むこと
-- 例外: ranking×複数枚は「XX選」テーマでは連続OK（同じデータを分割表示しているだけなので）
-- 例外: deadline×複数枚は「締切一覧」テーマでは連続OK
-- 「締切」「エントリー」テーマでは**deadlineスライド**を使うこと（rankingではない）
+## 【最重要】テーマごとに最適なストーリー構成を組むこと
+毎回同じ構成パターンに逃げるな。テーマの性質に合わせてスライドの流れを設計せよ。
+
+### 構成パターン別ガイド:
+**A. ステップ・手順系**（「やり方」「ステップ」「方法」）
+→ 各スライドが1ステップずつ進行する。list連続OK。
+例: STEP1(list) → STEP2(list) → STEP3(checklist) → 注意点(comparison) → まとめ(qa)
+
+**B. 共感・あるある系**（「あるある」「共感」「リアル」）
+→ 共感ネタ → 共感ネタ → 「でも実は…」(comparison) → チェック(checklist:あなたは何個？)
+例: あるある前半(list) → あるある後半(list) → やりがちvs正解(comparison) → 何個当てはまる？(checklist)
+
+**C. ランキング・一覧系**（「XX選」「ランキング」「一覧」）
+→ ranking/deadlineを必要枚数並べる。連続OK。
+例: 1〜6位(ranking) → 7〜12位(ranking) → ... → 選び方(list) → CTA
+
+**D. 見分け方・判断系**（「見分け方」「見極め」「違い」）
+→ フェーズ別に進行（求人→面接→入社後 など）。各フェーズで適切なタイプを使う。
+例: 求人で見る(list) → 良い求人vs悪い求人(comparison) → 面接で見る(list) → 口コミ確認(checklist)
+
+**E. コツ・対策系**（「コツ」「対策」「書き方」）
+→ 基本 → 応用 → NG例 → Q&A → チェック。comparisonは本当に比較が必要な時だけ使う。
+例: 基本のコツ(list) → NG例(list) → OK vs NG(comparison) → よくある悩み(qa) → 提出前チェック(checklist)
+
+**F. 比較系**（「vs」「違い」「比較」）
+→ **comparisonは絶対に最大2枚連続**。3枚目を入れたい場合は必ず間にlist/qaを挟め。
+例: 基本比較(comp) → 待遇比較(comp) → A向きな人(list) → B向きな人(list) → 選び方(qa)
+
+### 禁止事項:
+- ❌ **cover→list→comparison→list→qa→checklist→ctaの定型パターンを毎回使うこと**（テーマに関係なく同じ構成は禁止）
+- ❌ comparisonを「とりあえず入れる」（本当に2つを対比する内容がある時だけ使え）
+- ❌ 全体像で5項目挙げておいて、深掘りは3項目だけ（挙げたなら全部カバーせよ）
+- ❌ 同タイプ3連続（ranking/deadline除く）
+- ❌ 「締切」テーマでrankingを使う（deadlineを使え）
 
 ## content形式ルール（重要・文字数厳守）:
 - **list**: 改行区切り5-6項目。各項目は**最大16文字**（例: "自己分析を徹底する\\n業界研究をする"）
