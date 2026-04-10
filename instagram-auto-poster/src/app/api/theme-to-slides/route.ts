@@ -183,10 +183,18 @@ async function generateSlideSpec(
 |---|---|---|
 | 「XX選」「ランキング」 | cover + ranking×必要枚数 + cta | 数÷6+2枚 |
 | 「XX企業」「年収」 | cover + ranking/company-card×複数 + cta | 7-9枚 |
-| 「締切」「エントリー」 | cover + deadline×複数 + cta | 5-7枚 |
+| 「締切」「エントリー」「ES締切」 | cover + **deadline**×複数 + cta | 5-7枚（※rankingではなくdeadlineを使う） |
 | 「コツ」「方法」「やり方」 | cover + list/comparison/qa + cta | 6-8枚 |
-| 「あるある」「特徴」 | cover + list/checklist + cta | 5-7枚 |
+| 「あるある」「特徴」 | cover + list/comparison/checklist + cta | 5-7枚 |
 | 「比較」「違い」 | cover + comparison×複数 + cta | 5-7枚 |
+
+## 【重要】スライド構成ルール:
+- **同じスライドタイプを3枚以上連続で使わないこと**（飽きる。途中にcomparison, qa, checklist等を挟んで変化をつける）
+  - 良い例: list → comparison → list → qa → checklist
+  - 悪い例: list → list → list → list → list
+- 例外: ranking×複数枚は「XX選」テーマでは連続OK（同じデータを分割表示しているだけなので）
+- 例外: deadline×複数枚は「締切一覧」テーマでは連続OK
+- 「締切」「エントリー」テーマでは**deadlineスライド**を使うこと（rankingではない）
 
 ## content形式ルール（重要・文字数厳守）:
 - **list**: 改行区切り5-6項目。各項目は**最大16文字**（例: "自己分析を徹底する\\n業界研究をする"）
