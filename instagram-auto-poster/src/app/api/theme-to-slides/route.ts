@@ -158,6 +158,15 @@ async function generateSlideSpec(
 ユーザーからテーマとWeb検索で集めた情報が送られてきます。
 その情報を元に、Instagram向けの魅力的なカルーセル投稿（5〜9枚、内容量に応じて調整）を設計してください。
 
+## 口調・トーンルール（必ず守ること）
+- ターゲットは就活中の大学生（20代前半）。**友達の頼れる先輩がアドバイスする口調**で書くこと
+- 硬い敬語（「〜です。」「〜ましょう。」「〜重要です」）は禁止。カジュアルかつ温かみのある表現にする
+- 語尾は「〜だよ！」「〜してみて！」「〜なんだよね」「〜が大事！」「〜しよう！」を使う
+- 「→」で始まる解説も「→ ここがポイントだよ！」「→ これだけで印象変わる！」のように
+- Q&Aの回答は「〜だよ！」「〜してみてね！」「〜が正解！」など親しみやすく
+- ❌ 「〜が重要です」「〜を意識しましょう」「〜が必要です」（硬すぎ）
+- ✅ 「〜が大事だよ！」「〜を意識してみて！」「〜があるといいよ！」
+
 ## 【最重要ルール】テーマに忠実であること
 - テーマが「XX選」「XXランキング」の場合 → **必ず具体的な固有名詞（企業名・サービス名等）をその数だけ並べること**。抽象的なアドバイスに置き換えるのは厳禁。
   例: 「ホワイト企業30選」→ rankingスライド5枚（6社×5=30社）で実際の企業名を並べる
@@ -177,16 +186,20 @@ async function generateSlideSpec(
 8. **tab-checklist** (タブ型): セクション別チェックリスト4項目
 9. **qa** (Q&A): 質問+回答4セット。面接対策に最適
 10. **ranking** (ランキング): 6社のランキング。企業名+説明をパイプ区切り
+11. **tagged-list** (タグ付きリスト): 色付き業種バッジ+テキストの7行。企業一覧・カテゴリ付きリストに最適。content: "タグ|テキスト"改行区切り7行
+12. **good-bad** (良い例・悪い例): ❌悪い例と✅良い例の上下対比。面接話術・ES添削・マナー系に最適。content: "❌|ラベル\\n例: 悪い例テキスト\\n→ 解説\\n✅|ラベル\\n例: 良い例テキスト\\n→ 解説"
+13. **data-table** (データテーブル): 企業名+業種+年収+追加指標の7行表。年収比較・データ一覧に最適。content: "企業名|業種|年収|残業時間"改行区切り7行
 
 ## テーマ別テンプレ選択ガイド:
 | テーマの種類 | 使うスライドタイプ | 枚数目安 |
 |---|---|---|
-| 「XX選」「ランキング」 | cover + ranking×必要枚数 + cta | 数÷6+2枚 |
-| 「XX企業」「年収」 | cover + ranking/company-card×複数 + cta | 7-9枚 |
+| 「XX選」「ランキング」 | cover + ranking/tagged-list×必要枚数 + cta | 数÷6+2枚 |
+| 「XX企業」「年収」 | cover + data-table/company-card×複数 + cta | 7-9枚 |
 | 「締切」「エントリー」「ES締切」 | cover + **deadline**×複数 + cta | 5-7枚（※rankingではなくdeadlineを使う） |
-| 「コツ」「方法」「やり方」 | cover + list/comparison/qa + cta | 6-8枚 |
+| 「コツ」「方法」「やり方」 | cover + list/good-bad/qa + cta | 6-8枚 |
 | 「あるある」「特徴」 | cover + list/comparison/checklist + cta | 5-7枚 |
-| 「比較」「違い」 | cover + comparison×複数 + cta | 5-7枚 |
+| 「比較」「違い」「年収」 | cover + comparison/data-table×複数 + cta | 5-7枚 |
+| 「面接」「ES」「話し方」 | cover + good-bad/list/qa + cta | 6-8枚 |
 
 ## 【最重要】テーマごとに最適なストーリー構成を組むこと
 毎回同じ構成パターンに逃げるな。テーマの性質に合わせてスライドの流れを設計せよ。
@@ -201,16 +214,16 @@ async function generateSlideSpec(
 例: あるある前半(list) → あるある後半(list) → やりがちvs正解(comparison) → 何個当てはまる？(checklist)
 
 **C. ランキング・一覧系**（「XX選」「ランキング」「一覧」）
-→ ranking/deadlineを必要枚数並べる。連続OK。
-例: 1〜6位(ranking) → 7〜12位(ranking) → ... → 選び方(list) → CTA
+→ ranking/tagged-list/data-tableを混ぜて視覚的に変化をつける。連続OK。
+例: 1〜6位(ranking) → 7〜13位(tagged-list) → 14〜20位(data-table) → 選び方(list) → CTA
 
 **D. 見分け方・判断系**（「見分け方」「見極め」「違い」）
 → フェーズ別に進行（求人→面接→入社後 など）。各フェーズで適切なタイプを使う。
 例: 求人で見る(list) → 良い求人vs悪い求人(comparison) → 面接で見る(list) → 口コミ確認(checklist)
 
-**E. コツ・対策系**（「コツ」「対策」「書き方」）
-→ 基本 → 応用 → NG例 → Q&A → チェック。comparisonは本当に比較が必要な時だけ使う。
-例: 基本のコツ(list) → NG例(list) → OK vs NG(comparison) → よくある悩み(qa) → 提出前チェック(checklist)
+**E. コツ・対策系**（「コツ」「対策」「書き方」「面接」「ES」）
+→ 基本 → 応用 → NG例→OK例 → Q&A → チェック。good-badは面接話術やES例に最適。
+例: 基本のコツ(list) → NG→OK例(good-bad) → 応用(list) → よくある悩み(qa) → 提出前チェック(checklist)
 
 **F. 比較系**（「vs」「違い」「比較」）
 → **comparisonは絶対に最大2枚連続**。3枚目を入れたい場合は必ず間にlist/qaを挟め。
@@ -225,7 +238,7 @@ async function generateSlideSpec(
 
 ## content形式ルール（重要・文字数厳守）:
 - **list**: 改行区切り5-6項目。各項目は**最大16文字**（例: "自己分析を徹底する\\n業界研究をする"）
-- **comparison**: パイプ区切り。各セル**最大10文字**（例: "計画的に準備|ギリギリで焦る\\n企業研究する|何も調べない"）
+- **comparison**: **1行目は左右のヘッダー名**（例: "✅成功|❌失敗"）、2行目以降がパイプ区切りの比較行。各セル**最大10文字**。ヘッダーはテーマに合わせてカスタマイズすること（例: "新規営業|ルート営業"、"理系|文系"、"大手|ベンチャー"など）。（例: "✅内定者|❌不採用者\\n計画的に準備|ギリギリで焦る\\n企業研究する|何も調べない"）
 - **checklist**: 改行区切り8項目。各項目**最大16文字**
 - **tab-checklist**: 改行区切り4項目。各項目**最大16文字**
 - **qa**: Q/A交互。Qは**最大18文字**、Aは**最大30文字**（例: "Q: 志望動機は？\\nA: 企業の理念に共感..."）
@@ -233,6 +246,9 @@ async function generateSlideSpec(
 - **company-card**: パイプ区切り3社。企業名**最大10文字**（例: "トヨタ自動車|850万円|500名|福利厚生充実"）
 - **deadline**: 改行区切り。日付|業界|企業名|カテゴリ
 - **cover**: titleは**最大12文字**。contentの1行目はバナー**最大14文字**、2行目はサブ説明
+- **tagged-list**: "タグ|テキスト"改行区切り7行。タグ**最大6文字**、テキスト**最大18文字**（例: "メーカー|トヨタ自動車\\nIT|サイバーエージェント"）
+- **good-bad**: "❌|ラベル\\n例: テキスト\\n→ 解説\\n✅|ラベル\\n例: テキスト\\n→ 解説"。各テキスト**最大30文字**
+- **data-table**: "企業名|業種|年収|追加指標"改行区切り7行。企業名**最大10文字**（例: "トヨタ|メーカー|850万|月15h"）
 - **cta**: サブテキスト
 - ⚠️ 文字数を超えるとテキストが表示枠からはみ出て崩れるため、必ず文字数制限を守ること
 
@@ -483,16 +499,30 @@ function injectContent(
     }
     case "comparison": {
       if (title && slotMap.title) setText(slotMap.title, title);
+      // 1行目がヘッダー行（"✅成功|❌失敗" 等）かチェック
+      let dataLines = [...lines];
+      if (dataLines.length > 0 && dataLines[0].includes("|")) {
+        const [lh, rh] = dataLines[0].split("|").map((s: string) => s.trim());
+        // ヘッダーっぽい行かどうか判定（絵文字/記号始まり or 短い2語）
+        const isHeader = /^[✅❌⭕🔴🟢🟡◯×☓○●▶►★☆🏢👤📊🎯💡🔥]/.test(lh) || (lh.length <= 8 && rh.length <= 8 && dataLines.length > 3);
+        if (isHeader) {
+          const lhSlot = slotMap.left_header || slotMap.left_label;
+          const rhSlot = slotMap.right_header || slotMap.right_label;
+          if (lhSlot) setText(lhSlot, lh);
+          if (rhSlot) setText(rhSlot, rh);
+          dataLines = dataLines.slice(1);
+        }
+      }
       const pairs: [string, string][] = [];
-      for (const line of lines) {
+      for (const line of dataLines) {
         if (line.includes("|")) {
           const [l, r] = line.split("|").map((s: string) => s.replace(/^[^:：]+[:：]\s*/, "").trim());
           pairs.push([l, r || ""]);
         }
       }
       if (pairs.length === 0) {
-        for (let i = 0; i < lines.length; i += 2) {
-          pairs.push([lines[i]?.trim() || "", lines[i + 1]?.trim() || ""]);
+        for (let i = 0; i < dataLines.length; i += 2) {
+          pairs.push([dataLines[i]?.trim() || "", dataLines[i + 1]?.trim() || ""]);
         }
       }
       for (let i = 0; i < pairs.length; i++) {
@@ -567,6 +597,78 @@ function injectContent(
       if (title && slotMap.heading) setText(slotMap.heading, title);
       if (lines[0] && slotMap.subtitle) setText(slotMap.subtitle, lines[0]);
       if (brandName && slotMap.account_name) setText(slotMap.account_name, brandName);
+      break;
+    }
+    case "tagged-list": {
+      if (title && slotMap.header_title) {
+        const hEl = findEl(slotMap.header_title);
+        if (hEl) {
+          hEl.text = title;
+          if (title.length > 16) hEl.fontSize = Math.max(24, Math.floor(808 / title.length));
+        }
+      }
+      for (let i = 0; i < lines.length && i < 7; i++) {
+        const parts = lines[i].split("|").map((s: string) => s.trim());
+        const tag = parts[0] || "";
+        const text = parts[1] || parts[0] || "";
+        if (slotMap[`tag_${i + 1}`]) setText(slotMap[`tag_${i + 1}`], tag);
+        if (slotMap[`item_${i + 1}`]) setText(slotMap[`item_${i + 1}`], text);
+      }
+      for (let i = lines.length; i < 7; i++) {
+        const txtId = slotMap[`item_${i + 1}`];
+        if (txtId) hideByPrefix(txtId.replace(/_txt$/, "_"));
+      }
+      break;
+    }
+    case "good-bad": {
+      if (title && slotMap.header_title) {
+        const hEl = findEl(slotMap.header_title);
+        if (hEl) {
+          hEl.text = title;
+          if (title.length > 16) hEl.fontSize = Math.max(24, Math.floor(808 / title.length));
+        }
+      }
+      let mode: "bad" | "good" | null = null;
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.startsWith("❌")) {
+          mode = "bad";
+          const label = trimmed.replace(/^❌\|?\s*/, "").trim();
+          if (label && slotMap.bad_label) setText(slotMap.bad_label, `❌ ${label}`);
+        } else if (trimmed.startsWith("✅")) {
+          mode = "good";
+          const label = trimmed.replace(/^✅\|?\s*/, "").trim();
+          if (label && slotMap.good_label) setText(slotMap.good_label, `✅ ${label}`);
+        } else if (trimmed.startsWith("例:") || trimmed.startsWith("例：")) {
+          const ex = trimmed.replace(/^例[:：]\s*/, "").trim();
+          if (mode === "bad" && slotMap.bad_example) setText(slotMap.bad_example, `（例）「${ex}」`);
+          if (mode === "good" && slotMap.good_example) setText(slotMap.good_example, `（例）「${ex}」`);
+        } else if (trimmed.startsWith("→")) {
+          if (mode === "bad" && slotMap.bad_insight) setText(slotMap.bad_insight, trimmed);
+          if (mode === "good" && slotMap.good_insight) setText(slotMap.good_insight, trimmed);
+        }
+      }
+      break;
+    }
+    case "data-table": {
+      if (title && slotMap.header_title) {
+        const hEl = findEl(slotMap.header_title);
+        if (hEl) {
+          hEl.text = title;
+          if (title.length > 16) hEl.fontSize = Math.max(24, Math.floor(808 / title.length));
+        }
+      }
+      for (let i = 0; i < lines.length && i < 7; i++) {
+        const parts = lines[i].split("|").map((s: string) => s.trim());
+        if (parts[0] && slotMap[`row_${i + 1}_name`]) setText(slotMap[`row_${i + 1}_name`], parts[0]);
+        if (parts[1] && slotMap[`row_${i + 1}_tag`]) setText(slotMap[`row_${i + 1}_tag`], parts[1]);
+        if (parts[2] && slotMap[`row_${i + 1}_v1`]) setText(slotMap[`row_${i + 1}_v1`], parts[2]);
+        if (parts[3] && slotMap[`row_${i + 1}_v2`]) setText(slotMap[`row_${i + 1}_v2`], parts[3]);
+      }
+      for (let i = lines.length; i < 7; i++) {
+        const nameId = slotMap[`row_${i + 1}_name`];
+        if (nameId) hideByPrefix(nameId.replace(/_name$/, "_"));
+      }
       break;
     }
   }

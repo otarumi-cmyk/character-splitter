@@ -750,6 +750,132 @@ export function makeTabBar(tabs: string[], activeIndex: number, y: number, id = 
   return elements;
 }
 
+// =====================================================================
+//  追加ヘルパー: tagged-list / good-bad / data-table 系
+// =====================================================================
+
+/** タグ付きリスト行: 色バッジ + テキスト */
+export function makeTaggedRow(
+  tag: string, tagColor: string, text: string,
+  y: number, id: string,
+): El[] {
+  return [
+    // 色バッジ（pill）
+    ...textInBox(
+      { x: 96, y: y + 4, width: 120, height: 40, bg: tagColor, borderRadius: 20, zIndex: 3 },
+      { text: tag, fontSize: 18, fontWeight: "bold", color: COLOR.white, textAlign: "center", lineHeight: 1.2 },
+      { box: `${id}_tag_bg`, text: `${id}_tag` },
+      { h: 6, v: 3 },
+    ),
+    // テキスト
+    {
+      id: `${id}_txt`, type: "text",
+      x: 232, y, width: 720, height: 48,
+      rotation: 0, zIndex: 3, opacity: 1,
+      text, fontSize: 30, fontFamily: "Noto Sans JP", fontWeight: "bold" as const,
+      color: COLOR.black, textAlign: "left" as const, lineHeight: 1.3,
+    },
+    // 区切り線
+    {
+      id: `${id}_div`, type: "shape",
+      x: 96, y: y + 52, width: 856, height: 1,
+      rotation: 0, zIndex: 2, opacity: 0.15,
+      shapeType: "rect" as const, backgroundColor: COLOR.gray[200],
+      borderColor: "transparent", borderWidth: 0, borderRadius: 0,
+    },
+  ];
+}
+
+/** 良い例・悪い例パネル */
+export function makeExamplePanel(
+  emoji: string, label: string, example: string, insight: string,
+  y: number, bgColor: string, borderColor: string, id: string,
+): El[] {
+  const panelH = 340;
+  return [
+    // パネル背景
+    {
+      id: `${id}_panel`, type: "shape",
+      x: 80, y, width: 920, height: panelH,
+      rotation: 0, zIndex: 2, opacity: 1,
+      shapeType: "rounded-rect" as const, backgroundColor: bgColor,
+      borderColor, borderWidth: 2, borderRadius: 16,
+    },
+    // ラベル（❌ 悪い例 / ✅ 良い例）
+    {
+      id: `${id}_lbl`, type: "text",
+      x: 104, y: y + 14, width: 880, height: 52,
+      rotation: 0, zIndex: 3, opacity: 1,
+      text: `${emoji} ${label}`, fontSize: 38, fontFamily: "Noto Sans JP", fontWeight: "bold" as const,
+      color: COLOR.black, textAlign: "left" as const, lineHeight: 1.2,
+    },
+    // 引用テキスト（例）
+    {
+      id: `${id}_ex`, type: "text",
+      x: 104, y: y + 74, width: 872, height: 120,
+      rotation: 0, zIndex: 3, opacity: 1,
+      text: example, fontSize: 32, fontFamily: "Noto Sans JP", fontWeight: "bold" as const,
+      color: COLOR.gray[600], textAlign: "left" as const, lineHeight: 1.5,
+    },
+    // 解説テキスト
+    ...textInBox(
+      { x: 104, y: y + 208, width: 872, height: 112, bg: COLOR.white, borderRadius: 8, zIndex: 3, borderColor: COLOR.gray[100], borderWidth: 1 },
+      { text: insight, fontSize: 28, fontWeight: "bold", color: COLOR.black, textAlign: "left", lineHeight: 1.4 },
+      { box: `${id}_ins_bg`, text: `${id}_ins` },
+      { h: 16, v: 8 },
+    ),
+  ];
+}
+
+/** データテーブル行: 企業名 + バッジ + 数値1 + 数値2 */
+export function makeDataTableRow(
+  name: string, tag: string, tagColor: string, val1: string, val2: string,
+  y: number, id: string, isEven: boolean,
+): El[] {
+  const rowH = 52;
+  return [
+    // 交互背景
+    ...(isEven ? [{
+      id: `${id}_row_bg`, type: "shape",
+      x: 80, y, width: 920, height: rowH,
+      rotation: 0, zIndex: 2, opacity: 1,
+      shapeType: "rect" as const, backgroundColor: "#F0F9FF",
+      borderColor: "transparent", borderWidth: 0, borderRadius: 0,
+    }] : []),
+    // 企業名
+    {
+      id: `${id}_name`, type: "text",
+      x: 96, y: y + 4, width: 260, height: 44,
+      rotation: 0, zIndex: 3, opacity: 1,
+      text: name, fontSize: 26, fontFamily: "Noto Sans JP", fontWeight: "bold" as const,
+      color: COLOR.black, textAlign: "left" as const, lineHeight: 1.2,
+    },
+    // 業種バッジ
+    ...textInBox(
+      { x: 368, y: y + 8, width: 100, height: 36, bg: tagColor, borderRadius: 18, zIndex: 3 },
+      { text: tag, fontSize: 16, fontWeight: "bold", color: COLOR.white, textAlign: "center", lineHeight: 1.2 },
+      { box: `${id}_tag_bg`, text: `${id}_tag` },
+      { h: 4, v: 2 },
+    ),
+    // 数値1
+    {
+      id: `${id}_v1`, type: "text",
+      x: 488, y: y + 4, width: 200, height: 44,
+      rotation: 0, zIndex: 3, opacity: 1,
+      text: val1, fontSize: 26, fontFamily: "Noto Sans JP", fontWeight: "bold" as const,
+      color: COLOR.red, textAlign: "right" as const, lineHeight: 1.2,
+    },
+    // 数値2
+    {
+      id: `${id}_v2`, type: "text",
+      x: 712, y: y + 4, width: 240, height: 44,
+      rotation: 0, zIndex: 3, opacity: 1,
+      text: val2, fontSize: 24, fontFamily: "Noto Sans JP", fontWeight: "bold" as const,
+      color: COLOR.gray[600], textAlign: "right" as const, lineHeight: 1.2,
+    },
+  ];
+}
+
 /** QA項目：チェック+質問+回答 */
 export function makeQAItem(
   question: string, answer: string, y: number, id: string,

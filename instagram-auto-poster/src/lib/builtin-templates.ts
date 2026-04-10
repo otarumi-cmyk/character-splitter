@@ -26,6 +26,9 @@ import {
   makeDeadlineItem,
   makeTabBar,
   makeQAItem,
+  makeTaggedRow,
+  makeExamplePanel,
+  makeDataTableRow,
   TYPO,
   COLOR,
 } from "./layout-rules";
@@ -279,8 +282,15 @@ const INDUSTRY_COLORS: Record<string, string> = {
   インフラ: "#06B6D4",
   物流: "#22D3EE",
   メーカー: "#67E8F9",
+  コンサル: "#0369A1",
+  サービス: "#0891B2",
+  不動産: "#155E75",
   その他: "#A5F3FC",
 };
+
+function getTagColor(tag: string): string {
+  return INDUSTRY_COLORS[tag] || INDUSTRY_COLORS["その他"];
+}
 
 // =============================================
 // テンプレートビルダー (y座標: card y=80 基準)
@@ -399,8 +409,8 @@ function buildComparison(): { elements: El[]; slotMap: Record<string, string> } 
       shapeType: "rect", backgroundColor: COLOR.gray[200],
       borderColor: "transparent", borderWidth: 0, borderRadius: 0,
     },
-    ...makePill(COL_L + 110, 226, 192, 48, "✅ 成功", COLOR.teal, COLOR.white, "cmp_ll"),
-    ...makePill(COL_R + 110, 226, 192, 48, "❌ 失敗", COLOR.red, COLOR.white, "cmp_lr"),
+    ...makePill(COL_L + 110, 226, 192, 48, "✅ 成功", COLOR.teal, COLOR.white, "cmp_lh"),
+    ...makePill(COL_R + 110, 226, 192, 48, "❌ 失敗", COLOR.red, COLOR.white, "cmp_rh"),
     ...makeCompRow(0, "[良い例1]", "[悪い例1]", 306, 130, "cr1"),
     ...makeCompRow(1, "[良い例2]", "[悪い例2]", 306, 130, "cr2"),
     ...makeCompRow(2, "[良い例3]", "[悪い例3]", 306, 130, "cr3"),
@@ -411,6 +421,8 @@ function buildComparison(): { elements: El[]; slotMap: Record<string, string> } 
   const slotMap: Record<string, string> = {
     brand: "brand",
     title: "cmp_title",
+    left_header: "cmp_lh_txt",
+    right_header: "cmp_rh_txt",
     row_1_l: "cr1_l",
     row_1_r: "cr1_r",
     row_2_l: "cr2_l",
@@ -676,6 +688,155 @@ function buildRanking(): { elements: El[]; slotMap: Record<string, string> } {
 }
 
 // =============================================
+// 新テンプレート: tagged-list, good-bad, data-table
+// =============================================
+
+function buildTaggedList(): { elements: El[]; slotMap: Record<string, string> } {
+  const tags = ["メーカー", "IT", "金融", "商社", "インフラ", "サービス", "コンサル"];
+  const items = ["[企業名1]", "[企業名2]", "[企業名3]", "[企業名4]", "[企業名5]", "[企業名6]", "[企業名7]"];
+  const startY = 252;
+  const spacing = 96;
+
+  const elements: El[] = [
+    makeBrand("@account"),
+    makeCard(),
+    ...makeHeader("[タグ付きリスト]", "1/1"),
+  ];
+
+  for (let i = 0; i < 7; i++) {
+    elements.push(...makeTaggedRow(tags[i], getTagColor(tags[i]), items[i], startY + i * spacing, `tl${i + 1}`));
+  }
+
+  elements.push(...makeBubble("保存して後でチェックしてね〜！📌"));
+
+  const slotMap: Record<string, string> = {
+    brand: "brand",
+    header_title: "hdr_txt",
+    header_page: "hdr_badge_txt",
+    bubble: "bbl_txt",
+  };
+  for (let i = 1; i <= 7; i++) {
+    slotMap[`item_${i}`] = `tl${i}_txt`;
+    slotMap[`tag_${i}`] = `tl${i}_tag`;
+  }
+
+  return { elements, slotMap };
+}
+
+function buildGoodBad(): { elements: El[]; slotMap: Record<string, string> } {
+  const elements: El[] = [
+    makeBrand("@account"),
+    makeCard(),
+    ...makeHeader("[良い例・悪い例タイトル]"),
+    // 悪い例パネル（赤系）
+    ...makeExamplePanel(
+      "❌", "悪い例",
+      "（例）「えっと、私はサークルでリーダーをやって頑張りました…」",
+      "→ 具体性がなく、何を伝えたいか不明確",
+      248, "#FFF5F5", "#FCA5A5", "gb_bad",
+    ),
+    // 良い例パネル（緑系）— 悪い例パネル(y=248+h=340)+gap16 = 604
+    ...makeExamplePanel(
+      "✅", "良い例",
+      "（例）「サークルで〇〇を企画し、参加者を前年比2倍に増やしました」",
+      "→ 数字と具体的な行動で説得力がある！",
+      604, "#F0FFF4", "#86EFAC", "gb_good",
+    ),
+    ...makeBubble("この違い、意識するだけで全然変わるよ〜！✨"),
+  ];
+
+  const slotMap: Record<string, string> = {
+    brand: "brand",
+    header_title: "hdr_txt",
+    bad_label: "gb_bad_lbl",
+    bad_example: "gb_bad_ex",
+    bad_insight: "gb_bad_ins",
+    good_label: "gb_good_lbl",
+    good_example: "gb_good_ex",
+    good_insight: "gb_good_ins",
+    bubble: "bbl_txt",
+  };
+  return { elements, slotMap };
+}
+
+function buildDataTable(): { elements: El[]; slotMap: Record<string, string> } {
+  const companies = [
+    { name: "[企業名1]", tag: "メーカー", v1: "[年収]", v2: "[残業時間]" },
+    { name: "[企業名2]", tag: "IT", v1: "[年収]", v2: "[残業時間]" },
+    { name: "[企業名3]", tag: "金融", v1: "[年収]", v2: "[残業時間]" },
+    { name: "[企業名4]", tag: "商社", v1: "[年収]", v2: "[残業時間]" },
+    { name: "[企業名5]", tag: "コンサル", v1: "[年収]", v2: "[残業時間]" },
+    { name: "[企業名6]", tag: "インフラ", v1: "[年収]", v2: "[残業時間]" },
+    { name: "[企業名7]", tag: "サービス", v1: "[年収]", v2: "[残業時間]" },
+  ];
+  const startY = 276;
+  const rowH = 80;
+
+  const elements: El[] = [
+    makeBrand("@account"),
+    makeCard(),
+    ...makeHeader("[データテーブルタイトル]", "1/1"),
+    // 列ヘッダー
+    {
+      id: "dt_col_name", type: "text",
+      x: 96, y: 236, width: 260, height: 32,
+      rotation: 0, zIndex: 3, opacity: 1,
+      text: "企業名", fontSize: 20, fontFamily: "Noto Sans JP", fontWeight: "bold" as const,
+      color: COLOR.gray[400], textAlign: "left" as const, lineHeight: 1.2,
+    },
+    {
+      id: "dt_col1", type: "text",
+      x: 488, y: 236, width: 200, height: 32,
+      rotation: 0, zIndex: 3, opacity: 1,
+      text: "平均年収", fontSize: 20, fontFamily: "Noto Sans JP", fontWeight: "bold" as const,
+      color: COLOR.gray[400], textAlign: "right" as const, lineHeight: 1.2,
+    },
+    {
+      id: "dt_col2", type: "text",
+      x: 712, y: 236, width: 240, height: 32,
+      rotation: 0, zIndex: 3, opacity: 1,
+      text: "平均残業", fontSize: 20, fontFamily: "Noto Sans JP", fontWeight: "bold" as const,
+      color: COLOR.gray[400], textAlign: "right" as const, lineHeight: 1.2,
+    },
+    // ヘッダー下の区切り線
+    {
+      id: "dt_hdiv", type: "shape",
+      x: 80, y: 270, width: 920, height: 2,
+      rotation: 0, zIndex: 2, opacity: 0.4,
+      shapeType: "rect" as const, backgroundColor: COLOR.teal,
+      borderColor: "transparent", borderWidth: 0, borderRadius: 0,
+    },
+  ];
+
+  for (let i = 0; i < companies.length; i++) {
+    const c = companies[i];
+    elements.push(...makeDataTableRow(
+      c.name, c.tag, getTagColor(c.tag), c.v1, c.v2,
+      startY + i * rowH, `dt${i + 1}`, i % 2 === 1,
+    ));
+  }
+
+  elements.push(...makeBubble("年収だけで判断しちゃダメだよ〜！💡"));
+
+  const slotMap: Record<string, string> = {
+    brand: "brand",
+    header_title: "hdr_txt",
+    header_page: "hdr_badge_txt",
+    col_1: "dt_col1",
+    col_2: "dt_col2",
+    bubble: "bbl_txt",
+  };
+  for (let i = 1; i <= 7; i++) {
+    slotMap[`row_${i}_name`] = `dt${i}_name`;
+    slotMap[`row_${i}_tag`] = `dt${i}_tag`;
+    slotMap[`row_${i}_v1`] = `dt${i}_v1`;
+    slotMap[`row_${i}_v2`] = `dt${i}_v2`;
+  }
+
+  return { elements, slotMap };
+}
+
+// =============================================
 // メインエクスポート
 // =============================================
 
@@ -696,6 +857,9 @@ const builders: Record<string, () => { elements: El[]; slotMap: Record<string, s
   "tab-checklist": buildTabChecklist,
   qa: buildQA,
   ranking: buildRanking,
+  "tagged-list": buildTaggedList,
+  "good-bad": buildGoodBad,
+  "data-table": buildDataTable,
 };
 
 /**

@@ -134,20 +134,31 @@ function injectViaSlotMap(
 
     case "comparison": {
       if (title && slotMap.title) setText(slotMap.title, title);
-      // lines: "左内容|右内容" or alternating left/right
+      // 1行目がヘッダー行（"✅成功|❌失敗" 等）かチェック
+      let dataLines = [...lines];
+      if (dataLines.length > 0 && dataLines[0].includes("|")) {
+        const [lh, rh] = dataLines[0].split("|").map((s) => s.trim());
+        const isHeader = /^[✅❌⭕🔴🟢🟡◯×☓○●▶►★☆🏢👤📊🎯💡🔥]/.test(lh) || (lh.length <= 8 && rh.length <= 8 && dataLines.length > 3);
+        if (isHeader) {
+          const lhSlot = slotMap.left_header || slotMap.left_label;
+          const rhSlot = slotMap.right_header || slotMap.right_label;
+          if (lhSlot) setText(lhSlot, lh);
+          if (rhSlot) setText(rhSlot, rh);
+          dataLines = dataLines.slice(1);
+        }
+      }
       const pairs: [string, string][] = [];
-      for (const line of lines) {
+      for (const line of dataLines) {
         if (line.includes("|")) {
           const [l, r] = line.split("|").map((s) => s.replace(/^[^:：]+[:：]\s*/, "").trim());
           pairs.push([l, r || ""]);
         }
       }
-      // If no pipe format, treat as alternating
       if (pairs.length === 0) {
-        for (let i = 0; i < lines.length; i += 2) {
+        for (let i = 0; i < dataLines.length; i += 2) {
           pairs.push([
-            lines[i]?.replace(/^[^:：]+[:：]\s*/, "").trim() || "",
-            lines[i + 1]?.replace(/^[^:：]+[:：]\s*/, "").trim() || "",
+            dataLines[i]?.replace(/^[^:：]+[:：]\s*/, "").trim() || "",
+            dataLines[i + 1]?.replace(/^[^:：]+[:：]\s*/, "").trim() || "",
           ]);
         }
       }
@@ -155,7 +166,6 @@ function injectViaSlotMap(
         if (slotMap[`row_${i + 1}_l`]) setText(slotMap[`row_${i + 1}_l`], pairs[i][0]);
         if (slotMap[`row_${i + 1}_r`]) setText(slotMap[`row_${i + 1}_r`], pairs[i][1]);
       }
-      // 未使用行をクリア（テキスト+区切り線+関連要素すべて）
       for (let i = pairs.length; i < 10; i++) {
         const lId = slotMap[`row_${i + 1}_l`];
         const rId = slotMap[`row_${i + 1}_r`];
@@ -241,6 +251,99 @@ function injectViaSlotMap(
       if (title && slotMap.heading) setText(slotMap.heading, title);
       if (lines[0] && slotMap.subtitle) setText(slotMap.subtitle, lines[0]);
       if (brandName && slotMap.account_name) setText(slotMap.account_name, brandName);
+      break;
+    }
+
+    case "tagged-list": {
+      if (title && slotMap.header_title) {
+        const hEl = findEl(slotMap.header_title);
+        if (hEl) {
+          hEl.text = title;
+          if (title.length > 16) {
+            hEl.fontSize = Math.max(24, Math.floor(808 / (title.length * 1.0)));
+          }
+        }
+      }
+      // lines: "タグ|テキスト" 形式
+      for (let i = 0; i < lines.length && i < 7; i++) {
+        const parts = lines[i].split("|").map((s) => s.trim());
+        const tag = parts[0] || "";
+        const text = parts[1] || parts[0] || "";
+        if (slotMap[`tag_${i + 1}`]) setText(slotMap[`tag_${i + 1}`], tag);
+        if (slotMap[`item_${i + 1}`]) setText(slotMap[`item_${i + 1}`], text);
+      }
+      // 未使用行を非表示
+      for (let i = lines.length; i < 7; i++) {
+        const txtId = slotMap[`item_${i + 1}`];
+        if (txtId) {
+          const prefix = txtId.replace(/_txt$/, "_");
+          hideByPrefix(prefix);
+        }
+      }
+      break;
+    }
+
+    case "good-bad": {
+      if (title && slotMap.header_title) {
+        const hEl = findEl(slotMap.header_title);
+        if (hEl) {
+          hEl.text = title;
+          if (title.length > 16) {
+            hEl.fontSize = Math.max(24, Math.floor(808 / (title.length * 1.0)));
+          }
+        }
+      }
+      // lines: ❌|label, 例: ..., → ..., ✅|label, 例: ..., → ...
+      let mode: "bad" | "good" | null = null;
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.startsWith("❌")) {
+          mode = "bad";
+          const label = trimmed.replace(/^❌\|?\s*/, "").trim();
+          if (label && slotMap.bad_label) setText(slotMap.bad_label, `❌ ${label}`);
+        } else if (trimmed.startsWith("✅")) {
+          mode = "good";
+          const label = trimmed.replace(/^✅\|?\s*/, "").trim();
+          if (label && slotMap.good_label) setText(slotMap.good_label, `✅ ${label}`);
+        } else if (trimmed.startsWith("例:") || trimmed.startsWith("例：")) {
+          const ex = trimmed.replace(/^例[:：]\s*/, "").trim();
+          if (mode === "bad" && slotMap.bad_example) setText(slotMap.bad_example, `（例）「${ex}」`);
+          if (mode === "good" && slotMap.good_example) setText(slotMap.good_example, `（例）「${ex}」`);
+        } else if (trimmed.startsWith("→")) {
+          const ins = trimmed.trim();
+          if (mode === "bad" && slotMap.bad_insight) setText(slotMap.bad_insight, ins);
+          if (mode === "good" && slotMap.good_insight) setText(slotMap.good_insight, ins);
+        }
+      }
+      break;
+    }
+
+    case "data-table": {
+      if (title && slotMap.header_title) {
+        const hEl = findEl(slotMap.header_title);
+        if (hEl) {
+          hEl.text = title;
+          if (title.length > 16) {
+            hEl.fontSize = Math.max(24, Math.floor(808 / (title.length * 1.0)));
+          }
+        }
+      }
+      // lines: "企業名|業種|年収|残業" 形式
+      for (let i = 0; i < lines.length && i < 7; i++) {
+        const parts = lines[i].split("|").map((s) => s.trim());
+        if (parts[0] && slotMap[`row_${i + 1}_name`]) setText(slotMap[`row_${i + 1}_name`], parts[0]);
+        if (parts[1] && slotMap[`row_${i + 1}_tag`]) setText(slotMap[`row_${i + 1}_tag`], parts[1]);
+        if (parts[2] && slotMap[`row_${i + 1}_v1`]) setText(slotMap[`row_${i + 1}_v1`], parts[2]);
+        if (parts[3] && slotMap[`row_${i + 1}_v2`]) setText(slotMap[`row_${i + 1}_v2`], parts[3]);
+      }
+      // 未使用行を非表示
+      for (let i = lines.length; i < 7; i++) {
+        const nameId = slotMap[`row_${i + 1}_name`];
+        if (nameId) {
+          const prefix = nameId.replace(/_name$/, "_");
+          hideByPrefix(prefix);
+        }
+      }
       break;
     }
   }

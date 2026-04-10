@@ -24,6 +24,7 @@ import {
   TYPO,
   COLOR,
 } from "@/lib/layout-rules";
+import { getBuiltinTemplate } from "@/lib/builtin-templates";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type El = any;
@@ -706,6 +707,9 @@ const SCENARIOS: Scenario[] = [
   { id: 17, name: "締切一覧 — 3/15-21 本選考締切",    slideType: "deadline",        elements: MOCK_DL_MAR },
   { id: 18, name: "Q&A — 最終面接の頻出質問",         slideType: "qa",             elements: MOCK_QA_FINAL },
   { id: 19, name: "ランキング — 東京勤務 高年収企業",   slideType: "ranking",         elements: MOCK_RANK_TOKYO },
+  { id: 20, name: "タグ付きリスト — メーカー30選",     slideType: "tagged-list",     elements: getBuiltinTemplate("tagged-list")?.elements || [] },
+  { id: 21, name: "良い例・悪い例 — 面接の話し方",     slideType: "good-bad",        elements: getBuiltinTemplate("good-bad")?.elements || [] },
+  { id: 22, name: "データテーブル — ホワイト企業年収",  slideType: "data-table",      elements: getBuiltinTemplate("data-table")?.elements || [] },
 ];
 
 const SCENARIO_TC_NIJI: Scenario = { id: 20, name: "タブ型 — 二次面接のポイント", slideType: "tab-checklist", elements: MOCK_TC_NIJI };
@@ -783,8 +787,7 @@ export async function POST(request: Request) {
       case "list": rawElements = MOCK_LIST_ELEMENTS; break;
       case "comparison": rawElements = MOCK_COMPARISON_ELEMENTS; break;
       case "checklist": rawElements = MOCK_CHECKLIST_ELEMENTS; break;
-      case "cta": rawElements = MOCK_CTA_ELEMENTS; break;
-      case "cta": rawElements = []; break;  // CTA画像は要素なし
+      case "cta": rawElements = MOCK_CTA1_ELEMENTS; break;
       case "company-card": rawElements = MOCK_COMPANY_CARD_ELEMENTS; break;
       case "deadline": rawElements = MOCK_DEADLINE_ELEMENTS; break;
       case "tab-checklist": rawElements = MOCK_TAB_CHECKLIST_ELEMENTS; break;
